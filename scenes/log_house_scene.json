@@ -1,0 +1,6873 @@
+{
+ "format": "geonodus.graph",
+ "version": 1,
+ "time": 0.0,
+ "timeline": {
+  "fps": 30,
+  "start": 0,
+  "end": 20
+ },
+ "nodes": [
+  {
+   "path": "/obj/ctrl",
+   "type": "null",
+   "spare": [
+    {
+     "name": "courses",
+     "type": "float",
+     "label": "Placed Half-Courses",
+     "size": 1,
+     "default": [
+      0
+     ],
+     "range": {
+      "min": 0,
+      "max": 24
+     }
+    },
+    {
+     "name": "drop",
+     "type": "float",
+     "label": "Next Log Drop",
+     "size": 1,
+     "default": [
+      0
+     ],
+     "range": {
+      "min": 0,
+      "max": 1
+     }
+    },
+    {
+     "name": "gable",
+     "type": "float",
+     "label": "Gables",
+     "size": 1,
+     "default": [
+      0
+     ],
+     "range": {
+      "min": 0,
+      "max": 1
+     }
+    },
+    {
+     "name": "roof",
+     "type": "float",
+     "label": "Roof",
+     "size": 1,
+     "default": [
+      0
+     ],
+     "range": {
+      "min": 0,
+      "max": 1
+     }
+    },
+    {
+     "name": "decor",
+     "type": "float",
+     "label": "Carvings",
+     "size": 1,
+     "default": [
+      0
+     ],
+     "range": {
+      "min": 0,
+      "max": 1
+     }
+    },
+    {
+     "name": "smoke",
+     "type": "float",
+     "label": "Smoke",
+     "size": 1,
+     "default": [
+      0
+     ],
+     "range": {
+      "min": 0,
+      "max": 1
+     }
+    },
+    {
+     "name": "shutters",
+     "type": "float",
+     "label": "Shutters Angle",
+     "size": 1,
+     "default": [
+      0
+     ],
+     "range": {
+      "min": 0,
+      "max": 180
+     }
+    },
+    {
+     "name": "door",
+     "type": "float",
+     "label": "Door Angle",
+     "size": 1,
+     "default": [
+      0
+     ],
+     "range": {
+      "min": 0,
+      "max": 90
+     }
+    },
+    {
+     "name": "fence",
+     "type": "float",
+     "label": "Fence",
+     "size": 1,
+     "default": [
+      0
+     ],
+     "range": {
+      "min": 0,
+      "max": 1
+     }
+    },
+    {
+     "name": "wind",
+     "type": "float",
+     "label": "Wind",
+     "size": 1,
+     "default": [
+      0
+     ],
+     "range": {
+      "min": -20,
+      "max": 20
+     }
+    }
+   ],
+   "parms": {
+    "courses": {
+     "expr": "min(24, 4 + rint(($T / 0.5) - 0.5))"
+    },
+    "drop": {
+     "expr": "$T / 0.5 - rint(($T / 0.5) - 0.5)"
+    },
+    "gable": {
+     "expr": "(min(max(($T - 10) / 2, 0), 1) * min(max(($T - 10) / 2, 0), 1) * (3 - 2 * min(max(($T - 10) / 2, 0), 1)))"
+    },
+    "roof": {
+     "expr": "(min(max(($T - 11) / 3.5, 0), 1) * min(max(($T - 11) / 3.5, 0), 1) * (3 - 2 * min(max(($T - 11) / 3.5, 0), 1)))"
+    },
+    "decor": {
+     "expr": "$T > 14.5"
+    },
+    "smoke": {
+     "expr": "(min(max(($T - 14.5) / 2, 0), 1) * min(max(($T - 14.5) / 2, 0), 1) * (3 - 2 * min(max(($T - 14.5) / 2, 0), 1)))"
+    },
+    "shutters": {
+     "expr": "165 * (min(max(($T - 15.5) / 1.5, 0), 1) * min(max(($T - 15.5) / 1.5, 0), 1) * (3 - 2 * min(max(($T - 15.5) / 1.5, 0), 1)))"
+    },
+    "door": {
+     "expr": "75 * (min(max(($T - 16) / 1.5, 0), 1) * min(max(($T - 16) / 1.5, 0), 1) * (3 - 2 * min(max(($T - 16) / 1.5, 0), 1))) - 45 * (min(max(($T - 18.5) / 1, 0), 1) * min(max(($T - 18.5) / 1, 0), 1) * (3 - 2 * min(max(($T - 18.5) / 1, 0), 1)))"
+    },
+    "fence": {
+     "expr": "0.02 + 0.98 * (min(max(($T - 1) / 12, 0), 1) * min(max(($T - 1) / 12, 0), 1) * (3 - 2 * min(max(($T - 1) / 12, 0), 1)))"
+    },
+    "wind": {
+     "expr": "6 * sin($T * 0.7) + 3 * sin($T * 1.9)"
+    }
+   }
+  },
+  {
+   "path": "/obj/ground",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/ground/grid",
+   "type": "grid",
+   "parms": {
+    "orient": "zx",
+    "size": [
+     70,
+     70
+    ],
+    "rows": 141,
+    "cols": 141,
+    "t": [
+     0,
+     -0.35,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/ground/yard",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "yard",
+    "grouptype": "point",
+    "groupbase": false,
+    "groupbounding": true,
+    "boundtype": "usebsphere",
+    "size": [
+     26,
+     4,
+     24
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/grid",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/hills",
+   "type": "mountain",
+   "parms": {
+    "group": "!yard",
+    "height": 3.5,
+    "elementsize": 14,
+    "basis": "perlin",
+    "fractal": "fBm",
+    "oct": 5
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/yard",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/grass_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.32,
+     0.5,
+     0.195,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/hills",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/grass",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9433497536945813,
+     0.9433497536945813,
+     0.9433497536945813,
+     0
+    ],
+    "max": [
+     1.0566502463054186,
+     1.0566502463054186,
+     1.0566502463054186,
+     1
+    ],
+    "seed": 3
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/grass_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/trodden",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "trodden",
+    "grouptype": "point",
+    "groupbase": false,
+    "groupbounding": true,
+    "boundtype": "usebsphere",
+    "size": [
+     11,
+     4,
+     10
+    ],
+    "t": [
+     0,
+     0,
+     0.8
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/grass",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/dirt_base",
+   "type": "attribcreate",
+   "parms": {
+    "group": "trodden",
+    "grouptype": "points",
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.435,
+     0.4,
+     0.27,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/trodden",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/dirt",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9615384615384616,
+     0.9615384615384616,
+     0.9615384615384616,
+     0
+    ],
+    "max": [
+     1.0384615384615385,
+     1.0384615384615385,
+     1.0384615384615385,
+     1
+    ],
+    "seed": 4,
+    "group": "trodden",
+    "grouptype": "points"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/dirt_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/ground_n",
+   "type": "normal",
+   "parms": {
+    "type": "typepoint"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/dirt",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/footing",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/footing/outer",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     25,
+     4,
+     21
+    ],
+    "size": [
+     6.5,
+     0.6179999999999999,
+     5.5
+    ],
+    "t": [
+     0,
+     -0.34099999999999997,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/footing/inner",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     5.5,
+     2,
+     4.5
+    ],
+    "t": [
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/footing/strip",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/footing/outer",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/footing/inner",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/footing/stones_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.51,
+     0.485,
+     0.455,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/footing/strip",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/footing/stones",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9137931034482759,
+     0.9137931034482759,
+     0.9137931034482759,
+     0
+    ],
+    "max": [
+     1.0862068965517242,
+     1.0862068965517242,
+     1.0862068965517242,
+     1
+    ],
+    "seed": 5
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/footing/stones_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/footing/footing_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 30
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/footing/stones",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/walls",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/walls/logx_sec",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "yz",
+    "rad": [
+     0.13,
+     0.13
+    ],
+    "divs": 20,
+    "t": [
+     -3.35,
+     0,
+     2.5
+    ]
+   }
+  },
+  {
+   "path": "/obj/walls/logx",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 6.7,
+    "outputback": true,
+    "outputfrontgrp": true,
+    "frontgrp": "endx",
+    "outputbackgrp": true,
+    "backgrp": "endx_b"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/logx_sec",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/logz_sec",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "xy",
+    "rad": [
+     0.13,
+     0.13
+    ],
+    "divs": 20,
+    "t": [
+     3.0,
+     0.11,
+     -2.85
+    ]
+   }
+  },
+  {
+   "path": "/obj/walls/logz",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 5.7,
+    "outputback": true,
+    "outputfrontgrp": true,
+    "frontgrp": "endz",
+    "outputbackgrp": true,
+    "backgrp": "endz_b"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/logz_sec",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/pairx",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 2,
+    "t": [
+     0,
+     0,
+     -5.0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/logx",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/barkx_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.49,
+     0.345,
+     0.21000000000000002,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/pairx",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/barkx",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9210526315789473,
+     0.9210526315789473,
+     0.9210526315789473,
+     0
+    ],
+    "max": [
+     1.0789473684210527,
+     1.0789473684210527,
+     1.0789473684210527,
+     1
+    ],
+    "seed": 7
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/barkx_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/endsx",
+   "type": "attribcreate",
+   "parms": {
+    "group": "endx endx_b",
+    "grouptype": "prims",
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.78,
+     0.62,
+     0.4,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/barkx",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/halfx",
+   "type": "clip",
+   "parms": {
+    "clipop": "above",
+    "origin": [
+     0,
+     0,
+     0
+    ],
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "dist": 0,
+    "dofill": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/pairx",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/halfcdx",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.8,
+     0.66,
+     0.45,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/halfx",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/pairz",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 2,
+    "t": [
+     -6.0,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/logz",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/barkz_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.49,
+     0.345,
+     0.21000000000000002,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/pairz",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/barkz",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9210526315789473,
+     0.9210526315789473,
+     0.9210526315789473,
+     0
+    ],
+    "max": [
+     1.0789473684210527,
+     1.0789473684210527,
+     1.0789473684210527,
+     1
+    ],
+    "seed": 8
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/barkz_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/endsz",
+   "type": "attribcreate",
+   "parms": {
+    "group": "endz endz_b",
+    "grouptype": "prims",
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.78,
+     0.62,
+     0.4,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/barkz",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/halfz",
+   "type": "clip",
+   "parms": {
+    "clipop": "above",
+    "origin": [
+     0,
+     0.11,
+     0
+    ],
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "dist": 0,
+    "dofill": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/pairz",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/halfcdz",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.8,
+     0.66,
+     0.45,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/halfz",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/win_pts",
+   "type": "add",
+   "parms": {
+    "points": 6,
+    "pt0": [
+     0.2,
+     1.32,
+     2.5
+    ],
+    "pt1": [
+     1.8,
+     1.32,
+     2.5
+    ],
+    "pt2": [
+     -1.3,
+     1.32,
+     -2.5
+    ],
+    "pt3": [
+     1.5,
+     1.32,
+     -2.5
+    ],
+    "pt4": [
+     3.0,
+     1.43,
+     0.0
+    ],
+    "pt5": [
+     -3.0,
+     1.43,
+     0.0
+    ]
+   }
+  },
+  {
+   "path": "/obj/walls/win_n0",
+   "type": "attribcreate",
+   "parms": {
+    "group": "0 1",
+    "grouptype": "points",
+    "name1": "N",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0,
+     0,
+     1,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/win_pts",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/win_n1",
+   "type": "attribcreate",
+   "parms": {
+    "group": "2 3",
+    "grouptype": "points",
+    "name1": "N",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0,
+     0,
+     -1,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/win_n0",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/win_n2",
+   "type": "attribcreate",
+   "parms": {
+    "group": "4",
+    "grouptype": "points",
+    "name1": "N",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     1,
+     0,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/win_n1",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/win_n3",
+   "type": "attribcreate",
+   "parms": {
+    "group": "5",
+    "grouptype": "points",
+    "name1": "N",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     -1,
+     0,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/win_n2",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/win_up",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "up",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0,
+     1,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/win_n3",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/win_box",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.75,
+     0.872,
+     0.8
+    ]
+   }
+  },
+  {
+   "path": "/obj/walls/win_cut",
+   "type": "copytopoints",
+   "parms": {
+    "pivot": "origin",
+    "useimplicitn": false
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/win_box",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/win_up",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/door_cut",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.9,
+     1.752,
+     0.8
+    ],
+    "t": [
+     -1.6,
+     1.1,
+     2.5
+    ]
+   }
+  },
+  {
+   "path": "/obj/walls/openings",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/win_cut",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/door_cut",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/fresh",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.86,
+     0.72,
+     0.5,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/openings",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/raw_xa",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "max(0, rint(((ch(\"/obj/ctrl/courses\") - 0 + 3) / 4) - 0.5))"
+    },
+    "t": [
+     0,
+     0.44,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/endsx",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/lift_xa",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0,
+     0.0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/raw_xa",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/hraw_xa",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "max(0, rint(((ch(\"/obj/ctrl/courses\") - 0 + 3) / 4) - 0.5))"
+    },
+    "t": [
+     0,
+     0.44,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/halfcdx",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/hlift_xa",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0,
+     -0.22,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/hraw_xa",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/raw_za",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "max(0, rint(((ch(\"/obj/ctrl/courses\") - 1 + 3) / 4) - 0.5))"
+    },
+    "t": [
+     0,
+     0.44,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/endsz",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/lift_za",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0,
+     0.0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/raw_za",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/hraw_za",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "max(0, rint(((ch(\"/obj/ctrl/courses\") - 1 + 3) / 4) - 0.5))"
+    },
+    "t": [
+     0,
+     0.44,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/halfcdz",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/hlift_za",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0,
+     -0.22,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/hraw_za",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/raw_xb",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "max(0, rint(((ch(\"/obj/ctrl/courses\") - 2 + 3) / 4) - 0.5))"
+    },
+    "t": [
+     0,
+     0.44,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/endsx",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/lift_xb",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0,
+     0.22,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/raw_xb",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/hraw_xb",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "max(0, rint(((ch(\"/obj/ctrl/courses\") - 2 + 3) / 4) - 0.5))"
+    },
+    "t": [
+     0,
+     0.44,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/halfcdx",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/hlift_xb",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0,
+     0.0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/hraw_xb",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/raw_zb",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "max(0, rint(((ch(\"/obj/ctrl/courses\") - 3 + 3) / 4) - 0.5))"
+    },
+    "t": [
+     0,
+     0.44,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/endsz",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/lift_zb",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0,
+     0.22,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/raw_zb",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/hraw_zb",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "max(0, rint(((ch(\"/obj/ctrl/courses\") - 3 + 3) / 4) - 0.5))"
+    },
+    "t": [
+     0,
+     0.44,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/halfcdz",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/hlift_zb",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0,
+     0.0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/hraw_zb",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/cups_xa",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/lift_xa",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/lift_za",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/groove_xa",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/cups_xa",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/hlift_xa",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/open_xa",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/groove_xa",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/fresh",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/cups_za",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/lift_za",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/lift_xb",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/groove_za",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/cups_za",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/hlift_za",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/open_za",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/groove_za",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/fresh",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/cups_xb",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/lift_xb",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/lift_zb",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/groove_xb",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/cups_xb",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/hlift_xb",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/open_xb",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/groove_xb",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/fresh",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/cups_zb",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/lift_zb",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/lift_xa",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/groove_zb",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/cups_zb",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/hlift_zb",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/open_zb",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/groove_zb",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/fresh",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/frame",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/open_xa",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/walls/open_za",
+     "output": 0
+    },
+    {
+     "input": 2,
+     "from": "/obj/walls/open_xb",
+     "output": 0
+    },
+    {
+     "input": 3,
+     "from": "/obj/walls/open_zb",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/walls_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 40
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/frame",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/crane",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/crane/logx_sec",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "yz",
+    "rad": [
+     0.13,
+     0.13
+    ],
+    "divs": 20,
+    "t": [
+     -3.35,
+     0,
+     2.5
+    ]
+   }
+  },
+  {
+   "path": "/obj/crane/logx",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 6.7,
+    "outputback": true,
+    "outputfrontgrp": true,
+    "frontgrp": "endx",
+    "outputbackgrp": true,
+    "backgrp": "endx_b"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/crane/logx_sec",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/crane/pairx",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "2 * (1 - (rint(ch(\"/obj/ctrl/courses\")) - 2 * rint((rint(ch(\"/obj/ctrl/courses\")) / 2) - 0.5))) * (rint(ch(\"/obj/ctrl/courses\")) < 24)"
+    },
+    "t": [
+     0,
+     0,
+     -5.0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/crane/logx",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/crane/logz_sec",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "xy",
+    "rad": [
+     0.13,
+     0.13
+    ],
+    "divs": 20,
+    "t": [
+     3.0,
+     0,
+     -2.85
+    ]
+   }
+  },
+  {
+   "path": "/obj/crane/logz",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 5.7,
+    "outputback": true,
+    "outputfrontgrp": true,
+    "frontgrp": "endz",
+    "outputbackgrp": true,
+    "backgrp": "endz_b"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/crane/logz_sec",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/crane/pairz",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "2 * (rint(ch(\"/obj/ctrl/courses\")) - 2 * rint((rint(ch(\"/obj/ctrl/courses\")) / 2) - 0.5)) * (rint(ch(\"/obj/ctrl/courses\")) < 24)"
+    },
+    "t": [
+     -6.0,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/crane/logz",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/crane/both",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/crane/pairx",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/crane/pairz",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/crane/bark_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.55,
+     0.405,
+     0.26,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/crane/both",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/crane/bark",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9444444444444444,
+     0.9444444444444444,
+     0.9444444444444444,
+     0
+    ],
+    "max": [
+     1.0555555555555556,
+     1.0555555555555556,
+     1.0555555555555556,
+     1
+    ],
+    "seed": 9
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/crane/bark_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/crane/ends",
+   "type": "attribcreate",
+   "parms": {
+    "group": "endx endx_b endz endz_b",
+    "grouptype": "prims",
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.8,
+     0.65,
+     0.42,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/crane/bark",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/crane/lower",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0,
+     {
+      "expr": "rint(ch(\"/obj/ctrl/courses\")) * 0.11 + 2.5 * (1 - ch(\"/obj/ctrl/drop\")) * (1 - ch(\"/obj/ctrl/drop\"))"
+     },
+     0
+    ],
+    "r": [
+     {
+      "expr": "3 * sin($T * 5) * (1 - ch(\"/obj/ctrl/drop\"))"
+     },
+     0,
+     {
+      "expr": "2 * cos($T * 4) * (1 - ch(\"/obj/ctrl/drop\"))"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/crane/ends",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/crane/crane_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 40
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/crane/lower",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/windows",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/windows/case_out",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.74,
+     0.87,
+     0.3
+    ]
+   }
+  },
+  {
+   "path": "/obj/windows/case_in",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.62,
+     0.75,
+     0.5
+    ]
+   }
+  },
+  {
+   "path": "/obj/windows/casing",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/case_out",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/windows/case_in",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/casing_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.72,
+     0.56,
+     0.36,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/casing",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/glass",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.62,
+     0.75,
+     0.01
+    ],
+    "t": [
+     0,
+     0,
+     0.02
+    ]
+   }
+  },
+  {
+   "path": "/obj/windows/glass_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     {
+      "expr": "0.16 + 0.1 * ch(\"/obj/ctrl/smoke\")"
+     },
+     {
+      "expr": "0.22 + 0.08 * ch(\"/obj/ctrl/smoke\")"
+     },
+     0.3,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/glass",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/mullion_v",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.04,
+     0.75,
+     0.04
+    ],
+    "t": [
+     0,
+     0,
+     0.03
+    ]
+   }
+  },
+  {
+   "path": "/obj/windows/mullion_h",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.62,
+     0.04,
+     0.04
+    ],
+    "t": [
+     0,
+     0.08,
+     0.03
+    ]
+   }
+  },
+  {
+   "path": "/obj/windows/mullions",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/mullion_v",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/windows/mullion_h",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/mullions_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.9,
+     0.88,
+     0.82,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/mullions",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/trim_out",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.99,
+     1.1,
+     0.035
+    ],
+    "t": [
+     0,
+     0,
+     0.14750000000000002
+    ]
+   }
+  },
+  {
+   "path": "/obj/windows/trim_in",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.74,
+     0.87,
+     0.4
+    ]
+   }
+  },
+  {
+   "path": "/obj/windows/trim",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/trim_out",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/windows/trim_in",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/crown_pts",
+   "type": "add",
+   "parms": {
+    "points": 11,
+    "prims": 1,
+    "prim0": "0 1 2 3 4 5 6 7 8 9 10",
+    "closed0": true,
+    "pt0": [
+     -0.56,
+     0.53,
+     0.165
+    ],
+    "pt1": [
+     0.56,
+     0.53,
+     0.165
+    ],
+    "pt2": [
+     0.54,
+     0.63,
+     0.165
+    ],
+    "pt3": [
+     0.4,
+     0.66,
+     0.165
+    ],
+    "pt4": [
+     0.28,
+     0.73,
+     0.165
+    ],
+    "pt5": [
+     0.14,
+     0.8300000000000001,
+     0.165
+    ],
+    "pt6": [
+     0,
+     0.93,
+     0.165
+    ],
+    "pt7": [
+     -0.14,
+     0.8300000000000001,
+     0.165
+    ],
+    "pt8": [
+     -0.28,
+     0.73,
+     0.165
+    ],
+    "pt9": [
+     -0.4,
+     0.66,
+     0.165
+    ],
+    "pt10": [
+     -0.54,
+     0.63,
+     0.165
+    ]
+   }
+  },
+  {
+   "path": "/obj/windows/crown_curve",
+   "type": "fit",
+   "parms": {
+    "method": "interp",
+    "type": "nurbs",
+    "scope": "local",
+    "corners": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/crown_pts",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/crown",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 0.035,
+    "outputback": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/crown_curve",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/sill",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     1.05,
+     0.05,
+     0.14
+    ],
+    "t": [
+     0,
+     -0.5700000000000001,
+     0.19
+    ]
+   }
+  },
+  {
+   "path": "/obj/windows/trims",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/trim",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/windows/crown",
+     "output": 0
+    },
+    {
+     "input": 2,
+     "from": "/obj/windows/sill",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/trims_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.92,
+     0.9,
+     0.84,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/trims",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/leaf",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     4,
+     2,
+     2
+    ],
+    "size": [
+     0.495,
+     1.06,
+     0.03
+    ],
+    "t": [
+     0.2475,
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/windows/heart",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.1,
+     0.1,
+     0.2
+    ],
+    "t": [
+     0.2475,
+     0.22,
+     0
+    ],
+    "r": [
+     0,
+     0,
+     45
+    ]
+   }
+  },
+  {
+   "path": "/obj/windows/leaf_cut",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/leaf",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/windows/heart",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/leaf_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.2,
+     0.36,
+     0.62,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/leaf_cut",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/left",
+   "type": "xform",
+   "parms": {
+    "t": [
+     -0.495,
+     0,
+     0.185
+    ],
+    "r": [
+     0,
+     {
+      "expr": "-ch(\"/obj/ctrl/shutters\")"
+     },
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/leaf_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/right",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0.495,
+     0,
+     0.185
+    ],
+    "r": [
+     0,
+     {
+      "expr": "180 + ch(\"/obj/ctrl/shutters\")"
+     },
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/leaf_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/assembly",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/casing_cd",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/windows/glass_cd",
+     "output": 0
+    },
+    {
+     "input": 2,
+     "from": "/obj/windows/mullions_cd",
+     "output": 0
+    },
+    {
+     "input": 3,
+     "from": "/obj/windows/trims_cd",
+     "output": 0
+    },
+    {
+     "input": 4,
+     "from": "/obj/windows/left",
+     "output": 0
+    },
+    {
+     "input": 5,
+     "from": "/obj/windows/right",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/win_pts",
+   "type": "add",
+   "parms": {
+    "points": 6,
+    "pt0": [
+     0.2,
+     1.32,
+     2.5
+    ],
+    "pt1": [
+     1.8,
+     1.32,
+     2.5
+    ],
+    "pt2": [
+     -1.3,
+     1.32,
+     -2.5
+    ],
+    "pt3": [
+     1.5,
+     1.32,
+     -2.5
+    ],
+    "pt4": [
+     3.0,
+     1.43,
+     0.0
+    ],
+    "pt5": [
+     -3.0,
+     1.43,
+     0.0
+    ]
+   }
+  },
+  {
+   "path": "/obj/windows/win_n0",
+   "type": "attribcreate",
+   "parms": {
+    "group": "0 1",
+    "grouptype": "points",
+    "name1": "N",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0,
+     0,
+     1,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/win_pts",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/win_n1",
+   "type": "attribcreate",
+   "parms": {
+    "group": "2 3",
+    "grouptype": "points",
+    "name1": "N",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0,
+     0,
+     -1,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/win_n0",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/win_n2",
+   "type": "attribcreate",
+   "parms": {
+    "group": "4",
+    "grouptype": "points",
+    "name1": "N",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     1,
+     0,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/win_n1",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/win_n3",
+   "type": "attribcreate",
+   "parms": {
+    "group": "5",
+    "grouptype": "points",
+    "name1": "N",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     -1,
+     0,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/win_n2",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/win_up",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "up",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0,
+     1,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/win_n3",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/ready",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "ch(\"/obj/ctrl/courses\") >= 19"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/assembly",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/place",
+   "type": "copytopoints",
+   "parms": {
+    "pivot": "origin",
+    "useimplicitn": false
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/ready",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/windows/win_up",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/windows/windows_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 30
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/windows/place",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/door",
+   "type": "geo",
+   "parms": {
+    "t": [
+     -1.6,
+     1.1,
+     2.5
+    ]
+   }
+  },
+  {
+   "path": "/obj/door/case_out",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.89,
+     1.75,
+     0.3
+    ]
+   }
+  },
+  {
+   "path": "/obj/door/case_in",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.77,
+     1.69,
+     0.5
+    ],
+    "t": [
+     0,
+     -0.06,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/door/casing",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/case_out",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/door/case_in",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/casing_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.72,
+     0.56,
+     0.36,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/casing",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/plank",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.12066666666666667,
+     1.66,
+     0.05
+    ],
+    "t": [
+     0.06333333333333334,
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/door/planks",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 6,
+    "t": [
+     0.12666666666666668,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/plank",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/batten",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.7,
+     0.1,
+     0.03
+    ],
+    "t": [
+     0.38,
+     0.55,
+     0.04
+    ]
+   }
+  },
+  {
+   "path": "/obj/door/battens",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 2,
+    "t": [
+     0,
+     -1.1,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/batten",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/brace",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     1.1981652640600127,
+     0.09,
+     0.03
+    ],
+    "t": [
+     0.38,
+     0,
+     0.04
+    ],
+    "r": [
+     0,
+     0,
+     56.5751888173962
+    ]
+   }
+  },
+  {
+   "path": "/obj/door/handle",
+   "type": "torus",
+   "parms": {
+    "orient": "x",
+    "rad": [
+     0.05,
+     0.012
+    ],
+    "rows": 6,
+    "cols": 12,
+    "t": [
+     0.66,
+     0,
+     0.06
+    ]
+   }
+  },
+  {
+   "path": "/obj/door/leaf",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/planks",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/door/battens",
+     "output": 0
+    },
+    {
+     "input": 2,
+     "from": "/obj/door/brace",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/leaf_cd_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.47,
+     0.33999999999999997,
+     0.23,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/leaf",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/leaf_cd",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9423076923076923,
+     0.9423076923076923,
+     0.9423076923076923,
+     0
+    ],
+    "max": [
+     1.0576923076923077,
+     1.0576923076923077,
+     1.0576923076923077,
+     1
+    ],
+    "seed": 12
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/leaf_cd_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/handle_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.15,
+     0.15,
+     0.15,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/handle",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/leaf_all",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/leaf_cd",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/door/handle_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/swing",
+   "type": "xform",
+   "parms": {
+    "t": [
+     -0.38,
+     -0.045,
+     0.1
+    ],
+    "r": [
+     0,
+     {
+      "expr": "-ch(\"/obj/ctrl/door\")"
+     },
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/leaf_all",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/deck",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     1.6,
+     0.08,
+     1.1
+    ],
+    "t": [
+     0,
+     -0.9500000000000002,
+     0.68
+    ]
+   }
+  },
+  {
+   "path": "/obj/door/step",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     1.2,
+     0.06,
+     0.3
+    ],
+    "t": [
+     0,
+     -1.12,
+     1.38
+    ]
+   }
+  },
+  {
+   "path": "/obj/door/steps",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 3,
+    "t": [
+     0,
+     -0.18,
+     0.28
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/step",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/post",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.1,
+     0.9,
+     0.1
+    ],
+    "t": [
+     0.72,
+     -1.4100000000000001,
+     1.15
+    ]
+   }
+  },
+  {
+   "path": "/obj/door/posts",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 2,
+    "t": [
+     -1.44,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/post",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/porch",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/deck",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/door/steps",
+     "output": 0
+    },
+    {
+     "input": 2,
+     "from": "/obj/door/posts",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/porch_cd_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.55,
+     0.42000000000000004,
+     0.275,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/porch",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/porch_cd",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9538152610441767,
+     0.9538152610441767,
+     0.9538152610441767,
+     0
+    ],
+    "max": [
+     1.0461847389558232,
+     1.0461847389558232,
+     1.0461847389558232,
+     1
+    ],
+    "seed": 13
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/porch_cd_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/floor",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     24,
+     2,
+     2
+    ],
+    "size": [
+     5.7,
+     0.05,
+     4.7
+    ],
+    "t": [
+     1.6,
+     -0.9400000000000002,
+     -2.5
+    ]
+   }
+  },
+  {
+   "path": "/obj/door/floor_cd_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.6000000000000001,
+     0.45999999999999996,
+     0.31000000000000005,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/floor",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/floor_cd",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9562043795620438,
+     0.9562043795620438,
+     0.9562043795620438,
+     0
+    ],
+    "max": [
+     1.0437956204379562,
+     1.0437956204379562,
+     1.0437956204379562,
+     1
+    ],
+    "seed": 14
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/floor_cd_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/doorway",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/casing_cd",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/door/swing",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/doorway_on",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "ch(\"/obj/ctrl/courses\") >= 19"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/doorway",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/porch_on",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "ch(\"/obj/ctrl/roof\") > 0.5"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/porch_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/all",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/doorway_on",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/door/porch_on",
+     "output": 0
+    },
+    {
+     "input": 2,
+     "from": "/obj/door/floor_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/door/door_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 30
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/door/all",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/gables",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/gables/board",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.05,
+     2.2008766163769535,
+     0.16
+    ],
+    "t": [
+     3.085,
+     3.630438308188477,
+     -2.7720000000000002
+    ]
+   }
+  },
+  {
+   "path": "/obj/gables/boards",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "rint(34 * ch(\"/obj/ctrl/gable\"))"
+    },
+    "t": [
+     0,
+     0,
+     0.168
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/board",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/boards_cd_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.55,
+     0.41000000000000003,
+     0.27,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/boards",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/boards_cd",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9512195121951219,
+     0.9512195121951219,
+     0.9512195121951219,
+     0
+    ],
+    "max": [
+     1.048780487804878,
+     1.048780487804878,
+     1.048780487804878,
+     1
+    ],
+    "seed": 15
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/boards_cd_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/wedge_box",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     7.8,
+     4.0,
+     4.0
+    ]
+   }
+  },
+  {
+   "path": "/obj/gables/wedge_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.62,
+     0.48,
+     0.32,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/wedge_box",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/wedge_rot",
+   "type": "xform",
+   "parms": {
+    "r": [
+     45,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/wedge_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/wedge_fit",
+   "type": "xform",
+   "parms": {
+    "s": [
+     1,
+     1,
+     1.2799416321930788
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/wedge_rot",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/wedge",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0,
+     1.8524494916307637,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/wedge_fit",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/shape",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "intersect"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/boards_cd",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/gables/wedge",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/attic_cut_sec",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "yz",
+    "rad": [
+     0.3,
+     0.3
+    ],
+    "divs": 28,
+    "t": [
+     2.785,
+     3.4449681788783204,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/gables/attic_cut",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 0.6,
+    "outputback": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/attic_cut_sec",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/attic_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.72,
+     0.56,
+     0.36,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/attic_cut",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/opening",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/shape",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/gables/attic_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/ring_curve",
+   "type": "circle",
+   "parms": {
+    "type": "nurbs",
+    "orient": "yz",
+    "rad": [
+     0.38,
+     0.38
+    ],
+    "t": [
+     3.11,
+     3.4449681788783204,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/gables/ring_flat",
+   "type": "polyextrude",
+   "parms": {
+    "inset": 0.09,
+    "outputfront": false
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/ring_curve",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/ring",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 0.05,
+    "outputback": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/ring_flat",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/ring_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.92,
+     0.9,
+     0.84,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/ring",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/pane",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "yz",
+    "rad": [
+     0.3,
+     0.3
+    ],
+    "divs": 28,
+    "t": [
+     3.065,
+     3.4449681788783204,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/gables/pane_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.16,
+     0.22,
+     0.3,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/pane",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/window",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/ring_cd",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/gables/pane_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/window_on",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "ch(\"/obj/ctrl/gable\") > 0.6"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/window",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/one",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/opening",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/gables/window_on",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/both",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 2,
+    "r": [
+     0,
+     180,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/one",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/gables/gables_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 30
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/gables/both",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/roof",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/roof/rafter",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.07,
+     0.14,
+     3.9654779239308002
+    ],
+    "t": [
+     -3.15,
+     -0.07,
+     2.0527389619654
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/rafters",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "7 * (ch(\"/obj/ctrl/gable\") > 0)"
+    },
+    "t": [
+     1.05,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/rafter",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/plank1",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.2,
+     0.03,
+     4.0454779239308
+    ],
+    "t": [
+     -3.485,
+     0.015,
+     2.0327389619654
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/layer1",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "rint(35 * ch(\"/obj/ctrl/roof\"))"
+    },
+    "t": [
+     0.205,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/plank1",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/plank2",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.2,
+     0.03,
+     4.0654779239308
+    ],
+    "t": [
+     -3.3825,
+     0.047,
+     2.0427389619654
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/layer2",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "max(0, rint(35 * ch(\"/obj/ctrl/roof\")) - 1)"
+    },
+    "t": [
+     0.205,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/plank2",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/tes",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/layer1",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/roof/layer2",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/tes_cd_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.485,
+     0.415,
+     0.33999999999999997,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/tes",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/tes_cd",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9354838709677419,
+     0.9354838709677419,
+     0.9354838709677419,
+     0
+    ],
+    "max": [
+     1.064516129032258,
+     1.064516129032258,
+     1.064516129032258,
+     1
+    ],
+    "seed": 16
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/tes_cd_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/rafters_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.55,
+     0.42,
+     0.28,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/rafters",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/slope",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/rafters_cd",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/roof/tes_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/tilt",
+   "type": "xform",
+   "parms": {
+    "r": [
+     38.0,
+     0,
+     0
+    ],
+    "t": [
+     0,
+     4.6808766163769535,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/slope",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/slopes",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 2,
+    "r": [
+     0,
+     180,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/tilt",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/flue_hole",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.68,
+     4,
+     0.68
+    ],
+    "t": [
+     0.5,
+     4.6808766163769535,
+     -1.0
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/hole_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.7,
+     0.55,
+     0.36,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/flue_hole",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/cover",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/slopes",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/roof/hole_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/ridge_log_sec",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "yz",
+    "rad": [
+     0.16,
+     0.16
+    ],
+    "divs": 24,
+    "t": [
+     -3.775,
+     4.8070177092813084,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/ridge_log",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 7.55,
+    "outputback": true,
+    "outputfrontgrp": true,
+    "frontgrp": "rend",
+    "outputbackgrp": true,
+    "backgrp": "rend_b"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/ridge_log_sec",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/ridge_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.5,
+     0.37,
+     0.24,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/ridge_log",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/wedge_box",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     7.8,
+     4.0,
+     4.0
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/wedge_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.66,
+     0.52,
+     0.34,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/wedge_box",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/wedge_rot",
+   "type": "xform",
+   "parms": {
+    "r": [
+     45,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/wedge_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/wedge_fit",
+   "type": "xform",
+   "parms": {
+    "s": [
+     1,
+     1,
+     1.2799416321930788
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/wedge_rot",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/wedge",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0,
+     1.9285905845351188,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/wedge_fit",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/ridge",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/ridge_cd",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/roof/wedge",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/ridge_on",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "ch(\"/obj/ctrl/roof\") > 0.999"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/ridge",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/barge",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.04,
+     0.36,
+     4.0454779239308
+    ],
+    "t": [
+     3.605,
+     -0.12,
+     2.0227389619654
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/scallop_sec",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "yz",
+    "rad": [
+     0.1,
+     0.1
+    ],
+    "divs": 16,
+    "t": [
+     3.455,
+     -0.3,
+     0.3
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/scallop",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 0.3,
+    "outputback": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/scallop_sec",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/scallops",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 14,
+    "t": [
+     0,
+     0,
+     0.27
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/scallop",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/drill_sec",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "yz",
+    "rad": [
+     0.035,
+     0.035
+    ],
+    "divs": 10,
+    "t": [
+     3.455,
+     -0.15,
+     0.435
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/drill",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 0.3,
+    "outputback": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/drill_sec",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/drills",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 13,
+    "t": [
+     0,
+     0,
+     0.27
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/drill",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/carving",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/scallops",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/roof/drills",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/barge_cut",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/barge",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/roof/carving",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/barge_tilt",
+   "type": "xform",
+   "parms": {
+    "r": [
+     38.0,
+     0,
+     0
+    ],
+    "t": [
+     0,
+     4.6808766163769535,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/barge_cut",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/barge_pair",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 2,
+    "r": [
+     0,
+     180,
+     0
+    ],
+    "p": [
+     3.605,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/barge_tilt",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/towel",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.04,
+     0.75,
+     0.26
+    ],
+    "t": [
+     3.605,
+     4.3058766163769535,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/towel_cut_sec",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "yz",
+    "rad": [
+     0.08,
+     0.08
+    ],
+    "divs": 16,
+    "t": [
+     3.455,
+     3.9308766163769535,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/towel_cut",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 0.3,
+    "outputback": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/towel_cut_sec",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/towel_drill_sec",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "yz",
+    "rad": [
+     0.035,
+     0.035
+    ],
+    "divs": 10,
+    "t": [
+     3.455,
+     4.130876616376954,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/towel_drill",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 0.3,
+    "outputback": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/towel_drill_sec",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/towel_tools",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/towel_cut",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/roof/towel_drill",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/towel_carved",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/towel",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/roof/towel_tools",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/horse_pts",
+   "type": "add",
+   "parms": {
+    "points": 15,
+    "prims": 1,
+    "prim0": "0 1 2 3 4 5 6 7 8 9 10 11 12 13 14",
+    "closed0": true,
+    "pt0": [
+     3.525,
+     4.8070177092813084,
+     0.06
+    ],
+    "pt1": [
+     3.8625,
+     4.8070177092813084,
+     0.06
+    ],
+    "pt2": [
+     3.9899999999999998,
+     4.942017709281308,
+     0.06
+    ],
+    "pt3": [
+     4.0649999999999995,
+     5.122017709281309,
+     0.06
+    ],
+    "pt4": [
+     4.185,
+     5.219517709281308,
+     0.06
+    ],
+    "pt5": [
+     4.29,
+     5.227017709281308,
+     0.06
+    ],
+    "pt6": [
+     4.3275,
+     5.3020177092813086,
+     0.06
+    ],
+    "pt7": [
+     4.2225,
+     5.3695177092813084,
+     0.06
+    ],
+    "pt8": [
+     4.1325,
+     5.452017709281309,
+     0.06
+    ],
+    "pt9": [
+     4.0875,
+     5.5345177092813085,
+     0.06
+    ],
+    "pt10": [
+     4.02,
+     5.444517709281309,
+     0.06
+    ],
+    "pt11": [
+     3.9,
+     5.399517709281309,
+     0.06
+    ],
+    "pt12": [
+     3.795,
+     5.227017709281308,
+     0.06
+    ],
+    "pt13": [
+     3.69,
+     5.032017709281308,
+     0.06
+    ],
+    "pt14": [
+     3.6,
+     4.897017709281308,
+     0.06
+    ]
+   }
+  },
+  {
+   "path": "/obj/roof/horse_curve",
+   "type": "fit",
+   "parms": {
+    "method": "interp",
+    "type": "nurbs",
+    "scope": "global"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/horse_pts",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/horse",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 0.12,
+    "outputback": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/horse_curve",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/decor_one",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/barge_pair",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/roof/towel_carved",
+     "output": 0
+    },
+    {
+     "input": 2,
+     "from": "/obj/roof/horse",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/decor_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.9,
+     0.87,
+     0.8,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/decor_one",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/decor_both",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "2 * ch(\"/obj/ctrl/decor\")"
+    },
+    "r": [
+     0,
+     180,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/decor_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/all",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/cover",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/roof/ridge_on",
+     "output": 0
+    },
+    {
+     "input": 2,
+     "from": "/obj/roof/decor_both",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/roof/roof_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 30
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/roof/all",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/chimney",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/chimney/stack",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     5,
+     30,
+     5
+    ],
+    "size": [
+     0.6,
+     {
+      "expr": "0.05 + 4.53088 * min(max(1.3 * ch(\"/obj/ctrl/roof\"), 0), 1)"
+     },
+     0.6
+    ],
+    "t": [
+     0.5,
+     {
+      "expr": "1 + 0.5 * ch(\"sizey\")"
+     },
+     -1.0
+    ]
+   }
+  },
+  {
+   "path": "/obj/chimney/flue",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.3,
+     10,
+     0.3
+    ],
+    "t": [
+     0.5,
+     5.580876616376954,
+     -1.0
+    ]
+   }
+  },
+  {
+   "path": "/obj/chimney/hollow",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/chimney/stack",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/chimney/flue",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/chimney/bricks_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.625,
+     0.27,
+     0.185,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/chimney/hollow",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/chimney/bricks",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9259259259259259,
+     0.9259259259259259,
+     0.9259259259259259,
+     0
+    ],
+    "max": [
+     1.074074074074074,
+     1.074074074074074,
+     1.074074074074074,
+     1
+    ],
+    "seed": 17
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/chimney/bricks_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/chimney/cap",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.72,
+     0.08,
+     0.72
+    ],
+    "t": [
+     0.5,
+     {
+      "expr": "ch(\"/obj/chimney/stack/ty\") + 0.04 + 0.5 * ch(\"/obj/chimney/stack/sizey\")"
+     },
+     -1.0
+    ]
+   }
+  },
+  {
+   "path": "/obj/chimney/cap_hole",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.3,
+     1,
+     0.3
+    ],
+    "t": [
+     0.5,
+     5.580876616376954,
+     -1.0
+    ]
+   }
+  },
+  {
+   "path": "/obj/chimney/cap_cut",
+   "type": "boolean",
+   "parms": {
+    "booleanop": "subtract"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/chimney/cap",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/chimney/cap_hole",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/chimney/cap_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.35,
+     0.33,
+     0.32,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/chimney/cap_cut",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/chimney/all",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/chimney/bricks",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/chimney/cap_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/chimney/chimney_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 30
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/chimney/all",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/smoke",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/smoke/path_pts",
+   "type": "add",
+   "parms": {
+    "points": 7,
+    "prims": 1,
+    "prim0": "0-6",
+    "closed0": false,
+    "pt0": [
+     {
+      "expr": "0.5"
+     },
+     5.580876616376954,
+     {
+      "expr": "-1 + 0.2 * cos($T * 0.8 + 0) * 0"
+     }
+    ],
+    "pt1": [
+     {
+      "expr": "0.5 + 0.012 * ch(\"/obj/ctrl/wind\") + 0.25 * sin($T * 1.3 + 0.9)"
+     },
+     6.330876616376954,
+     {
+      "expr": "-1 + 0.2 * cos($T * 0.8 + 0.7) * 1"
+     }
+    ],
+    "pt2": [
+     {
+      "expr": "0.5 + 0.0339411 * ch(\"/obj/ctrl/wind\") + 0.25 * sin($T * 1.3 + 1.8)"
+     },
+     7.080876616376954,
+     {
+      "expr": "-1 + 0.2 * cos($T * 0.8 + 1.4) * 1"
+     }
+    ],
+    "pt3": [
+     {
+      "expr": "0.5 + 0.0623538 * ch(\"/obj/ctrl/wind\") + 0.25 * sin($T * 1.3 + 2.7)"
+     },
+     7.830876616376954,
+     {
+      "expr": "-1 + 0.2 * cos($T * 0.8 + 2.1) * 1"
+     }
+    ],
+    "pt4": [
+     {
+      "expr": "0.5 + 0.096 * ch(\"/obj/ctrl/wind\") + 0.25 * sin($T * 1.3 + 3.6)"
+     },
+     8.580876616376955,
+     {
+      "expr": "-1 + 0.2 * cos($T * 0.8 + 2.8) * 1"
+     }
+    ],
+    "pt5": [
+     {
+      "expr": "0.5 + 0.134164 * ch(\"/obj/ctrl/wind\") + 0.25 * sin($T * 1.3 + 4.5)"
+     },
+     9.330876616376955,
+     {
+      "expr": "-1 + 0.2 * cos($T * 0.8 + 3.5) * 1"
+     }
+    ],
+    "pt6": [
+     {
+      "expr": "0.5 + 0.176363 * ch(\"/obj/ctrl/wind\") + 0.25 * sin($T * 1.3 + 5.4)"
+     },
+     10.080876616376955,
+     {
+      "expr": "-1 + 0.2 * cos($T * 0.8 + 4.2) * 1"
+     }
+    ]
+   }
+  },
+  {
+   "path": "/obj/smoke/path",
+   "type": "fit",
+   "parms": {
+    "method": "interp",
+    "type": "nurbs",
+    "scope": "global"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/smoke/path_pts",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/smoke/flow",
+   "type": "carve",
+   "parms": {
+    "arclen": true,
+    "firstu": true,
+    "domainu1": {
+     "expr": "0.12 * ($T * 0.9 - rint(($T * 0.9) - 0.5))"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/smoke/path",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/smoke/puffs_pts",
+   "type": "resample",
+   "parms": {
+    "length": 0.6,
+    "docurveuattr": true,
+    "curveuattr": "pscale"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/smoke/flow",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/smoke/puff_sizes",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "pscale",
+    "operation": "mult",
+    "dimensions": 1,
+    "min": [
+     0.55,
+     0,
+     0,
+     0
+    ],
+    "max": [
+     1.25,
+     1,
+     1,
+     1
+    ],
+    "seed": 25
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/smoke/puffs_pts",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/smoke/puff_jitter",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "P",
+    "operation": "add",
+    "min": [
+     -0.3,
+     -0.1,
+     -0.3,
+     0
+    ],
+    "max": [
+     0.3,
+     0.1,
+     0.3,
+     1
+    ],
+    "seed": 26
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/smoke/puff_sizes",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/smoke/puff",
+   "type": "sphere",
+   "parms": {
+    "type": "poly",
+    "freq": 3,
+    "rad": [
+     1.0,
+     0.85,
+     1.0
+    ]
+   }
+  },
+  {
+   "path": "/obj/smoke/billow",
+   "type": "mountain",
+   "parms": {
+    "height": 0.35,
+    "elementsize": 0.5,
+    "time": {
+     "expr": "$T * 0.6"
+    },
+    "basis": "simplex",
+    "fractal": "fBm",
+    "oct": 2
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/smoke/puff",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/smoke/amount",
+   "type": "xform",
+   "parms": {
+    "scale": {
+     "expr": "0.15 + 0.85 * ch(\"/obj/ctrl/smoke\")"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/smoke/billow",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/smoke/on",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "ch(\"/obj/ctrl/smoke\") > 0"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/smoke/amount",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/smoke/clouds",
+   "type": "copytopoints",
+   "parms": {
+    "pivot": "origin",
+    "useimplicitn": false
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/smoke/on",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/smoke/puff_jitter",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/smoke/grey",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.86,
+     0.86,
+     0.88,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/smoke/clouds",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/smoke/smoke_n",
+   "type": "normal",
+   "parms": {
+    "type": "typepoint"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/smoke/grey",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/fence",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/fence/plan",
+   "type": "add",
+   "parms": {
+    "points": 13,
+    "prims": 1,
+    "prim0": "0-12",
+    "closed0": false,
+    "pt0": [
+     1.1,
+     -0.35,
+     7.6
+    ],
+    "pt1": [
+     5.0,
+     -0.35,
+     7.3
+    ],
+    "pt2": [
+     8.6,
+     -0.35,
+     5.6
+    ],
+    "pt3": [
+     9.8,
+     -0.35,
+     1.0
+    ],
+    "pt4": [
+     9.0,
+     -0.35,
+     -4.6
+    ],
+    "pt5": [
+     5.2,
+     -0.35,
+     -7.7
+    ],
+    "pt6": [
+     0.0,
+     -0.35,
+     -8.5
+    ],
+    "pt7": [
+     -5.2,
+     -0.35,
+     -7.8
+    ],
+    "pt8": [
+     -9.0,
+     -0.35,
+     -4.7
+    ],
+    "pt9": [
+     -9.9,
+     -0.35,
+     0.9
+    ],
+    "pt10": [
+     -8.6,
+     -0.35,
+     5.5
+    ],
+    "pt11": [
+     -5.0,
+     -0.35,
+     7.4
+    ],
+    "pt12": [
+     -1.1,
+     -0.35,
+     7.6
+    ]
+   }
+  },
+  {
+   "path": "/obj/fence/line",
+   "type": "fit",
+   "parms": {
+    "method": "interp",
+    "type": "nurbs",
+    "scope": "global"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/plan",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/built",
+   "type": "carve",
+   "parms": {
+    "arclen": true,
+    "firstu": false,
+    "secondu": true,
+    "domainu2": {
+     "expr": "ch(\"/obj/ctrl/fence\")"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/line",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/picket_pts",
+   "type": "resample",
+   "parms": {
+    "length": 0.14
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/built",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/picket_frames",
+   "type": "orientalongcurve",
+   "parms": {
+    "upvectortype": "y"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/picket_pts",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/picket",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.025,
+     1.15,
+     0.1
+    ],
+    "t": [
+     0,
+     0.575,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/fence/picket_top",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "top",
+    "grouptype": "primitive",
+    "groupbase": false,
+    "groupnormal": true,
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "angle": 10
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/picket",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/picket_tip",
+   "type": "polyextrude",
+   "parms": {
+    "group": "top",
+    "dist": 0.07,
+    "xformfront": true,
+    "scale": [
+     0.05,
+     1,
+     0.05
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/picket_top",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/rail",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.04,
+     0.07,
+     0.15
+    ],
+    "t": [
+     -0.035,
+     0.3,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/fence/rails",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 2,
+    "t": [
+     0,
+     0.55,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/rail",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/unit",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/picket_tip",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/fence/rails",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/pickets",
+   "type": "copytopoints",
+   "parms": {
+    "pivot": "origin",
+    "useimplicitn": false
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/unit",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/fence/picket_frames",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/post_pts",
+   "type": "resample",
+   "parms": {
+    "length": 2.1
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/built",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/post",
+   "type": "box",
+   "parms": {
+    "divrate": [
+     2,
+     2,
+     2
+    ],
+    "size": [
+     0.12,
+     1.4,
+     0.12
+    ],
+    "t": [
+     -0.09,
+     0.6,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/fence/post_frames",
+   "type": "orientalongcurve",
+   "parms": {
+    "upvectortype": "y"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/post_pts",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/posts",
+   "type": "copytopoints",
+   "parms": {
+    "pivot": "origin",
+    "useimplicitn": false
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/post",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/fence/post_frames",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/wood",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/pickets",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/fence/posts",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/weathered_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.56,
+     0.5249999999999999,
+     0.47,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/wood",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/weathered",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9469453376205788,
+     0.9469453376205788,
+     0.9469453376205788,
+     0
+    ],
+    "max": [
+     1.0530546623794212,
+     1.0530546623794212,
+     1.0530546623794212,
+     1
+    ],
+    "seed": 18
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/weathered_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/fence/fence_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 30
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/fence/weathered",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/path",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/path/plan",
+   "type": "add",
+   "parms": {
+    "points": 6,
+    "prims": 1,
+    "prim0": "0-5",
+    "closed0": false,
+    "pt0": [
+     -1.6,
+     -0.35,
+     4.8
+    ],
+    "pt1": [
+     -1.2,
+     -0.35,
+     5.0
+    ],
+    "pt2": [
+     -0.4,
+     -0.35,
+     6.2
+    ],
+    "pt3": [
+     0.0,
+     -0.35,
+     7.6
+    ],
+    "pt4": [
+     0.3,
+     -0.35,
+     9.5
+    ],
+    "pt5": [
+     1.4,
+     -0.35,
+     12.0
+    ]
+   }
+  },
+  {
+   "path": "/obj/path/line",
+   "type": "fit",
+   "parms": {
+    "method": "interp",
+    "type": "nurbs",
+    "scope": "global"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/path/plan",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/path/stone_pts",
+   "type": "resample",
+   "parms": {
+    "length": 0.42
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/path/line",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/path/jitter",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "P",
+    "operation": "add",
+    "min": [
+     -0.12,
+     0,
+     -0.12,
+     0
+    ],
+    "max": [
+     0.12,
+     0.02,
+     0.12,
+     1
+    ],
+    "seed": 19
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/path/stone_pts",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/path/sizes",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "pscale",
+    "dimensions": 1,
+    "min": [
+     0.7,
+     0,
+     0,
+     0
+    ],
+    "max": [
+     1.2,
+     1,
+     1,
+     1
+    ],
+    "seed": 20
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/path/jitter",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/path/stone",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "zx",
+    "rad": [
+     0.2,
+     0.16
+    ],
+    "divs": 9
+   }
+  },
+  {
+   "path": "/obj/path/slab",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 0.06,
+    "outputback": true,
+    "inset": 0.02
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/path/stone",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/path/stones",
+   "type": "copytopoints",
+   "parms": {
+    "pivot": "origin",
+    "useimplicitn": false
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/path/slab",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/path/sizes",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/path/stone_cd_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.5800000000000001,
+     0.5700000000000001,
+     0.54,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/path/stones",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/path/stone_cd",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9378698224852071,
+     0.9378698224852071,
+     0.9378698224852071,
+     0
+    ],
+    "max": [
+     1.0621301775147929,
+     1.0621301775147929,
+     1.0621301775147929,
+     1
+    ],
+    "seed": 21
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/path/stone_cd_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/path/path_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 40
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/path/stone_cd",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/woodpile",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/woodpile/billet_sec",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "yz",
+    "rad": [
+     0.075,
+     0.075
+    ],
+    "divs": 9,
+    "t": [
+     -3.96,
+     -0.27499999999999997,
+     -1.6
+    ]
+   }
+  },
+  {
+   "path": "/obj/woodpile/billet",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 0.42,
+    "outputback": true,
+    "outputfrontgrp": true,
+    "frontgrp": "cut",
+    "outputbackgrp": true,
+    "backgrp": "cut_b"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/woodpile/billet_sec",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/woodpile/row",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 20,
+    "t": [
+     0,
+     0,
+     0.155
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/woodpile/billet",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/woodpile/rows",
+   "type": "copyxform",
+   "parms": {
+    "ncy": 5,
+    "t": [
+     0,
+     0.27,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/woodpile/row",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/woodpile/odd",
+   "type": "xform",
+   "parms": {
+    "t": [
+     0,
+     0.135,
+     0.0775
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/woodpile/rows",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/woodpile/pile",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/woodpile/rows",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/woodpile/odd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/woodpile/bark_base",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.425,
+     0.32,
+     0.22,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/woodpile/pile",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/woodpile/bark",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "operation": "mult",
+    "min": [
+     0.9093264248704663,
+     0.9093264248704663,
+     0.9093264248704663,
+     0
+    ],
+    "max": [
+     1.0906735751295338,
+     1.0906735751295338,
+     1.0906735751295338,
+     1
+    ],
+    "seed": 22
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/woodpile/bark_base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/woodpile/faces",
+   "type": "attribcreate",
+   "parms": {
+    "group": "cut cut_b",
+    "grouptype": "prims",
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.82,
+     0.68,
+     0.45,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/woodpile/bark",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/woodpile/woodpile_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 40
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/woodpile/faces",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/trees",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/trees/spots",
+   "type": "add",
+   "parms": {
+    "points": 10,
+    "pt0": [
+     -13,
+     -0.44999999999999996,
+     -6
+    ],
+    "pt1": [
+     -12,
+     -0.44999999999999996,
+     4
+    ],
+    "pt2": [
+     -8,
+     -0.44999999999999996,
+     12
+    ],
+    "pt3": [
+     12,
+     -0.44999999999999996,
+     -9
+    ],
+    "pt4": [
+     14,
+     -0.44999999999999996,
+     3
+    ],
+    "pt5": [
+     10,
+     -0.44999999999999996,
+     12
+    ],
+    "pt6": [
+     -3,
+     -0.44999999999999996,
+     -14
+    ],
+    "pt7": [
+     5,
+     -0.44999999999999996,
+     -15
+    ],
+    "pt8": [
+     -16,
+     -0.44999999999999996,
+     -1
+    ],
+    "pt9": [
+     17,
+     -0.44999999999999996,
+     -3
+    ]
+   }
+  },
+  {
+   "path": "/obj/trees/sizes",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "pscale",
+    "dimensions": 1,
+    "min": [
+     1.4,
+     0,
+     0,
+     0
+    ],
+    "max": [
+     2.3,
+     1,
+     1,
+     1
+    ],
+    "seed": 23
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/trees/spots",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/trees/hue",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "Cd",
+    "min": [
+     0.75,
+     0.85,
+     0.75,
+     0
+    ],
+    "max": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "seed": 24
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/trees/sizes",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/trees/trunk_geo_sec",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "xy",
+    "rad": [
+     0.12,
+     0.12
+    ],
+    "divs": 8,
+    "t": [
+     0,
+     0,
+     0.0
+    ]
+   }
+  },
+  {
+   "path": "/obj/trees/trunk_geo",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 1.0,
+    "outputback": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/trees/trunk_geo_sec",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/trees/trunk",
+   "type": "xform",
+   "parms": {
+    "r": [
+     -90,
+     0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/trees/trunk_geo",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/trees/trunk_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.35,
+     0.24,
+     0.16,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/trees/trunk",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/trees/base",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "zx",
+    "divs": 12,
+    "rad": [
+     1.1,
+     1.1
+    ],
+    "t": [
+     0,
+     0.8,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/trees/crown",
+   "type": "polyextrude",
+   "parms": {
+    "dist": 3.6,
+    "divs": 8,
+    "outputback": true,
+    "xformfront": true,
+    "scale": [
+     0.02,
+     0.02,
+     0.02
+    ],
+    "usethicknessramp": true,
+    "thicknessramp": 4,
+    "thicknessramp1pos": 0,
+    "thicknessramp1value": 1,
+    "thicknessramp2pos": 0.35,
+    "thicknessramp2value": 0.75,
+    "thicknessramp3pos": 0.7,
+    "thicknessramp3value": 0.45,
+    "thicknessramp4pos": 1,
+    "thicknessramp4value": 0.2
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/trees/base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/trees/needles",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.12,
+     0.33,
+     0.15,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/trees/crown",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/trees/tree",
+   "type": "merge",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/trees/trunk_cd",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/trees/needles",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/trees/sway",
+   "type": "bend",
+   "parms": {
+    "bend": {
+     "expr": "1.2 * ch(\"/obj/ctrl/wind\")"
+    },
+    "upvectorcontrol": "xaxis",
+    "origin": [
+     0,
+     0.5,
+     0
+    ],
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "length": 4
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/trees/tree",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/trees/forest",
+   "type": "copytopoints",
+   "parms": {
+    "pivot": "origin",
+    "useimplicitn": false,
+    "targetattribs": 1,
+    "applyto1": "prims",
+    "applymethod1": "mult",
+    "applyattribs1": "Cd"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/trees/sway",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/trees/hue",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/trees/trees_n",
+   "type": "normal",
+   "parms": {
+    "type": "typepoint"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/trees/forest",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  }
+ ]
+}

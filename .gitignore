@@ -1,0 +1,49 @@
+# Build output (CMake build trees of every demo: win/gl/build, win/vulkan/build, ...)
+build/
+out/
+cmake-build-*/
+CMakeUserPresets.json
+CMakeCache.txt
+CMakeFiles/
+
+# Compiler and linker output outside the build trees
+*.obj
+*.o
+*.pdb
+*.ilk
+*.exp
+*.idb
+*.ipdb
+*.iobj
+*.tlog
+*.exe
+
+# Intermediate SPIR-V headers of win/vulkan/shaders/compile_shaders.bat (only shaders_spv.h is kept)
+win/vulkan/shaders/mesh_vert.h
+win/vulkan/shaders/mesh_frag.h
+win/vulkan/shaders/background_vert.h
+win/vulkan/shaders/background_frag.h
+
+# IDE and editor files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.sln.docstates
+CMakeLists.txt.user*
+
+# Future platforms: Xcode (macos, ios), Android Studio / Gradle (android)
+xcuserdata/
+DerivedData/
+*.xcworkspace/xcuserdata/
+.gradle/
+.cxx/
+local.properties
+*.iml
+captures/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

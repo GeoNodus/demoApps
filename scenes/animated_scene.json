@@ -1,0 +1,1321 @@
+{
+ "format": "geonodus.graph",
+ "version": 1,
+ "time": 0.0,
+ "timeline": {
+  "fps": 30,
+  "start": 0,
+  "end": 12
+ },
+ "nodes": [
+  {
+   "path": "/obj/ctrl",
+   "type": "null",
+   "parms": {
+    "t": [
+     0.6,
+     {
+      "expr": "5 + 0.8 * sin($T * 0.4)"
+     },
+     0
+    ],
+    "r": [
+     0,
+     {
+      "expr": "$T * 15"
+     },
+     0
+    ],
+    "s": [
+     {
+      "expr": "1 + 0.35 * sin($T * 0.9)"
+     },
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "path": "/obj/sun",
+   "type": "geo",
+   "parms": {
+    "r": [
+     0,
+     {
+      "expr": "$T * 20"
+     },
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/sun/core",
+   "type": "sphere",
+   "parms": {
+    "type": "poly",
+    "freq": 4,
+    "rad": [
+     {
+      "expr": "1.2 + 0.15 * ch(\"/obj/ctrl/sx\") * sin($T * 4)"
+     },
+     {
+      "expr": "ch(\"radx\")"
+     },
+     {
+      "expr": "ch(\"radx\")"
+     }
+    ],
+    "t": [
+     0,
+     {
+      "expr": "3 + 0.5 * sin($T * 1.3)"
+     },
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/sun/flicker",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "Cd",
+    "min": [
+     1.0,
+     {
+      "expr": "0.35 + 0.1 * sin($T * 7)"
+     },
+     0.0,
+     0.0
+    ],
+    "max": [
+     1.0,
+     0.95,
+     0.25,
+     1.0
+    ],
+    "seed": {
+     "expr": "rint($F / 3)"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/sun/core",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/sun/sun_n",
+   "type": "normal",
+   "parms": {
+    "type": "typepoint"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/sun/flicker",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/planet",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/planet/body",
+   "type": "sphere",
+   "parms": {
+    "type": "polymesh",
+    "rows": 24,
+    "cols": 48,
+    "rad": [
+     {
+      "expr": "0.6 + 0.05 * sin($T * 2)"
+     },
+     {
+      "expr": "ch(\"radx\")"
+     },
+     {
+      "expr": "ch(\"radx\")"
+     }
+    ],
+    "t": [
+     {
+      "expr": "ch(\"/obj/sun/core/tx\") + ch(\"/obj/ctrl/ty\") * cos($T * ch(\"/obj/ctrl/tx\"))"
+     },
+     {
+      "expr": "ch(\"/obj/sun/core/ty\") + 0.4 * sin($T * ch(\"/obj/ctrl/tx\") * 2)"
+     },
+     {
+      "expr": "ch(\"/obj/sun/core/tz\") + ch(\"/obj/ctrl/ty\") * sin($T * ch(\"/obj/ctrl/tx\"))"
+     }
+    ],
+    "r": [
+     0,
+     {
+      "expr": "$T * 90"
+     },
+     {
+      "expr": "23"
+     }
+    ]
+   }
+  },
+  {
+   "path": "/obj/planet/ocean",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "vector",
+    "size1": 3,
+    "value1v": [
+     0.1,
+     {
+      "expr": "0.35 + 0.15 * sin($T)"
+     },
+     0.85,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/planet/body",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/moon",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/moon/moon_body",
+   "type": "sphere",
+   "parms": {
+    "type": "poly",
+    "freq": 2,
+    "rad": [
+     0.22,
+     {
+      "expr": "ch(\"radx\")"
+     },
+     {
+      "expr": "ch(\"radx\")"
+     }
+    ],
+    "t": [
+     {
+      "expr": "ch(\"/obj/planet/body/tx\") + 1.5 * cos($T * ch(\"/obj/ctrl/tx\") * 4)"
+     },
+     {
+      "expr": "ch(\"/obj/planet/body/ty\") + 0.4 * sin($T * ch(\"/obj/ctrl/tx\") * 4)"
+     },
+     {
+      "expr": "ch(\"/obj/planet/body/tz\") + 1.5 * sin($T * ch(\"/obj/ctrl/tx\") * 4)"
+     }
+    ]
+   }
+  },
+  {
+   "path": "/obj/moon/moon_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "vector",
+    "size1": 3,
+    "value1v": [
+     0.8,
+     0.8,
+     0.75,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/moon/moon_body",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/moon/moon_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 30
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/moon/moon_cd",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/planet/tide",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "tide",
+    "grouptype": "point",
+    "groupbase": false,
+    "groupbounding": true,
+    "boundtype": "usebsphere",
+    "size": [
+     {
+      "expr": "2.3 + 0.25 * sin($T * 3)"
+     },
+     {
+      "expr": "ch(\"sizex\")"
+     },
+     {
+      "expr": "ch(\"sizex\")"
+     }
+    ],
+    "t": [
+     {
+      "expr": "ch(\"/obj/moon/moon_body/tx\")"
+     },
+     {
+      "expr": "ch(\"/obj/moon/moon_body/ty\")"
+     },
+     {
+      "expr": "ch(\"/obj/moon/moon_body/tz\")"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/planet/ocean",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/planet/tide_cd",
+   "type": "attribcreate",
+   "parms": {
+    "group": "tide",
+    "grouptype": "points",
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "vector",
+    "size1": 3,
+    "value1v": [
+     0.95,
+     0.95,
+     1.0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/planet/tide",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/planet/planet_n",
+   "type": "normal",
+   "parms": {
+    "type": "typepoint"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/planet/tide_cd",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/rings",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/rings/ring",
+   "type": "torus",
+   "parms": {
+    "rad": [
+     {
+      "expr": "1.15 + 0.1 * sin($T * 2) + ch(\"/obj/planet/body/radx\")"
+     },
+     {
+      "expr": "0.05 + 0.02 * ch(\"/obj/ctrl/sx\")"
+     }
+    ],
+    "t": [
+     {
+      "expr": "ch(\"/obj/planet/body/tx\")"
+     },
+     {
+      "expr": "ch(\"/obj/planet/body/ty\")"
+     },
+     {
+      "expr": "ch(\"/obj/planet/body/tz\")"
+     }
+    ],
+    "r": [
+     {
+      "expr": "20 + 12 * sin($T * 0.8)"
+     },
+     {
+      "expr": "$T * 30"
+     },
+     0
+    ],
+    "rows": 6,
+    "cols": 72
+   }
+  },
+  {
+   "path": "/obj/rings/ring_cd",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "min": [
+     0.55,
+     0.5,
+     0.4,
+     0
+    ],
+    "max": [
+     0.9,
+     0.85,
+     0.7,
+     1
+    ],
+    "seed": 3
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/rings/ring",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/rings/ring_cut",
+   "type": "clip",
+   "parms": {
+    "clipop": "above",
+    "dirtype": "direction",
+    "origin": [
+     {
+      "expr": "ch(\"/obj/planet/body/tx\")"
+     },
+     {
+      "expr": "ch(\"/obj/planet/body/ty\")"
+     },
+     {
+      "expr": "ch(\"/obj/planet/body/tz\")"
+     }
+    ],
+    "dir": [
+     {
+      "expr": "cos($T * 1.5)"
+     },
+     0,
+     {
+      "expr": "sin($T * 1.5)"
+     }
+    ],
+    "dofill": false
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/rings/ring_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/rings/ring_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 45
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/rings/ring_cut",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/ground",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/ground/floor",
+   "type": "grid",
+   "parms": {
+    "orient": "zx",
+    "size": [
+     26,
+     26
+    ],
+    "rows": 61,
+    "cols": 61,
+    "t": [
+     0,
+     -2.5,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/ground/base_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "vector",
+    "size1": 3,
+    "value1v": [
+     0.18,
+     0.22,
+     0.2,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/floor",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/sun_spot",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "sun_spot",
+    "grouptype": "point",
+    "groupbase": false,
+    "groupbounding": true,
+    "boundtype": "usebsphere",
+    "size": [
+     {
+      "expr": "3 * ch(\"/obj/sun/core/radx\")"
+     },
+     {
+      "expr": "ch(\"sizex\")"
+     },
+     {
+      "expr": "ch(\"sizex\")"
+     }
+    ],
+    "t": [
+     {
+      "expr": "ch(\"/obj/sun/core/tx\")"
+     },
+     -2.5,
+     {
+      "expr": "ch(\"/obj/sun/core/tz\")"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/base_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/spot_cd",
+   "type": "attribcreate",
+   "parms": {
+    "group": "sun_spot",
+    "grouptype": "points",
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "vector",
+    "size1": 3,
+    "value1v": [
+     1.0,
+     {
+      "expr": "0.6 + 0.2 * sin($T * 4)"
+     },
+     0.25,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/sun_spot",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/shadow",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "shadow",
+    "grouptype": "point",
+    "groupbase": false,
+    "groupbounding": true,
+    "boundtype": "usebbox",
+    "size": [
+     {
+      "expr": "5 * ch(\"/obj/planet/body/radx\")"
+     },
+     1,
+     {
+      "expr": "ch(\"sizex\")"
+     }
+    ],
+    "t": [
+     {
+      "expr": "ch(\"/obj/planet/body/tx\")"
+     },
+     -2.5,
+     {
+      "expr": "ch(\"/obj/planet/body/tz\")"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/spot_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/shadow_cd",
+   "type": "attribcreate",
+   "parms": {
+    "group": "shadow",
+    "grouptype": "points",
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "vector",
+    "size1": 3,
+    "value1v": [
+     0.05,
+     0.05,
+     0.08,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/shadow",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/sparkle",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "sparkle",
+    "grouptype": "primitive",
+    "groupbase": false,
+    "grouprandom": true,
+    "globalseed": {
+     "expr": "rint($F / 6)"
+    },
+    "percent": {
+     "expr": "4 + 3 * sin($T * 2)"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/shadow_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/sparkle_cd",
+   "type": "attribcreate",
+   "parms": {
+    "group": "sparkle",
+    "grouptype": "prims",
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "vector",
+    "size1": 3,
+    "value1v": [
+     0.4,
+     0.9,
+     1.0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/sparkle",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/reveal",
+   "type": "clip",
+   "parms": {
+    "clipop": "below",
+    "dirtype": "direction",
+    "dir": [
+     1,
+     0,
+     0
+    ],
+    "dist": {
+     "expr": "-13 + 2.6 * $T"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/sparkle_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/ground/ground_n",
+   "type": "normal",
+   "parms": {
+    "type": "typepoint"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/ground/reveal",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/tower",
+   "type": "geo",
+   "parms": {
+    "t": [
+     -7,
+     0,
+     -6
+    ],
+    "r": [
+     0,
+     {
+      "expr": "$T * 25"
+     },
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/tower/block",
+   "type": "box",
+   "parms": {
+    "size": [
+     1.2,
+     {
+      "expr": "3 + 1.5 * ch(\"/obj/ctrl/sx\") * sin($T * 1.5)"
+     },
+     1.2
+    ],
+    "t": [
+     0,
+     {
+      "expr": "-2.5 + ch(\"sizey\") / 2"
+     },
+     0
+    ],
+    "divrate": [
+     3,
+     {
+      "expr": "rint(4 + ch(\"sizey\") * 2)"
+     },
+     3
+    ],
+    "r": [
+     0,
+     {
+      "expr": "10 * sin($T * 2)"
+     },
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/tower/top",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "top",
+    "grouptype": "primitive",
+    "groupbase": false,
+    "groupnormal": true,
+    "dir": [
+     {
+      "expr": "0.5 * sin($T)"
+     },
+     1,
+     {
+      "expr": "0.5 * cos($T)"
+     }
+    ],
+    "angle": 35
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/tower/block",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/tower/body_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "vector",
+    "size1": 3,
+    "value1v": [
+     0.35,
+     0.35,
+     0.45,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/tower/top",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/tower/top_cd",
+   "type": "attribcreate",
+   "parms": {
+    "group": "top",
+    "grouptype": "prims",
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "vector",
+    "size1": 3,
+    "value1v": [
+     1.0,
+     {
+      "expr": "0.2 + 0.2 * sin($T * 5)"
+     },
+     0.2,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/tower/body_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/tower/jitter",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "P",
+    "operation": "add",
+    "min": [
+     {
+      "expr": "-0.04 * ch(\"/obj/ctrl/sx\")"
+     },
+     -0.02,
+     {
+      "expr": "ch(\"minx\")"
+     },
+     0
+    ],
+    "max": [
+     {
+      "expr": "0.04 * ch(\"/obj/ctrl/sx\")"
+     },
+     0.02,
+     {
+      "expr": "ch(\"maxx\")"
+     },
+     1
+    ],
+    "seed": {
+     "expr": "rint($F / 2)"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/tower/top_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/tower/tower_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 30,
+    "method": "area"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/tower/jitter",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/bubble",
+   "type": "geo",
+   "parms": {
+    "t": [
+     7,
+     0,
+     -6
+    ]
+   }
+  },
+  {
+   "path": "/obj/bubble/membrane",
+   "type": "grid",
+   "parms": {
+    "orient": "xy",
+    "size": [
+     {
+      "expr": "2 + 1.2 * sin($T * 1.1)"
+     },
+     {
+      "expr": "1.5 + 0.8 * cos($T * 0.7)"
+     }
+    ],
+    "rows": {
+     "expr": "rint(5 + 3 * (1 + sin($T)))"
+    },
+    "cols": 6,
+    "r": [
+     {
+      "expr": "$T * 40"
+     },
+     {
+      "expr": "$T * 25"
+     },
+     0
+    ],
+    "t": [
+     0,
+     {
+      "expr": "0.5 * sin($T * 2)"
+     },
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/bubble/membrane_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "vector",
+    "size1": 3,
+    "value1v": [
+     1.0,
+     0.4,
+     0.7,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/bubble/membrane",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/bubble/shell",
+   "type": "sphere",
+   "parms": {
+    "type": "polymesh",
+    "rows": 18,
+    "cols": 36,
+    "surftype": "triangles"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/bubble/membrane_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/bubble/shell_cut",
+   "type": "clip",
+   "parms": {
+    "clipop": "below",
+    "dirtype": "direction",
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "dist": {
+     "expr": "0.6 * sin($T * 1.7)"
+    },
+    "dofill": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/bubble/shell",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/bubble/shell_cd",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "min": [
+     0.2,
+     0.6,
+     0.9,
+     0
+    ],
+    "max": [
+     0.4,
+     0.9,
+     1.0,
+     1
+    ],
+    "seed": {
+     "expr": "rint($F / 10)"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/bubble/shell_cut",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/bubble/bubble_n",
+   "type": "normal",
+   "parms": {
+    "type": "typepoint"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/bubble/shell_cd",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/artifact",
+   "type": "geo",
+   "parms": {
+    "t": [
+     {
+      "expr": "ch(\"/obj/planet/body/tx\") + 2.2 * cos($T * 2)"
+     },
+     {
+      "expr": "ch(\"/obj/planet/body/ty\") + 1.2"
+     },
+     {
+      "expr": "ch(\"/obj/planet/body/tz\") + 2.2 * sin($T * 2)"
+     }
+    ],
+    "r": [
+     {
+      "expr": "$T * 50"
+     },
+     {
+      "expr": "$T * 70"
+     },
+     0
+    ],
+    "s": [
+     {
+      "expr": "0.45 + 0.15 * ch(\"/obj/ctrl/sx\") * sin($T * 3)"
+     },
+     {
+      "expr": "ch(\"sx\")"
+     },
+     {
+      "expr": "ch(\"sx\")"
+     }
+    ]
+   }
+  },
+  {
+   "path": "/obj/artifact/crystal",
+   "type": "file",
+   "parms": {
+    "file": "assets/crystal.obj"
+   }
+  },
+  {
+   "path": "/obj/artifact/facets",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "min": [
+     0.3,
+     0.9,
+     0.5,
+     0
+    ],
+    "max": [
+     0.6,
+     1.0,
+     0.9,
+     1
+    ],
+    "seed": 7
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/artifact/crystal",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/artifact/facet_n",
+   "type": "normal",
+   "parms": {
+    "type": "typeprim"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/artifact/facets",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/artifact/out",
+   "type": "null",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/artifact/facet_n",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/orbit",
+   "type": "geo",
+   "parms": {
+    "t": [
+     0,
+     0.5,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/orbit/ellipse",
+   "type": "circle",
+   "parms": {
+    "type": "nurbs",
+    "imperfect": false,
+    "orient": "zx",
+    "rad": [
+     {
+      "expr": "11 + 0.8 * sin($T * 0.5)"
+     },
+     8
+    ]
+   },
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/comet",
+   "type": "geo",
+   "parms": {
+    "t": [
+     0,
+     0.5,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/comet/tail_pts",
+   "type": "add",
+   "parms": {
+    "points": 6,
+    "prims": 1,
+    "prim0": "0 1 2 3 4 5",
+    "closed0": false,
+    "pt0": [
+     {
+      "expr": "ch(\"/obj/orbit/ellipse/radx\") * cos($T * 0.5 - 0)"
+     },
+     {
+      "expr": "0.15 * 0 * sin($T * 3)"
+     },
+     {
+      "expr": "8 * sin($T * 0.5 - 0)"
+     }
+    ],
+    "pt1": [
+     {
+      "expr": "ch(\"/obj/orbit/ellipse/radx\") * cos($T * 0.5 - 0.12)"
+     },
+     {
+      "expr": "0.15 * 1 * sin($T * 3)"
+     },
+     {
+      "expr": "8 * sin($T * 0.5 - 0.12)"
+     }
+    ],
+    "pt2": [
+     {
+      "expr": "ch(\"/obj/orbit/ellipse/radx\") * cos($T * 0.5 - 0.24)"
+     },
+     {
+      "expr": "0.15 * 2 * sin($T * 3)"
+     },
+     {
+      "expr": "8 * sin($T * 0.5 - 0.24)"
+     }
+    ],
+    "pt3": [
+     {
+      "expr": "ch(\"/obj/orbit/ellipse/radx\") * cos($T * 0.5 - 0.36)"
+     },
+     {
+      "expr": "0.15 * 3 * sin($T * 3)"
+     },
+     {
+      "expr": "8 * sin($T * 0.5 - 0.36)"
+     }
+    ],
+    "pt4": [
+     {
+      "expr": "ch(\"/obj/orbit/ellipse/radx\") * cos($T * 0.5 - 0.48)"
+     },
+     {
+      "expr": "0.15 * 4 * sin($T * 3)"
+     },
+     {
+      "expr": "8 * sin($T * 0.5 - 0.48)"
+     }
+    ],
+    "pt5": [
+     {
+      "expr": "ch(\"/obj/orbit/ellipse/radx\") * cos($T * 0.5 - 0.6)"
+     },
+     {
+      "expr": "0.15 * 5 * sin($T * 3)"
+     },
+     {
+      "expr": "8 * sin($T * 0.5 - 0.6)"
+     }
+    ]
+   }
+  },
+  {
+   "path": "/obj/comet/tail",
+   "type": "fit",
+   "parms": {
+    "method": "interp",
+    "type": "bezier",
+    "scope": "local"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/comet/tail_pts",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  }
+ ]
+}

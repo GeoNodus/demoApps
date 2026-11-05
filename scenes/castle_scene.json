@@ -1,0 +1,2862 @@
+{
+ "format": "geonodus.graph",
+ "version": 1,
+ "time": 0.0,
+ "timeline": {
+  "fps": 30,
+  "start": 0,
+  "end": 16
+ },
+ "nodes": [
+  {
+   "path": "/obj/ctrl",
+   "type": "null",
+   "parms": {
+    "t": [
+     {
+      "expr": "min(max($T / 6, 0), 1)"
+     },
+     {
+      "expr": "ch(\"tx\") * ch(\"tx\") * (3 - 2 * ch(\"tx\"))"
+     },
+     {
+      "expr": "10 + 3 * (min(max(($T - 8) / 4, 0), 1) * min(max(($T - 8) / 4, 0), 1) * (3 - 2 * min(max(($T - 8) / 4, 0), 1)))"
+     }
+    ],
+    "r": [
+     {
+      "expr": "5 + ($T > 6) + 2 * ($T > 11)"
+     },
+     {
+      "expr": "(2.5 + 5 * ch(\"ty\")) * (1 + 0.08 * sin($T * 0.9))"
+     },
+     {
+      "expr": "(10 * sin($T * 1.3) + 5 * sin($T * 3.7)) * ch(\"scale\")"
+     }
+    ],
+    "s": [
+     {
+      "expr": "0.05 + 0.05 * ch(\"ty\")"
+     },
+     {
+      "expr": "rint(2 + 4 * ch(\"ty\")) + 2 * ($T > 12)"
+     },
+     {
+      "expr": "10 + 4 * ($T > 8)"
+     }
+    ],
+    "p": [
+     {
+      "expr": "0.5 + 0.5 * sin($T * 0.4 - 1.5)"
+     },
+     {
+      "expr": "rint(40 + 560 * (min(max(($T - 2) / 12, 0), 1) * min(max(($T - 2) / 12, 0), 1) * (3 - 2 * min(max(($T - 2) / 12, 0), 1))))"
+     },
+     {
+      "expr": "$T * 0.04"
+     }
+    ],
+    "scale": {
+     "expr": "1 + 0.3 * sin($T * 0.5)"
+    }
+   }
+  },
+  {
+   "path": "/obj/terrain",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/terrain/ground",
+   "type": "grid",
+   "parms": {
+    "orient": "zx",
+    "size": [
+     120,
+     120
+    ],
+    "rows": 301,
+    "cols": 301
+   }
+  },
+  {
+   "path": "/obj/terrain/plateau",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "plateau",
+    "grouptype": "point",
+    "groupbase": false,
+    "groupbounding": true,
+    "boundtype": "usebsphere",
+    "size": [
+     {
+      "expr": "2 * (ch(\"/obj/ctrl/tz\") + 6.5)"
+     },
+     40,
+     {
+      "expr": "ch(\"sizex\")"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/terrain/ground",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/terrain/hills",
+   "type": "mountain",
+   "parms": {
+    "group": "!plateau",
+    "height": {
+     "expr": "14 * (0.6 + 0.4 * ch(\"/obj/ctrl/ty\"))"
+    },
+    "elementsize": 22,
+    "time": {
+     "expr": "ch(\"/obj/ctrl/pz\")"
+    },
+    "basis": "perlin",
+    "fractal": "fBm",
+    "oct": 8
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/terrain/plateau",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/terrain/grass",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     {
+      "expr": "0.22 + 0.33 * ch(\"/obj/ctrl/px\")"
+     },
+     {
+      "expr": "0.45 - 0.08 * ch(\"/obj/ctrl/px\")"
+     },
+     {
+      "expr": "0.16 - 0.06 * ch(\"/obj/ctrl/px\")"
+     },
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/terrain/hills",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/terrain/yard",
+   "type": "attribcreate",
+   "parms": {
+    "group": "plateau",
+    "grouptype": "points",
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.45,
+     0.4,
+     0.33,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/terrain/grass",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/terrain/terrain_n",
+   "type": "normal",
+   "parms": {
+    "type": "typepoint"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/terrain/yard",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/moat",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/moat/water",
+   "type": "torus",
+   "parms": {
+    "rad": [
+     {
+      "expr": "ch(\"/obj/ctrl/tz\") + 3.5"
+     },
+     1.6
+    ],
+    "rows": 8,
+    "cols": 160
+   }
+  },
+  {
+   "path": "/obj/moat/waves",
+   "type": "mountain",
+   "parms": {
+    "height": 0.25,
+    "elementsize": 1.5,
+    "time": {
+     "expr": "$T * 0.7"
+    },
+    "basis": "simplex",
+    "fractal": "none"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/moat/water",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/moat/flatten",
+   "type": "xform",
+   "parms": {
+    "s": [
+     1,
+     0.15,
+     1
+    ],
+    "t": [
+     0,
+     -0.1,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/moat/waves",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/moat/water_cd",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.12,
+     0.3,
+     {
+      "expr": "0.5 + 0.1 * sin($T)"
+     },
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/moat/flatten",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/moat/water_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 60
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/moat/water_cd",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/walls",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/walls/outline",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "zx",
+    "rad": [
+     {
+      "expr": "ch(\"/obj/ctrl/tz\")"
+     },
+     {
+      "expr": "ch(\"radx\")"
+     }
+    ],
+    "divs": {
+     "expr": "rint(ch(\"/obj/ctrl/rx\") * ch(\"/obj/ctrl/sz\"))"
+    }
+   }
+  },
+  {
+   "path": "/obj/walls/ring",
+   "type": "polyextrude",
+   "parms": {
+    "inset": {
+     "expr": "1.1 + 0.2 * ch(\"/obj/ctrl/ty\")"
+    },
+    "outputfront": false
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/outline",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/rise",
+   "type": "polyextrude",
+   "parms": {
+    "dist": {
+     "expr": "1.5 + 3 * ch(\"/obj/ctrl/ty\")"
+    },
+    "divs": 3,
+    "outputfrontgrp": true,
+    "frontgrp": "walltop",
+    "outputback": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/ring",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/crenel_sel",
+   "type": "grouprange",
+   "parms": {
+    "groupname1": "merlons",
+    "group1": "walltop",
+    "grouptype1": "prims",
+    "selectamount1": 1,
+    "selecttotal1": 2,
+    "selectoffset1": {
+     "expr": "rint($T > 14)"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/rise",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/merlons",
+   "type": "polyextrude",
+   "parms": {
+    "group": "merlons",
+    "splittype": "elements",
+    "dist": {
+     "expr": "0.5 + 0.3 * ch(\"/obj/ctrl/ty\")"
+    },
+    "inset": 0.06
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/crenel_sel",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/merlon_bevel",
+   "type": "polybevel",
+   "parms": {
+    "group": "merlons",
+    "grouptype": "prims",
+    "offset": {
+     "expr": "ch(\"/obj/ctrl/sx\")"
+    },
+    "divisions": 2
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/merlons",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/construct",
+   "type": "clip",
+   "parms": {
+    "clipop": "below",
+    "dirtype": "direction",
+    "dir": [
+     {
+      "expr": "0.35 * cos($T * 1.1)"
+     },
+     1,
+     {
+      "expr": "0.35 * sin($T * 1.1)"
+     }
+    ],
+    "dist": {
+     "expr": "-0.6 + (ch(\"/obj/walls/rise/dist\") + 6) * ch(\"/obj/ctrl/tx\")"
+    },
+    "dofill": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/merlon_bevel",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/stone",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "min": [
+     0.5,
+     0.48,
+     0.43,
+     0
+    ],
+    "max": [
+     0.58,
+     0.55,
+     0.49,
+     1
+    ],
+    "seed": 11
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/construct",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/walls/wall_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 40
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/walls/stone",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/towers",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/towers/base",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "zx",
+    "rad": [
+     {
+      "expr": "1.3 + 0.3 * ch(\"/obj/ctrl/ty\")"
+     },
+     {
+      "expr": "ch(\"radx\")"
+     }
+    ],
+    "divs": {
+     "expr": "16 + 8 * ($T > 6)"
+    }
+   }
+  },
+  {
+   "path": "/obj/towers/body",
+   "type": "polyextrude",
+   "parms": {
+    "dist": {
+     "expr": "ch(\"/obj/ctrl/ry\")"
+    },
+    "divs": {
+     "expr": "rint(1 + 1.5 * ch(\"/obj/ctrl/ry\"))"
+    },
+    "outputfrontgrp": true,
+    "frontgrp": "top",
+    "outputsidegrp": true,
+    "sidegrp": "wall"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/towers/base",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/towers/overhang",
+   "type": "polyextrude",
+   "parms": {
+    "group": "top",
+    "dist": 0.45,
+    "inset": {
+     "expr": "-0.35 - 0.1 * ch(\"/obj/ctrl/ty\")"
+    },
+    "outputfrontgrp": true,
+    "frontgrp": "top"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/towers/body",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/towers/spire",
+   "type": "polyextrude",
+   "parms": {
+    "group": "top",
+    "dist": {
+     "expr": "1.5 + 2.5 * ch(\"/obj/ctrl/ty\")"
+    },
+    "divs": 6,
+    "twist": {
+     "expr": "40 * sin($T * 0.8)"
+    },
+    "xformfront": true,
+    "scale": [
+     0.04,
+     0.04,
+     0.04
+    ],
+    "outputsidegrp": true,
+    "sidegrp": "roof"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/towers/overhang",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/towers/sharp",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "sharp",
+    "grouptype": "edge",
+    "groupbase": false,
+    "groupedges": true,
+    "dominedgeangle": true,
+    "minedgeangle": 50
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/towers/spire",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/towers/tower_bevel",
+   "type": "polybevel",
+   "parms": {
+    "group": "sharp",
+    "grouptype": "edges",
+    "offset": {
+     "expr": "0.6 * ch(\"/obj/ctrl/sx\")"
+    },
+    "divisions": 2
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/towers/sharp",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/towers/stone",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.62,
+     0.6,
+     0.55,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/towers/tower_bevel",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/towers/roof_cd",
+   "type": "attribcreate",
+   "parms": {
+    "group": "roof",
+    "grouptype": "prims",
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.75,
+     0.2,
+     0.15,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/towers/stone",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/towers/lean",
+   "type": "bend",
+   "parms": {
+    "bend": {
+     "expr": "0.6 * ch(\"/obj/ctrl/rz\")"
+    },
+    "enabletwist": true,
+    "twist": {
+     "expr": "15 * sin($T * 0.7) * (1 - ch(\"/obj/ctrl/ty\"))"
+    },
+    "upvectorcontrol": "xaxis",
+    "origin": [
+     0,
+     0,
+     0
+    ],
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "length": {
+     "expr": "(ch(\"/obj/towers/body/dist\") + ch(\"/obj/towers/overhang/dist\") + ch(\"/obj/towers/spire/dist\"))"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/towers/roof_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/towers/corners",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "zx",
+    "rad": [
+     {
+      "expr": "ch(\"/obj/walls/outline/radx\") - 0.5 * ch(\"/obj/walls/ring/inset\")"
+     },
+     {
+      "expr": "ch(\"radx\")"
+     }
+    ],
+    "divs": {
+     "expr": "ch(\"/obj/ctrl/rx\")"
+    }
+   }
+  },
+  {
+   "path": "/obj/towers/sizes",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "pscale",
+    "dimensions": 1,
+    "min": [
+     0.8,
+     0,
+     0,
+     0
+    ],
+    "max": [
+     1.3,
+     1,
+     1,
+     1
+    ],
+    "seed": {
+     "expr": "ch(\"/obj/ctrl/rx\")"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/towers/corners",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/towers/tints",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "Cd",
+    "min": [
+     0.7,
+     0.7,
+     0.7,
+     0
+    ],
+    "max": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "seed": 5
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/towers/sizes",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/towers/place",
+   "type": "copytopoints",
+   "parms": {
+    "pivot": "origin",
+    "useimplicitn": false,
+    "targetattribs": 1,
+    "applyto1": "prims",
+    "applymethod1": "mult",
+    "applyattribs1": "Cd"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/towers/lean",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/towers/tints",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/towers/tower_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 35
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/towers/place",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/banners",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/banners/cloth",
+   "type": "grid",
+   "parms": {
+    "orient": "xy",
+    "size": [
+     1.4,
+     0.8
+    ],
+    "rows": 9,
+    "cols": 15,
+    "t": [
+     0.7,
+     0.4,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/banners/ripple",
+   "type": "mountain",
+   "parms": {
+    "height": 0.25,
+    "elementsize": 0.6,
+    "time": {
+     "expr": "$T * 2.5"
+    },
+    "basis": "perlin",
+    "fractal": "none"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/banners/cloth",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/banners/flutter",
+   "type": "bend",
+   "parms": {
+    "bend": {
+     "expr": "-3 * ch(\"/obj/ctrl/rz\")"
+    },
+    "upvectorcontrol": "yaxis",
+    "origin": [
+     0,
+     0,
+     0
+    ],
+    "dir": [
+     1,
+     0,
+     0
+    ],
+    "length": 1.4
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/banners/ripple",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/banners/raise",
+   "type": "xform",
+   "parms": {
+    "r": [
+     0,
+     {
+      "expr": "90 + 3 * ch(\"/obj/ctrl/rz\")"
+     },
+     0
+    ],
+    "t": [
+     0,
+     {
+      "expr": "(ch(\"/obj/towers/body/dist\") + ch(\"/obj/towers/overhang/dist\") + ch(\"/obj/towers/spire/dist\")) - 0.9"
+     },
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/banners/flutter",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/banners/lean",
+   "type": "bend",
+   "parms": {
+    "bend": {
+     "expr": "ch(\"/obj/towers/lean/bend\")"
+    },
+    "enabletwist": true,
+    "twist": {
+     "expr": "ch(\"/obj/towers/lean/twist\")"
+    },
+    "upvectorcontrol": "xaxis",
+    "origin": [
+     0,
+     0,
+     0
+    ],
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "length": {
+     "expr": "ch(\"/obj/towers/lean/length\")"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/banners/raise",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/banners/heraldry",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.9,
+     {
+      "expr": "0.75 + 0.2 * sin($T * 3)"
+     },
+     0.1,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/banners/lean",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/banners/corners",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "zx",
+    "rad": [
+     {
+      "expr": "ch(\"/obj/towers/corners/radx\")"
+     },
+     {
+      "expr": "ch(\"radx\")"
+     }
+    ],
+    "divs": {
+     "expr": "ch(\"/obj/towers/corners/divs\")"
+    }
+   }
+  },
+  {
+   "path": "/obj/banners/sizes",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "pscale",
+    "dimensions": 1,
+    "min": [
+     0.8,
+     0,
+     0,
+     0
+    ],
+    "max": [
+     1.3,
+     1,
+     1,
+     1
+    ],
+    "seed": {
+     "expr": "ch(\"/obj/towers/sizes/seed\")"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/banners/corners",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/banners/place",
+   "type": "copytopoints",
+   "parms": {
+    "pivot": "origin",
+    "useimplicitn": false
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/banners/heraldry",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/banners/sizes",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/banners/banner_n",
+   "type": "normal",
+   "parms": {
+    "type": "typepoint"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/banners/place",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/keep",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/keep/footprint",
+   "type": "box",
+   "parms": {
+    "size": [
+     {
+      "expr": "3.5 + 1.5 * ch(\"/obj/ctrl/ty\")"
+     },
+     1,
+     {
+      "expr": "ch(\"sizex\")"
+     }
+    ],
+    "t": [
+     0,
+     0.5,
+     0
+    ],
+    "divrate": [
+     5,
+     2,
+     5
+    ]
+   }
+  },
+  {
+   "path": "/obj/keep/top",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "keeptop",
+    "grouptype": "primitive",
+    "groupbase": false,
+    "groupnormal": true,
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "angle": 10
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/footprint",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/keep/floors",
+   "type": "polyextrude",
+   "parms": {
+    "group": "keeptop",
+    "dist": {
+     "expr": "1.5 * ch(\"/obj/ctrl/ry\")"
+    },
+    "divs": {
+     "expr": "rint(ch(\"/obj/ctrl/sy\") * 2)"
+    },
+    "outputfrontgrp": true,
+    "frontgrp": "keeptop",
+    "outputsidegrp": true,
+    "sidegrp": "keepwalls"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/top",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/keep/keep_stone",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "min": [
+     0.54,
+     0.5,
+     0.45,
+     0
+    ],
+    "max": [
+     0.6,
+     0.56,
+     0.5,
+     1
+    ],
+    "seed": 2
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/floors",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/keep/window_sel",
+   "type": "grouprange",
+   "parms": {
+    "groupname1": "windows",
+    "group1": "keepwalls",
+    "grouptype1": "prims",
+    "selectamount1": 1,
+    "selecttotal1": 3,
+    "selectoffset1": {
+     "expr": "rint($T * 2)"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/keep_stone",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/keep/windows",
+   "type": "polyextrude",
+   "parms": {
+    "group": "windows",
+    "splittype": "elements",
+    "inset": {
+     "expr": "0.12 + 0.04 * sin($T * 2)"
+    },
+    "dist": -0.12,
+    "outputfrontgrp": true,
+    "frontgrp": "glass"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/window_sel",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/keep/glass_cd",
+   "type": "attribcreate",
+   "parms": {
+    "group": "glass",
+    "grouptype": "prims",
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     1,
+     {
+      "expr": "0.7 + 0.2 * sin($T * 6)"
+     },
+     0.3,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/windows",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/keep/crown",
+   "type": "subnet",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/glass_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/keep/crown/over",
+   "type": "polyextrude",
+   "parms": {
+    "group": "keeptop",
+    "dist": 0.5,
+    "inset": -0.45,
+    "outputfrontgrp": true,
+    "frontgrp": "keeptop"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/crown/1",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/keep/crown/over_bevel",
+   "type": "polybevel",
+   "parms": {
+    "group": "keeptop",
+    "grouptype": "prims",
+    "offset": {
+     "expr": "2 * ch(\"/obj/ctrl/sx\")"
+    },
+    "divisions": 3
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/crown/over",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/keep/crown/tent",
+   "type": "polyextrude",
+   "parms": {
+    "group": "keeptop",
+    "dist": {
+     "expr": "2 + 2 * ch(\"/obj/ctrl/ty\")"
+    },
+    "divs": 4,
+    "xformfront": true,
+    "scale": [
+     0.05,
+     0.05,
+     0.05
+    ],
+    "twist": {
+     "expr": "20 * sin($T * 0.5)"
+    },
+    "outputsidegrp": true,
+    "sidegrp": "tent"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/crown/over_bevel",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/keep/crown/tent_cd",
+   "type": "attribcreate",
+   "parms": {
+    "group": "tent",
+    "grouptype": "prims",
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.25,
+     0.3,
+     {
+      "expr": "0.55 + 0.2 * ch(\"/obj/ctrl/px\")"
+     },
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/crown/tent",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/keep/crown/output0",
+   "type": "output",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/crown/tent_cd",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/keep/twist",
+   "type": "bend",
+   "parms": {
+    "bend": {
+     "expr": "0.25 * ch(\"/obj/ctrl/rz\")"
+    },
+    "enabletwist": true,
+    "twist": {
+     "expr": "60 * (1 - ch(\"/obj/ctrl/ty\")) + 45 * (min(max(($T - 13) / 3, 0), 1) * min(max(($T - 13) / 3, 0), 1) * (3 - 2 * min(max(($T - 13) / 3, 0), 1)))"
+    },
+    "upvectorcontrol": "xaxis",
+    "origin": [
+     0,
+     0,
+     0
+    ],
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "length": {
+     "expr": "(1 + ch(\"/obj/keep/floors/dist\") + ch(\"/obj/keep/crown/over/dist\") + ch(\"/obj/keep/crown/tent/dist\"))"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/crown",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/keep/keep_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 30
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/keep/twist",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/stairs",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/stairs/step",
+   "type": "box",
+   "parms": {
+    "size": [
+     1.6,
+     0.2,
+     0.7
+    ],
+    "t": [
+     {
+      "expr": "0.5 * ch(\"/obj/keep/footprint/sizex\") + 0.9"
+     },
+     0.1,
+     0
+    ],
+    "divrate": [
+     2,
+     2,
+     2
+    ]
+   }
+  },
+  {
+   "path": "/obj/stairs/step_bevel",
+   "type": "polybevel",
+   "parms": {
+    "offset": 0.04,
+    "divisions": 2
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/stairs/step",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/stairs/spiral",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "rint((ch(\"/obj/keep/floors/dist\") - 1) / 0.25)"
+    },
+    "pivot": "origin",
+    "r": [
+     0,
+     {
+      "expr": "360 / (8 + 4 * ch(\"/obj/ctrl/ty\"))"
+     },
+     0
+    ],
+    "t": [
+     0,
+     0.25,
+     0
+    ],
+    "newgroups": true,
+    "docopyattrib": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/stairs/step_bevel",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/stairs/step_cd",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "min": [
+     0.35,
+     0.25,
+     0.18,
+     0
+    ],
+    "max": [
+     0.5,
+     0.36,
+     0.25,
+     1
+    ],
+    "seed": {
+     "expr": "rint($T)"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/stairs/spiral",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/stairs/stairs_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 30
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/stairs/step_cd",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/treasure",
+   "type": "geo",
+   "parms": {
+    "t": [
+     0,
+     {
+      "expr": "(1 + ch(\"/obj/keep/floors/dist\") + ch(\"/obj/keep/crown/over/dist\") + ch(\"/obj/keep/crown/tent/dist\")) + 1.5"
+     },
+     0
+    ],
+    "r": [
+     0,
+     {
+      "expr": "$T * 35"
+     },
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/treasure/crystal",
+   "type": "file",
+   "parms": {
+    "file": "assets/crystal.obj"
+   }
+  },
+  {
+   "path": "/obj/treasure/offset",
+   "type": "xform",
+   "parms": {
+    "t": [
+     {
+      "expr": "0.5 * ch(\"/obj/keep/footprint/sizex\") + 1.5"
+     },
+     {
+      "expr": "0.4 * sin($T * 2)"
+     },
+     0
+    ],
+    "r": [
+     {
+      "expr": "$T * 90"
+     },
+     0,
+     0
+    ],
+    "scale": {
+     "expr": "0.5 + 0.15 * ch(\"/obj/ctrl/scale\")"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/treasure/crystal",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/treasure/ring",
+   "type": "copyxform",
+   "parms": {
+    "ncy": {
+     "expr": "rint(3 + 6 * ch(\"/obj/ctrl/ty\"))"
+    },
+    "pivot": "origin",
+    "r": [
+     0,
+     {
+      "expr": "360 / ch(\"ncy\")"
+     },
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/treasure/offset",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/treasure/gem_cd",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "min": [
+     0.3,
+     0.6,
+     0.8,
+     0
+    ],
+    "max": [
+     0.7,
+     1,
+     1,
+     1
+    ],
+    "seed": {
+     "expr": "rint($F / 8)"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/treasure/ring",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/treasure/gem_n",
+   "type": "normal",
+   "parms": {
+    "type": "typeprim"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/treasure/gem_cd",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/treasure/out",
+   "type": "null",
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/treasure/gem_n",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/bridge",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/bridge/path",
+   "type": "add",
+   "parms": {
+    "points": 9,
+    "prims": 1,
+    "prim0": "0-8",
+    "closed0": false,
+    "pt0": [
+     {
+      "expr": "ch(\"/obj/ctrl/tz\") - 0.6 + 0"
+     },
+     {
+      "expr": "0.3 + (0.5 + 1.5 * ch(\"/obj/ctrl/ty\")) * sin(0 * 3.141593 / 8)"
+     },
+     0
+    ],
+    "pt1": [
+     {
+      "expr": "ch(\"/obj/ctrl/tz\") - 0.6 + 1.125"
+     },
+     {
+      "expr": "0.3 + (0.5 + 1.5 * ch(\"/obj/ctrl/ty\")) * sin(1 * 3.141593 / 8)"
+     },
+     0
+    ],
+    "pt2": [
+     {
+      "expr": "ch(\"/obj/ctrl/tz\") - 0.6 + 2.25"
+     },
+     {
+      "expr": "0.3 + (0.5 + 1.5 * ch(\"/obj/ctrl/ty\")) * sin(2 * 3.141593 / 8)"
+     },
+     0
+    ],
+    "pt3": [
+     {
+      "expr": "ch(\"/obj/ctrl/tz\") - 0.6 + 3.375"
+     },
+     {
+      "expr": "0.3 + (0.5 + 1.5 * ch(\"/obj/ctrl/ty\")) * sin(3 * 3.141593 / 8)"
+     },
+     0
+    ],
+    "pt4": [
+     {
+      "expr": "ch(\"/obj/ctrl/tz\") - 0.6 + 4.5"
+     },
+     {
+      "expr": "0.3 + (0.5 + 1.5 * ch(\"/obj/ctrl/ty\")) * sin(4 * 3.141593 / 8)"
+     },
+     0
+    ],
+    "pt5": [
+     {
+      "expr": "ch(\"/obj/ctrl/tz\") - 0.6 + 5.625"
+     },
+     {
+      "expr": "0.3 + (0.5 + 1.5 * ch(\"/obj/ctrl/ty\")) * sin(5 * 3.141593 / 8)"
+     },
+     0
+    ],
+    "pt6": [
+     {
+      "expr": "ch(\"/obj/ctrl/tz\") - 0.6 + 6.75"
+     },
+     {
+      "expr": "0.3 + (0.5 + 1.5 * ch(\"/obj/ctrl/ty\")) * sin(6 * 3.141593 / 8)"
+     },
+     0
+    ],
+    "pt7": [
+     {
+      "expr": "ch(\"/obj/ctrl/tz\") - 0.6 + 7.875"
+     },
+     {
+      "expr": "0.3 + (0.5 + 1.5 * ch(\"/obj/ctrl/ty\")) * sin(7 * 3.141593 / 8)"
+     },
+     0
+    ],
+    "pt8": [
+     {
+      "expr": "ch(\"/obj/ctrl/tz\") - 0.6 + 9"
+     },
+     {
+      "expr": "0.3 + (0.5 + 1.5 * ch(\"/obj/ctrl/ty\")) * sin(8 * 3.141593 / 8)"
+     },
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/bridge/arch",
+   "type": "fit",
+   "parms": {
+    "method": "interp",
+    "type": "nurbs",
+    "scope": "global"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/bridge/path",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/bridge/deck",
+   "type": "grid",
+   "parms": {
+    "orient": "yz",
+    "size": [
+     0.35,
+     {
+      "expr": "2.4 + 0.4 * ch(\"/obj/ctrl/ty\")"
+     }
+    ],
+    "rows": 2,
+    "cols": 2,
+    "t": [
+     {
+      "expr": "ch(\"/obj/bridge/path/pt0x\")"
+     },
+     {
+      "expr": "ch(\"/obj/bridge/path/pt0y\")"
+     },
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/bridge/sweep",
+   "type": "polyextrude",
+   "parms": {
+    "spinetype": "external",
+    "dist": 9.0,
+    "divs": 48,
+    "frontblend": 0.0,
+    "backblend": 0.0,
+    "outputback": true
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/bridge/deck",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/bridge/arch",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/bridge/planks",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "primitive",
+    "name": "Cd",
+    "min": [
+     0.4,
+     0.28,
+     0.16,
+     0
+    ],
+    "max": [
+     0.55,
+     0.4,
+     0.24,
+     1
+    ],
+    "seed": 4
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/bridge/sweep",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/bridge/bridge_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 45
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/bridge/planks",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/village",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/village/ground",
+   "type": "grid",
+   "parms": {
+    "orient": "zx",
+    "size": [
+     {
+      "expr": "ch(\"/obj/terrain/ground/sizex\")"
+     },
+     {
+      "expr": "ch(\"/obj/terrain/ground/sizey\")"
+     }
+    ],
+    "rows": {
+     "expr": "ch(\"/obj/terrain/ground/rows\")"
+    },
+    "cols": {
+     "expr": "ch(\"/obj/terrain/ground/cols\")"
+    }
+   }
+  },
+  {
+   "path": "/obj/village/plateau",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "plateau",
+    "grouptype": "point",
+    "groupbase": false,
+    "groupbounding": true,
+    "boundtype": "usebsphere",
+    "size": [
+     {
+      "expr": "ch(\"/obj/terrain/plateau/sizex\")"
+     },
+     40,
+     {
+      "expr": "ch(\"sizex\")"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/ground",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/hills",
+   "type": "mountain",
+   "parms": {
+    "group": "!plateau",
+    "height": {
+     "expr": "ch(\"/obj/terrain/hills/height\")"
+    },
+    "elementsize": {
+     "expr": "ch(\"/obj/terrain/hills/elementsize\")"
+    },
+    "time": {
+     "expr": "ch(\"/obj/terrain/hills/time\")"
+    },
+    "basis": "perlin",
+    "fractal": "fBm",
+    "oct": {
+     "expr": "ch(\"/obj/terrain/hills/oct\")"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/plateau",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/slope_n",
+   "type": "normal",
+   "parms": {
+    "type": "typeprim"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/hills",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/flat",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "flat",
+    "grouptype": "primitive",
+    "groupbase": false,
+    "groupnormal": true,
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "angle": 22
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/slope_n",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/castle",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "castle",
+    "grouptype": "primitive",
+    "groupbase": false,
+    "groupbounding": true,
+    "boundtype": "usebsphere",
+    "includenotwhollycontained": true,
+    "size": [
+     {
+      "expr": "ch(\"/obj/terrain/plateau/sizex\") + 6"
+     },
+     60,
+     {
+      "expr": "ch(\"sizex\")"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/flat",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/lots",
+   "type": "scatter",
+   "parms": {
+    "group": "flat ^castle",
+    "npts": {
+     "expr": "ch(\"/obj/ctrl/py\")"
+    },
+    "seed": 7,
+    "relaxiterations": 6,
+    "pointattribs": "",
+    "vertattribs": ""
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/castle",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/facing",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "N",
+    "min": [
+     -1,
+     0,
+     -1,
+     0
+    ],
+    "max": [
+     1,
+     0,
+     1,
+     1
+    ],
+    "seed": 1
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/lots",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/sizes",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "pscale",
+    "dimensions": 1,
+    "min": [
+     0.7,
+     0,
+     0,
+     0
+    ],
+    "max": [
+     1.5,
+     1,
+     1,
+     1
+    ],
+    "seed": 2
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/facing",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/paint",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "Cd",
+    "min": [
+     0.75,
+     0.65,
+     0.55,
+     0
+    ],
+    "max": [
+     1,
+     0.95,
+     0.85,
+     1
+    ],
+    "seed": 3
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/sizes",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/walls",
+   "type": "box",
+   "parms": {
+    "size": [
+     1.2,
+     0.9,
+     1.6
+    ],
+    "t": [
+     0,
+     0.35,
+     0
+    ],
+    "divrate": [
+     2,
+     2,
+     2
+    ]
+   }
+  },
+  {
+   "path": "/obj/village/top",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "top",
+    "grouptype": "primitive",
+    "groupbase": false,
+    "groupnormal": true,
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "angle": 10
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/walls",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/roof",
+   "type": "polyextrude",
+   "parms": {
+    "group": "top",
+    "dist": {
+     "expr": "0.4 + 0.25 * ch(\"/obj/ctrl/px\")"
+    },
+    "inset": 0,
+    "xformfront": true,
+    "scale": [
+     0.02,
+     1,
+     1
+    ],
+    "outputsidegrp": true,
+    "sidegrp": "roof",
+    "outputfrontgrp": true,
+    "frontgrp": "roof"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/top",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/house_bevel",
+   "type": "polybevel",
+   "parms": {
+    "offset": 0.03,
+    "divisions": 1
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/roof",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/plaster",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.85,
+     0.8,
+     0.7,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/house_bevel",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/thatch",
+   "type": "attribcreate",
+   "parms": {
+    "group": "roof",
+    "grouptype": "prims",
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.55,
+     0.35,
+     0.2,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/plaster",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/houses",
+   "type": "copytopoints",
+   "parms": {
+    "pivot": "origin",
+    "useimplicitn": false,
+    "targetattribs": 1,
+    "applyto1": "prims",
+    "applymethod1": "mult",
+    "applyattribs1": "Cd"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/thatch",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/village/paint",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/village/village_n",
+   "type": "normal",
+   "parms": {
+    "type": "typevertex",
+    "cuspangle": 30
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/village/houses",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/forest",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/forest/ground",
+   "type": "grid",
+   "parms": {
+    "orient": "zx",
+    "size": [
+     {
+      "expr": "ch(\"/obj/village/ground/sizex\")"
+     },
+     {
+      "expr": "ch(\"/obj/village/ground/sizey\")"
+     }
+    ],
+    "rows": {
+     "expr": "rint(ch(\"/obj/village/ground/rows\") / 2)"
+    },
+    "cols": {
+     "expr": "rint(ch(\"/obj/village/ground/cols\") / 2)"
+    }
+   }
+  },
+  {
+   "path": "/obj/forest/plateau",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "plateau",
+    "grouptype": "point",
+    "groupbase": false,
+    "groupbounding": true,
+    "boundtype": "usebsphere",
+    "size": [
+     {
+      "expr": "ch(\"/obj/village/plateau/sizex\")"
+     },
+     40,
+     {
+      "expr": "ch(\"sizex\")"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/ground",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/forest/hills",
+   "type": "mountain",
+   "parms": {
+    "group": "!plateau",
+    "height": {
+     "expr": "ch(\"/obj/village/hills/height\")"
+    },
+    "elementsize": {
+     "expr": "ch(\"/obj/village/hills/elementsize\")"
+    },
+    "time": {
+     "expr": "ch(\"/obj/village/hills/time\")"
+    },
+    "basis": "perlin",
+    "fractal": "fBm",
+    "oct": {
+     "expr": "ch(\"/obj/village/hills/oct\")"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/plateau",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/forest/slope_n",
+   "type": "normal",
+   "parms": {
+    "type": "typeprim"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/hills",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/forest/gentle",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "gentle",
+    "grouptype": "primitive",
+    "groupbase": false,
+    "groupnormal": true,
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "angle": {
+     "expr": "ch(\"/obj/village/flat/angle\") - 4"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/slope_n",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/forest/castle",
+   "type": "groupcreate",
+   "parms": {
+    "groupname": "castle",
+    "grouptype": "primitive",
+    "groupbase": false,
+    "groupbounding": true,
+    "boundtype": "usebsphere",
+    "includenotwhollycontained": true,
+    "size": [
+     {
+      "expr": "ch(\"/obj/village/castle/sizex\")"
+     },
+     60,
+     {
+      "expr": "ch(\"sizex\")"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/gentle",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/forest/spots",
+   "type": "scatter",
+   "parms": {
+    "group": "* ^gentle ^castle",
+    "npts": {
+     "expr": "rint(1500 + 900 * ch(\"/obj/ctrl/ty\"))"
+    },
+    "seed": 21,
+    "relaxiterations": 3,
+    "pointattribs": "",
+    "vertattribs": ""
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/castle",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/forest/sizes",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "pscale",
+    "dimensions": 1,
+    "min": [
+     0.6,
+     0,
+     0,
+     0
+    ],
+    "max": [
+     1.6,
+     1,
+     1,
+     1
+    ],
+    "seed": 8
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/spots",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/forest/hue",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "Cd",
+    "min": [
+     0.6,
+     0.75,
+     0.6,
+     0
+    ],
+    "max": [
+     1,
+     1,
+     0.9,
+     1
+    ],
+    "seed": 9
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/sizes",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/forest/trunk",
+   "type": "circle",
+   "parms": {
+    "type": "poly",
+    "orient": "zx",
+    "divs": 10,
+    "rad": [
+     0.7,
+     0.7
+    ],
+    "t": [
+     0,
+     0.3,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/forest/crown",
+   "type": "polyextrude",
+   "parms": {
+    "dist": {
+     "expr": "2.6 + 0.6 * ch(\"/obj/ctrl/px\")"
+    },
+    "divs": 6,
+    "outputback": true,
+    "xformfront": true,
+    "scale": [
+     0.02,
+     0.02,
+     0.02
+    ],
+    "usethicknessramp": true,
+    "thicknessramp": 3,
+    "thicknessramp1pos": 0,
+    "thicknessramp1value": 1,
+    "thicknessramp2pos": 0.5,
+    "thicknessramp2value": 0.7,
+    "thicknessramp3pos": 1,
+    "thicknessramp3value": 0.2
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/trunk",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/forest/needles",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "primitive",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.12,
+     0.38,
+     0.16,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/crown",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/forest/sway",
+   "type": "bend",
+   "parms": {
+    "bend": {
+     "expr": "1.5 * ch(\"/obj/ctrl/rz\")"
+    },
+    "upvectorcontrol": "xaxis",
+    "origin": [
+     0,
+     0.3,
+     0
+    ],
+    "dir": [
+     0,
+     1,
+     0
+    ],
+    "length": {
+     "expr": "ch(\"/obj/forest/crown/dist\")"
+    }
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/needles",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/forest/trees",
+   "type": "copytopoints",
+   "parms": {
+    "pivot": "origin",
+    "useimplicitn": false,
+    "targetattribs": 1,
+    "applyto1": "prims",
+    "applymethod1": "mult",
+    "applyattribs1": "Cd"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/sway",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/forest/hue",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/forest/forest_n",
+   "type": "normal",
+   "parms": {
+    "type": "typepoint"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/forest/trees",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  },
+  {
+   "path": "/obj/clouds",
+   "type": "geo"
+  },
+  {
+   "path": "/obj/clouds/sky",
+   "type": "grid",
+   "parms": {
+    "orient": "zx",
+    "size": [
+     90,
+     90
+    ],
+    "rows": 10,
+    "cols": 10,
+    "t": [
+     {
+      "expr": "-20 + 2.5 * $T * (1 + 0.02 * ch(\"/obj/ctrl/rz\"))"
+     },
+     24,
+     0
+    ]
+   }
+  },
+  {
+   "path": "/obj/clouds/spots",
+   "type": "scatter",
+   "parms": {
+    "npts": 40,
+    "seed": 13,
+    "relaxiterations": 4
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/clouds/sky",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/clouds/sizes",
+   "type": "attribrandomize",
+   "parms": {
+    "class": "point",
+    "name": "pscale",
+    "dimensions": 1,
+    "min": [
+     1.5,
+     0,
+     0,
+     0
+    ],
+    "max": [
+     4,
+     1,
+     1,
+     1
+    ],
+    "seed": 6
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/clouds/spots",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/clouds/puff",
+   "type": "sphere",
+   "parms": {
+    "type": "poly",
+    "freq": 5,
+    "rad": [
+     1.6,
+     0.7,
+     1.2
+    ]
+   }
+  },
+  {
+   "path": "/obj/clouds/billow",
+   "type": "mountain",
+   "parms": {
+    "height": 0.5,
+    "elementsize": 0.8,
+    "time": {
+     "expr": "$T * 0.3"
+    },
+    "basis": "simplex",
+    "fractal": "fBm",
+    "oct": 3
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/clouds/puff",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/clouds/drift",
+   "type": "copytopoints",
+   "parms": {
+    "pivot": "origin",
+    "useimplicitn": false
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/clouds/billow",
+     "output": 0
+    },
+    {
+     "input": 1,
+     "from": "/obj/clouds/sizes",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/clouds/white",
+   "type": "attribcreate",
+   "parms": {
+    "name1": "Cd",
+    "class1": "point",
+    "type1": "float",
+    "size1": 3,
+    "value1v": [
+     0.95,
+     0.95,
+     1.0,
+     0
+    ]
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/clouds/drift",
+     "output": 0
+    }
+   ]
+  },
+  {
+   "path": "/obj/clouds/cloud_n",
+   "type": "normal",
+   "parms": {
+    "type": "typepoint"
+   },
+   "inputs": [
+    {
+     "input": 0,
+     "from": "/obj/clouds/white",
+     "output": 0
+    }
+   ],
+   "flags": {
+    "display": true,
+    "render": true
+   }
+  }
+ ]
+}

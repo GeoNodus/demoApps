@@ -1,0 +1,100 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		07F16E025AC6AA17DC30CEF0 = {isa = PBXBuildFile; fileRef = 68DC930236C780CFA1D640C9;};
+		08A3BF3EDD1D9E08DFAB2A8E = {isa = PBXBuildFile; fileRef = 1A41BDB56D555D8099D1A96D;};
+		17D6B79D1654545745730086 = {isa = PBXBuildFile; fileRef = 7392CFFD20DEBC9066E6F9B6;};
+		223FCD5FA648733A23689E2F = {isa = PBXBuildFile; fileRef = 3F72A6476E578EB5EF7690F2;};
+		25B7546B291892474BDF7E28 = {isa = PBXBuildFile; fileRef = 497A257E34EA70B228989771;};
+		269704BC124B084E29ADCD67 = {isa = PBXBuildFile; fileRef = AF8B82A508790BDBA4E5C6D6;};
+		48CCB5AE56DDA6CDA0435A61 = {isa = PBXBuildFile; fileRef = 558BBF9D160B29C075D9A0D6;};
+		4A6ED91B1F513BA0FB8BAC6B = {isa = PBXBuildFile; fileRef = 464E15E251A5F6A037EF0D4C;};
+		508AA916F14AA12D03E058C3 = {isa = PBXBuildFile; fileRef = 4C878109FA80C68CFD77BC39;};
+		82982027B9D9D96CD5C88E58 = {isa = PBXBuildFile; fileRef = 25E80F174DF98D5920A3698E;};
+		8BAE467852D9B2C613056045 = {isa = PBXBuildFile; fileRef = E43BF39924E242CA187B40F1;};
+		9E3A25242887676ACF8F8552 = {isa = PBXBuildFile; fileRef = 7392CFFD20DEBC9066E6F9B6; settings = {ATTRIBUTES = (CodeSignOnCopy, ); };};
+		A472822D05AF0B3CBBE72C82 = {isa = PBXBuildFile; fileRef = FFC0C1219BF8400EA8B73396;};
+		ACE58D42AE39A3BCDD5FBEFB = {isa = PBXBuildFile; fileRef = 4E4E0B74F25F640D83AE3463;};
+		D868260C059C0F677824BE18 = {isa = PBXBuildFile; fileRef = FD86C9E461A487678E1AE72F;};
+		ECECF9F2DFEF50D43FDBDDD7 = {isa = PBXBuildFile; fileRef = D1CDEB523480DA2877840793;};
+		F51975F52064B1F414FC60AC = {isa = PBXBuildFile; fileRef = 3B65E4EB4F93CCD774811D91;};
+		F7FD2F7E3209B8B51B0491BC = {isa = PBXBuildFile; fileRef = 9875B6AE555AEB40A52E871D;};
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BAE1492BDE49D13FF7E211EB = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 10; files = (9E3A25242887676ACF8F8552, ); name = "Embed Libraries"; runOnlyForDeploymentPostprocessing = 0;};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		082040E7558B9BDCAE626F9A = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = metal/Info.plist; sourceTree = SOURCE_ROOT;};
+		10B6C2026938E7EB945E60E6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = scene_builder.h; path = ../scenes/scene_builder.h; sourceTree = SOURCE_ROOT;};
+		174BA4E5CEB7D1C0671C1095 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = scene_util.h; path = ../scenes/scene_util.h; sourceTree = SOURCE_ROOT;};
+		1A41BDB56D555D8099D1A96D = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_attributes.cpp; path = ../scenes/scenes_attributes.cpp; sourceTree = SOURCE_ROOT;};
+		2029A639DD8022543C17416B = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GeoNodus Metal Demo.app"; sourceTree = BUILT_PRODUCTS_DIR;};
+		25E80F174DF98D5920A3698E = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_curves.cpp; path = ../scenes/scenes_curves.cpp; sourceTree = SOURCE_ROOT;};
+		3B65E4EB4F93CCD774811D91 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DemoApp.swift; path = metal/Sources/DemoApp.swift; sourceTree = SOURCE_ROOT;};
+		3F72A6476E578EB5EF7690F2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MetalRenderer.swift; path = metal/Sources/MetalRenderer.swift; sourceTree = SOURCE_ROOT;};
+		464E15E251A5F6A037EF0D4C = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_groups.cpp; path = ../scenes/scenes_groups.cpp; sourceTree = SOURCE_ROOT;};
+		497A257E34EA70B228989771 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scene_builder.cpp; path = ../scenes/scene_builder.cpp; sourceTree = SOURCE_ROOT;};
+		4C878109FA80C68CFD77BC39 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_network.cpp; path = ../scenes/scenes_network.cpp; sourceTree = SOURCE_ROOT;};
+		4E4E0B74F25F640D83AE3463 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_modeling.cpp; path = ../scenes/scenes_modeling.cpp; sourceTree = SOURCE_ROOT;};
+		558BBF9D160B29C075D9A0D6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = main.swift; path = metal/Sources/main.swift; sourceTree = SOURCE_ROOT;};
+		68DC930236C780CFA1D640C9 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_copy.cpp; path = ../scenes/scenes_copy.cpp; sourceTree = SOURCE_ROOT;};
+		7392CFFD20DEBC9066E6F9B6 = {isa = PBXFileReference; lastKnownFileType = compiled.mach-o.dylib; name = libgeonodus.dylib; path = lib/libgeonodus.dylib; sourceTree = SOURCE_ROOT;};
+		893589AF85F6E14AEA4B724C = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = demo_scenes_c.h; path = metal/bridge/demo_scenes_c.h; sourceTree = SOURCE_ROOT;};
+		967EFFCB2A860F0614111D22 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BridgingHeader.h; path = metal/BridgingHeader.h; sourceTree = SOURCE_ROOT;};
+		9875B6AE555AEB40A52E871D = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_deform.cpp; path = ../scenes/scenes_deform.cpp; sourceTree = SOURCE_ROOT;};
+		AF8B82A508790BDBA4E5C6D6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GnScene.swift; path = metal/Sources/GnScene.swift; sourceTree = SOURCE_ROOT;};
+		BCE7C3843AC787E6A79BCB26 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = demo_scenes.h; path = ../scenes/demo_scenes.h; sourceTree = SOURCE_ROOT;};
+		D1CDEB523480DA2877840793 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = demo_scenes_c.cpp; path = metal/bridge/demo_scenes_c.cpp; sourceTree = SOURCE_ROOT;};
+		E43BF39924E242CA187B40F1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DemoMath.swift; path = metal/Sources/DemoMath.swift; sourceTree = SOURCE_ROOT;};
+		FD86C9E461A487678E1AE72F = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = demo_scenes.cpp; path = ../scenes/demo_scenes.cpp; sourceTree = SOURCE_ROOT;};
+		FFC0C1219BF8400EA8B73396 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_primitives.cpp; path = ../scenes/scenes_primitives.cpp; sourceTree = SOURCE_ROOT;};
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		424153ED3CD079DB4DB459AF = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (17D6B79D1654545745730086, ); runOnlyForDeploymentPostprocessing = 0;};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1510263E490E0B7E3C2E1A9B = {isa = PBXGroup; children = (7392CFFD20DEBC9066E6F9B6, ); name = lib; sourceTree = "<group>";};
+		2F3A6B1E78F896718625FF06 = {isa = PBXGroup; children = (2029A639DD8022543C17416B, ); name = Products; sourceTree = "<group>";};
+		420CFB359C2A33DC60BFB328 = {isa = PBXGroup; children = (3B65E4EB4F93CCD774811D91, E43BF39924E242CA187B40F1, AF8B82A508790BDBA4E5C6D6, 3F72A6476E578EB5EF7690F2, 558BBF9D160B29C075D9A0D6, ); name = Sources; sourceTree = "<group>";};
+		518DA81DB9B99529C0C0AEBE = {isa = PBXGroup; children = (420CFB359C2A33DC60BFB328, F29ABEF7691C3798235DD274, 890A884098FF8AC382F1E650, F7ED0AE08FBB92027261B793, 1510263E490E0B7E3C2E1A9B, 2F3A6B1E78F896718625FF06, ); sourceTree = "<group>";};
+		890A884098FF8AC382F1E650 = {isa = PBXGroup; children = (FD86C9E461A487678E1AE72F, 497A257E34EA70B228989771, 1A41BDB56D555D8099D1A96D, 68DC930236C780CFA1D640C9, 25E80F174DF98D5920A3698E, 9875B6AE555AEB40A52E871D, 464E15E251A5F6A037EF0D4C, 4E4E0B74F25F640D83AE3463, 4C878109FA80C68CFD77BC39, FFC0C1219BF8400EA8B73396, BCE7C3843AC787E6A79BCB26, 10B6C2026938E7EB945E60E6, 174BA4E5CEB7D1C0671C1095, ); name = scenes; sourceTree = "<group>";};
+		F29ABEF7691C3798235DD274 = {isa = PBXGroup; children = (D1CDEB523480DA2877840793, 893589AF85F6E14AEA4B724C, ); name = bridge; sourceTree = "<group>";};
+		F7ED0AE08FBB92027261B793 = {isa = PBXGroup; children = (967EFFCB2A860F0614111D22, 082040E7558B9BDCAE626F9A, ); name = Support; sourceTree = "<group>";};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		42AEFBAE01D2DFD981F7DA7D = {isa = PBXNativeTarget; buildConfigurationList = 354589B28580510B6EC24620; buildPhases = (7A70D71C385290AF96BF1031, 424153ED3CD079DB4DB459AF, BAE1492BDE49D13FF7E211EB, ); buildRules = (); dependencies = (); name = GeoNodusMetalDemo; productName = GeoNodusMetalDemo; productReference = 2029A639DD8022543C17416B; productType = "com.apple.product-type.application";};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		46F86FAA6BBF9AC94A7E4595 = {isa = PBXProject; attributes = {BuildIndependentTargetsInParallel = 1; LastUpgradeCheck = 1600; }; buildConfigurationList = 1F4E3D13C2320EDA50221924; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base, ); mainGroup = 518DA81DB9B99529C0C0AEBE; productRefGroup = 2F3A6B1E78F896718625FF06; projectDirPath = ""; projectRoot = ""; targets = (42AEFBAE01D2DFD981F7DA7D, );};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7A70D71C385290AF96BF1031 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (F51975F52064B1F414FC60AC, 8BAE467852D9B2C613056045, 269704BC124B084E29ADCD67, 223FCD5FA648733A23689E2F, 48CCB5AE56DDA6CDA0435A61, ECECF9F2DFEF50D43FDBDDD7, D868260C059C0F677824BE18, 25B7546B291892474BDF7E28, 08A3BF3EDD1D9E08DFAB2A8E, 07F16E025AC6AA17DC30CEF0, 82982027B9D9D96CD5C88E58, F7FD2F7E3209B8B51B0491BC, 4A6ED91B1F513BA0FB8BAC6B, ACE58D42AE39A3BCDD5FBEFB, 508AA916F14AA12D03E058C3, A472822D05AF0B3CBBE72C82, ); runOnlyForDeploymentPostprocessing = 0;};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3DDF142C91E4BE3A6BA5A69E = {isa = XCBuildConfiguration; buildSettings = {PRODUCT_NAME = "GeoNodus Metal Demo"; PRODUCT_BUNDLE_IDENTIFIER = com.geonodus.demo.metal; INFOPLIST_FILE = metal/Info.plist; MACOSX_DEPLOYMENT_TARGET = 12.0; ARCHS = arm64; SDKROOT = macosx; SWIFT_VERSION = 5.0; SWIFT_OBJC_BRIDGING_HEADER = metal/BridgingHeader.h; HEADER_SEARCH_PATHS = ("$(SRCROOT)/lib/include", "$(SRCROOT)/../scenes", "$(SRCROOT)/metal", ); LIBRARY_SEARCH_PATHS = ("$(SRCROOT)/lib", ); LD_RUNPATH_SEARCH_PATHS = ("@executable_path/../Frameworks", ); CLANG_CXX_LANGUAGE_STANDARD = "c++20"; CLANG_CXX_LIBRARY = "libc++"; CODE_SIGN_IDENTITY = "-"; CODE_SIGN_STYLE = Manual; COMBINE_HIDPI_IMAGES = YES; ALWAYS_SEARCH_USER_PATHS = NO; ENABLE_USER_SCRIPT_SANDBOXING = YES; SWIFT_OPTIMIZATION_LEVEL = "-O"; SWIFT_COMPILATION_MODE = wholemodule; GCC_OPTIMIZATION_LEVEL = s; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; GCC_PREPROCESSOR_DEFINITIONS = ("NDEBUG=1", );}; name = Release;};
+		4A43692AD8BCEEB8B727C85B = {isa = XCBuildConfiguration; buildSettings = {SDKROOT = macosx; MACOSX_DEPLOYMENT_TARGET = 12.0;}; name = Debug;};
+		4D8F6610AF6606489ED8DFBC = {isa = XCBuildConfiguration; buildSettings = {PRODUCT_NAME = "GeoNodus Metal Demo"; PRODUCT_BUNDLE_IDENTIFIER = com.geonodus.demo.metal; INFOPLIST_FILE = metal/Info.plist; MACOSX_DEPLOYMENT_TARGET = 12.0; ARCHS = arm64; SDKROOT = macosx; SWIFT_VERSION = 5.0; SWIFT_OBJC_BRIDGING_HEADER = metal/BridgingHeader.h; HEADER_SEARCH_PATHS = ("$(SRCROOT)/lib/include", "$(SRCROOT)/../scenes", "$(SRCROOT)/metal", ); LIBRARY_SEARCH_PATHS = ("$(SRCROOT)/lib", ); LD_RUNPATH_SEARCH_PATHS = ("@executable_path/../Frameworks", ); CLANG_CXX_LANGUAGE_STANDARD = "c++20"; CLANG_CXX_LIBRARY = "libc++"; CODE_SIGN_IDENTITY = "-"; CODE_SIGN_STYLE = Manual; COMBINE_HIDPI_IMAGES = YES; ALWAYS_SEARCH_USER_PATHS = NO; ENABLE_USER_SCRIPT_SANDBOXING = YES; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; GCC_OPTIMIZATION_LEVEL = 0; DEBUG_INFORMATION_FORMAT = dwarf; ONLY_ACTIVE_ARCH = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG; GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", );}; name = Debug;};
+		C28449456A5A705A7479770B = {isa = XCBuildConfiguration; buildSettings = {SDKROOT = macosx; MACOSX_DEPLOYMENT_TARGET = 12.0;}; name = Release;};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1F4E3D13C2320EDA50221924 = {isa = XCConfigurationList; buildConfigurations = (4A43692AD8BCEEB8B727C85B, C28449456A5A705A7479770B, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;};
+		354589B28580510B6EC24620 = {isa = XCConfigurationList; buildConfigurations = (4D8F6610AF6606489ED8DFBC, 3DDF142C91E4BE3A6BA5A69E, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;};
+/* End XCConfigurationList section */
+	};
+	rootObject = 46F86FAA6BBF9AC94A7E4595;
+}

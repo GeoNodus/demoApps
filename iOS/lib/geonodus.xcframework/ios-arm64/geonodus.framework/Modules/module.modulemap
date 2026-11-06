@@ -1,0 +1,4 @@
+framework module geonodus {
+    umbrella header "geonodus.h"
+    export *
+}

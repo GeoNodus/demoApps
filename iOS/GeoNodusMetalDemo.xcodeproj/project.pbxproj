@@ -1,0 +1,124 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0A97BDCB9910C5D1783C124D = {isa = PBXBuildFile; fileRef = DF0AF1A7A5521B9A9961C936;};
+		10F2B59A0BDE6FBC159C9A0C = {isa = PBXBuildFile; fileRef = 4FE8A7A75B5062A49AF6C86A;};
+		1A1ADE88729425F8E90D1486 = {isa = PBXBuildFile; fileRef = 68DC930236C780CFA1D640C9;};
+		1F7AA1257664DCCED50F56C0 = {isa = PBXBuildFile; fileRef = 4C878109FA80C68CFD77BC39;};
+		2D3D88ACCC6AEE5105967811 = {isa = PBXBuildFile; fileRef = 1A41BDB56D555D8099D1A96D;};
+		4DD0F0159BE3077E8237A894 = {isa = PBXBuildFile; fileRef = FD86C9E461A487678E1AE72F;};
+		514497325755B743D6FB0FA3 = {isa = PBXBuildFile; fileRef = 53D07F5A9FC37676FF5E1C84;};
+		547F2E918373489551DFDBBC = {isa = PBXBuildFile; fileRef = 464E15E251A5F6A037EF0D4C;};
+		5C2AC8B6E59AF2E21945A239 = {isa = PBXBuildFile; fileRef = ECA79B466803DDB7D55E646A;};
+		5E5E9F6F5F4C303969303153 = {isa = PBXBuildFile; fileRef = 9AFC15F43BECA80CB9E7A494;};
+		6F5062432B72211D46CCAC14 = {isa = PBXBuildFile; fileRef = 9875B6AE555AEB40A52E871D;};
+		6F6B783BE68D79AA1E517897 = {isa = PBXBuildFile; fileRef = BCF050BBB868C54BB6A869E5;};
+		7EFFB951C7E1A9E764F58B2D = {isa = PBXBuildFile; fileRef = 497A257E34EA70B228989771;};
+		80D8681CAB3B07BA5ECF2D0F = {isa = PBXBuildFile; fileRef = 4E4E0B74F25F640D83AE3463;};
+		8FD6B7D03FABEEBB76974D8F = {isa = PBXBuildFile; fileRef = FFC0C1219BF8400EA8B73396;};
+		9A63257EEE532887062F0148 = {isa = PBXBuildFile; fileRef = 4DD2570EED6F10DF5CB13CCB;};
+		AC5EFE67F2E0655246CBF751 = {isa = PBXBuildFile; fileRef = 4187D618496B280E010CD453;};
+		B5FE56C1D9FC5A160BE33FD3 = {isa = PBXBuildFile; fileRef = DBA15D85258658B76B6A7812;};
+		C568A8F6FA209C3DF56E88F0 = {isa = PBXBuildFile; fileRef = 0D610D8BD53C8CE599E79B3B;};
+		CCE6392E14C41732F9323B14 = {isa = PBXBuildFile; fileRef = ECA79B466803DDB7D55E646A; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, );};};
+		CF2AEC49F90124AC41AF2EC5 = {isa = PBXBuildFile; fileRef = 25E80F174DF98D5920A3698E;};
+		E7E04260DD0E979737BC0A4A = {isa = PBXBuildFile; fileRef = 351DB532728C23B0949F8387;};
+		F2FCA23A872BAF95EEACA4AD = {isa = PBXBuildFile; fileRef = 07B74C676EC7B85E32BC487E;};
+		F7849819FACBD8AD5A276835 = {isa = PBXBuildFile; fileRef = A6880678BEF95826C52F9ED6;};
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D091461E88028CAAEEF53046 = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 10; files = (CCE6392E14C41732F9323B14, ); name = "Embed Frameworks"; runOnlyForDeploymentPostprocessing = 0;};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		07B74C676EC7B85E32BC487E = {isa = PBXFileReference; lastKnownFileType = text.json; name = log_house_scene.json; path = ../scenes/log_house_scene.json; sourceTree = SOURCE_ROOT;};
+		082040E7558B9BDCAE626F9A = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = metal/Info.plist; sourceTree = SOURCE_ROOT;};
+		0D610D8BD53C8CE599E79B3B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DemoViewController.swift; path = metal/Sources/DemoViewController.swift; sourceTree = SOURCE_ROOT;};
+		10B6C2026938E7EB945E60E6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = scene_builder.h; path = ../scenes/scene_builder.h; sourceTree = SOURCE_ROOT;};
+		174BA4E5CEB7D1C0671C1095 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = scene_util.h; path = ../scenes/scene_util.h; sourceTree = SOURCE_ROOT;};
+		1A41BDB56D555D8099D1A96D = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_attributes.cpp; path = ../scenes/scenes_attributes.cpp; sourceTree = SOURCE_ROOT;};
+		25E80F174DF98D5920A3698E = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_curves.cpp; path = ../scenes/scenes_curves.cpp; sourceTree = SOURCE_ROOT;};
+		351DB532728C23B0949F8387 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = demo_scenes_c.cpp; path = ../mac/metal/bridge/demo_scenes_c.cpp; sourceTree = SOURCE_ROOT;};
+		4187D618496B280E010CD453 = {isa = PBXFileReference; lastKnownFileType = text.json; name = gear_mechanism_scene.json; path = ../scenes/gear_mechanism_scene.json; sourceTree = SOURCE_ROOT;};
+		464E15E251A5F6A037EF0D4C = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_groups.cpp; path = ../scenes/scenes_groups.cpp; sourceTree = SOURCE_ROOT;};
+		46ABDF2289A585B7217BFDDF = {isa = PBXFileReference; lastKnownFileType = text; name = xcodeproj_writer.py; path = xcodeproj_writer.py; sourceTree = SOURCE_ROOT;};
+		497A257E34EA70B228989771 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scene_builder.cpp; path = ../scenes/scene_builder.cpp; sourceTree = SOURCE_ROOT;};
+		4C878109FA80C68CFD77BC39 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_network.cpp; path = ../scenes/scenes_network.cpp; sourceTree = SOURCE_ROOT;};
+		4DD2570EED6F10DF5CB13CCB = {isa = PBXFileReference; lastKnownFileType = text.json; name = animated_scene.json; path = ../scenes/animated_scene.json; sourceTree = SOURCE_ROOT;};
+		4E4E0B74F25F640D83AE3463 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_modeling.cpp; path = ../scenes/scenes_modeling.cpp; sourceTree = SOURCE_ROOT;};
+		4FE8A7A75B5062A49AF6C86A = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = metal/Sources/AppDelegate.swift; sourceTree = SOURCE_ROOT;};
+		53D07F5A9FC37676FF5E1C84 = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../scenes/assets; sourceTree = SOURCE_ROOT;};
+		68DC930236C780CFA1D640C9 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_copy.cpp; path = ../scenes/scenes_copy.cpp; sourceTree = SOURCE_ROOT;};
+		7E5ED238B329E75AB0C0407A = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GeoNodus Metal Demo.app"; sourceTree = BUILT_PRODUCTS_DIR;};
+		967EFFCB2A860F0614111D22 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BridgingHeader.h; path = metal/BridgingHeader.h; sourceTree = SOURCE_ROOT;};
+		9875B6AE555AEB40A52E871D = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_deform.cpp; path = ../scenes/scenes_deform.cpp; sourceTree = SOURCE_ROOT;};
+		9AFC15F43BECA80CB9E7A494 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GnScene.swift; path = ../mac/metal/Sources/GnScene.swift; sourceTree = SOURCE_ROOT;};
+		A6880678BEF95826C52F9ED6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DemoMath.swift; path = ../mac/metal/Sources/DemoMath.swift; sourceTree = SOURCE_ROOT;};
+		B7ED75CD6098F6A661382530 = {isa = PBXFileReference; lastKnownFileType = text; name = make_xcodeproj.py; path = make_xcodeproj.py; sourceTree = SOURCE_ROOT;};
+		BCE7C3843AC787E6A79BCB26 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = demo_scenes.h; path = ../scenes/demo_scenes.h; sourceTree = SOURCE_ROOT;};
+		BCF050BBB868C54BB6A869E5 = {isa = PBXFileReference; lastKnownFileType = text.json; name = polyextrude_tube_scene.json; path = ../scenes/polyextrude_tube_scene.json; sourceTree = SOURCE_ROOT;};
+		CAAEF68D5044897EA75B7D35 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = geonodus_API.h; path = lib/include/geonodus_API.h; sourceTree = SOURCE_ROOT;};
+		D8FB6EE3685300DB05525E17 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = geonodus.h; path = lib/include/geonodus.h; sourceTree = SOURCE_ROOT;};
+		DBA15D85258658B76B6A7812 = {isa = PBXFileReference; lastKnownFileType = text.json; name = castle_scene.json; path = ../scenes/castle_scene.json; sourceTree = SOURCE_ROOT;};
+		DF0AF1A7A5521B9A9961C936 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MetalRenderer.swift; path = ../mac/metal/Sources/MetalRenderer.swift; sourceTree = SOURCE_ROOT;};
+		ECA79B466803DDB7D55E646A = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = geonodus.xcframework; path = lib/geonodus.xcframework; sourceTree = SOURCE_ROOT;};
+		F35F54608015071992A4A2C8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = demo_scenes_c.h; path = ../mac/metal/bridge/demo_scenes_c.h; sourceTree = SOURCE_ROOT;};
+		FD86C9E461A487678E1AE72F = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = demo_scenes.cpp; path = ../scenes/demo_scenes.cpp; sourceTree = SOURCE_ROOT;};
+		FFC0C1219BF8400EA8B73396 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_primitives.cpp; path = ../scenes/scenes_primitives.cpp; sourceTree = SOURCE_ROOT;};
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		404D1ED53ADFB165A5731665 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (5C2AC8B6E59AF2E21945A239, ); runOnlyForDeploymentPostprocessing = 0;};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1510263E490E0B7E3C2E1A9B = {isa = PBXGroup; children = (ADF71D7B7C5992DF28C38E77, ECA79B466803DDB7D55E646A, ); name = lib; sourceTree = "<group>";};
+		2F3A6B1E78F896718625FF06 = {isa = PBXGroup; children = (7E5ED238B329E75AB0C0407A, ); name = Products; sourceTree = "<group>";};
+		518DA81DB9B99529C0C0AEBE = {isa = PBXGroup; children = (B5AF4248910ADD5F42998A20, 890A884098FF8AC382F1E650, 7F4DB8FFF4B626E37C8448E8, 1510263E490E0B7E3C2E1A9B, B7ED75CD6098F6A661382530, 46ABDF2289A585B7217BFDDF, 2F3A6B1E78F896718625FF06, ); sourceTree = "<group>";};
+		791A403F3AD8952A90F41CED = {isa = PBXGroup; children = (F35F54608015071992A4A2C8, 351DB532728C23B0949F8387, ); name = bridge; sourceTree = "<group>";};
+		7F4DB8FFF4B626E37C8448E8 = {isa = PBXGroup; children = (967EFFCB2A860F0614111D22, 082040E7558B9BDCAE626F9A, CA736BAC4077FB7063A7A640, ); name = metal; sourceTree = "<group>";};
+		890A884098FF8AC382F1E650 = {isa = PBXGroup; children = (BCE7C3843AC787E6A79BCB26, 10B6C2026938E7EB945E60E6, 174BA4E5CEB7D1C0671C1095, FD86C9E461A487678E1AE72F, 497A257E34EA70B228989771, 1A41BDB56D555D8099D1A96D, 68DC930236C780CFA1D640C9, 25E80F174DF98D5920A3698E, 9875B6AE555AEB40A52E871D, 464E15E251A5F6A037EF0D4C, 4E4E0B74F25F640D83AE3463, 4C878109FA80C68CFD77BC39, FFC0C1219BF8400EA8B73396, 4DD2570EED6F10DF5CB13CCB, DBA15D85258658B76B6A7812, 4187D618496B280E010CD453, 07B74C676EC7B85E32BC487E, BCF050BBB868C54BB6A869E5, 53D07F5A9FC37676FF5E1C84, ); name = scenes; sourceTree = "<group>";};
+		970FACC23D32E68813811A32 = {isa = PBXGroup; children = (9AFC15F43BECA80CB9E7A494, DF0AF1A7A5521B9A9961C936, A6880678BEF95826C52F9ED6, ); name = Sources; sourceTree = "<group>";};
+		99BC04C0AAD5BE725412B22F = {isa = PBXGroup; children = (791A403F3AD8952A90F41CED, 970FACC23D32E68813811A32, ); name = metal; sourceTree = "<group>";};
+		ADF71D7B7C5992DF28C38E77 = {isa = PBXGroup; children = (D8FB6EE3685300DB05525E17, CAAEF68D5044897EA75B7D35, ); name = include; sourceTree = "<group>";};
+		B5AF4248910ADD5F42998A20 = {isa = PBXGroup; children = (99BC04C0AAD5BE725412B22F, ); name = mac; sourceTree = "<group>";};
+		CA736BAC4077FB7063A7A640 = {isa = PBXGroup; children = (4FE8A7A75B5062A49AF6C86A, 0D610D8BD53C8CE599E79B3B, ); name = Sources; sourceTree = "<group>";};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D6B4CB03C89BD9970F3FD89C = {isa = PBXNativeTarget; buildConfigurationList = 5AF0B7001AFE89119C6F7344; buildPhases = (D3C94DF2B687E7D8BCF93C91, 404D1ED53ADFB165A5731665, C8A5212D519836F9EBC8F9A0, D091461E88028CAAEEF53046, ); buildRules = (); dependencies = (); name = GeoNodusMetalDemo; productName = GeoNodusMetalDemo; productReference = 7E5ED238B329E75AB0C0407A; productType = "com.apple.product-type.application";};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		46F86FAA6BBF9AC94A7E4595 = {isa = PBXProject; attributes = {BuildIndependentTargetsInParallel = 1; LastUpgradeCheck = 1600; }; buildConfigurationList = 1F4E3D13C2320EDA50221924; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base, ); mainGroup = 518DA81DB9B99529C0C0AEBE; productRefGroup = 2F3A6B1E78F896718625FF06; projectDirPath = ""; projectRoot = ""; targets = (D6B4CB03C89BD9970F3FD89C, );};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C8A5212D519836F9EBC8F9A0 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (9A63257EEE532887062F0148, B5FE56C1D9FC5A160BE33FD3, AC5EFE67F2E0655246CBF751, F2FCA23A872BAF95EEACA4AD, 6F6B783BE68D79AA1E517897, 514497325755B743D6FB0FA3, ); runOnlyForDeploymentPostprocessing = 0;};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D3C94DF2B687E7D8BCF93C91 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (10F2B59A0BDE6FBC159C9A0C, C568A8F6FA209C3DF56E88F0, 5E5E9F6F5F4C303969303153, 0A97BDCB9910C5D1783C124D, F7849819FACBD8AD5A276835, E7E04260DD0E979737BC0A4A, 4DD0F0159BE3077E8237A894, 7EFFB951C7E1A9E764F58B2D, 2D3D88ACCC6AEE5105967811, 1A1ADE88729425F8E90D1486, CF2AEC49F90124AC41AF2EC5, 6F5062432B72211D46CCAC14, 547F2E918373489551DFDBBC, 80D8681CAB3B07BA5ECF2D0F, 1F7AA1257664DCCED50F56C0, 8FD6B7D03FABEEBB76974D8F, ); runOnlyForDeploymentPostprocessing = 0;};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4A43692AD8BCEEB8B727C85B = {isa = XCBuildConfiguration; buildSettings = {SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 15.0;}; name = Debug;};
+		590798AACDDF2BEA20DB5EC7 = {isa = XCBuildConfiguration; buildSettings = {PRODUCT_NAME = "GeoNodus Metal Demo"; PRODUCT_BUNDLE_IDENTIFIER = com.geonodus.demo.ios; INFOPLIST_FILE = metal/Info.plist; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SUPPORTS_MACCATALYST = NO; SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES; IPHONEOS_DEPLOYMENT_TARGET = 15.0; TARGETED_DEVICE_FAMILY = "1,2"; SWIFT_VERSION = 5.0; SWIFT_OBJC_BRIDGING_HEADER = metal/BridgingHeader.h; HEADER_SEARCH_PATHS = ("$(SRCROOT)/lib/include", "$(SRCROOT)/../scenes", "$(SRCROOT)/../mac/metal", ); LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", ); CLANG_CXX_LANGUAGE_STANDARD = "c++20"; CLANG_CXX_LIBRARY = "libc++"; CLANG_ENABLE_MODULES = YES; ALWAYS_SEARCH_USER_PATHS = NO; CODE_SIGN_STYLE = Automatic; CODE_SIGN_IDENTITY = "Apple Development"; DEVELOPMENT_TEAM = ""; ENABLE_BITCODE = NO; MARKETING_VERSION = 1.0; CURRENT_PROJECT_VERSION = 1; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; GCC_OPTIMIZATION_LEVEL = 0; DEBUG_INFORMATION_FORMAT = dwarf; ONLY_ACTIVE_ARCH = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG; GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)", ); ENABLE_TESTABILITY = YES;}; name = Debug;};
+		59DC61C5A0DE62A5102156CF = {isa = XCBuildConfiguration; buildSettings = {PRODUCT_NAME = "GeoNodus Metal Demo"; PRODUCT_BUNDLE_IDENTIFIER = com.geonodus.demo.ios; INFOPLIST_FILE = metal/Info.plist; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SUPPORTS_MACCATALYST = NO; SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES; IPHONEOS_DEPLOYMENT_TARGET = 15.0; TARGETED_DEVICE_FAMILY = "1,2"; SWIFT_VERSION = 5.0; SWIFT_OBJC_BRIDGING_HEADER = metal/BridgingHeader.h; HEADER_SEARCH_PATHS = ("$(SRCROOT)/lib/include", "$(SRCROOT)/../scenes", "$(SRCROOT)/../mac/metal", ); LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", ); CLANG_CXX_LANGUAGE_STANDARD = "c++20"; CLANG_CXX_LIBRARY = "libc++"; CLANG_ENABLE_MODULES = YES; ALWAYS_SEARCH_USER_PATHS = NO; CODE_SIGN_STYLE = Automatic; CODE_SIGN_IDENTITY = "Apple Development"; DEVELOPMENT_TEAM = ""; ENABLE_BITCODE = NO; MARKETING_VERSION = 1.0; CURRENT_PROJECT_VERSION = 1; SWIFT_OPTIMIZATION_LEVEL = "-O"; SWIFT_COMPILATION_MODE = wholemodule; GCC_OPTIMIZATION_LEVEL = s; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; GCC_PREPROCESSOR_DEFINITIONS = ("NDEBUG=1", "$(inherited)", );}; name = Release;};
+		C28449456A5A705A7479770B = {isa = XCBuildConfiguration; buildSettings = {SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 15.0;}; name = Release;};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1F4E3D13C2320EDA50221924 = {isa = XCConfigurationList; buildConfigurations = (4A43692AD8BCEEB8B727C85B, C28449456A5A705A7479770B, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;};
+		5AF0B7001AFE89119C6F7344 = {isa = XCConfigurationList; buildConfigurations = (590798AACDDF2BEA20DB5EC7, 59DC61C5A0DE62A5102156CF, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;};
+/* End XCConfigurationList section */
+	};
+	rootObject = 46F86FAA6BBF9AC94A7E4595;
+}

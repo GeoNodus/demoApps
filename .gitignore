@@ -8,6 +8,8 @@ CMakeFiles/
 
 # Compiler and linker output outside the build trees
 *.obj
+# ...except the model of the File SOP in the demo scenes (scenes/assets/crystal.obj)
+!scenes/assets/*.obj
 *.o
 *.pdb
 *.ilk

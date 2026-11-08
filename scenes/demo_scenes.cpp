@@ -27,6 +27,8 @@ const DemoScene SCENES[] = {
     {"xform", "Transform SOP: a twisted column of transforms of point groups", sceneXform},
     {"mountain", "Noise displacement of a grid and a sphere, flowing in time", sceneMountain},
     {"bend", "Bending, twisting and tapering a column", sceneBend},
+    {"pathdeform", "A tapered rolling column along a waving curve and a twisted band sliding around a circle",
+        scenePathDeform},
     {"matchsize", "Shapes of different sizes fitted into a pulsing box", sceneMatchSize},
     {"fuse", "Snapping points to a grid of changing spacing", sceneFuse},
     // Modeling

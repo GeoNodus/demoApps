@@ -61,6 +61,7 @@ void sceneGroupRange(SceneBuilder& b);
 void sceneXform(SceneBuilder& b);
 void sceneMountain(SceneBuilder& b);
 void sceneBend(SceneBuilder& b);
+void scenePathDeform(SceneBuilder& b);
 void sceneMatchSize(SceneBuilder& b);
 void sceneFuse(SceneBuilder& b);
 

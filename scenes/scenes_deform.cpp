@@ -1,4 +1,4 @@
-// Deformers: Transform, Mountain, Bend, Match Size, Fuse
+// Deformers: Transform, Mountain, Bend, Path Deform, Match Size, Fuse
 #include "demo_scenes.h"
 #include "scene_util.h"
 
@@ -112,6 +112,59 @@ void sceneBend(SceneBuilder& b)
     Node bendColor2 = color(b, geo, bend2, 0.35, 0.65, 0.95);
 
     merge(b, geo, {bendColor, bendColor2}).display();
+}
+
+// Path Deform: a long column laid along a waving NURBS curve (Fit through moving points) with a taper ramp and an
+// animated roll, and a ribbon sliding around a circle and twisted along it, whose length grows and shrinks; the ribbon
+// wraps around the closed curve (Extend on a closed curve). The roll ramp is a function of the curve fraction, so the
+// twist is a whole turn (360 degrees): the roll at the end of the circle equals the roll at its start and the ribbon
+// does not tear where it crosses the start of the circle
+void scenePathDeform(SceneBuilder& b)
+{
+    Node geo = b.object("pathdeform");
+
+    Node wave = b.sop(geo, "add", "wave_points").set("points", 7);
+    for (int k = 0; k < 7; ++k)
+        wave.expr(fmt("pt%d", k).c_str(),
+            {fmt("%g", -6 + k * 2.0).c_str(), fmt("1.5 * sin($T * 1.2 + %d * 0.9)", k).c_str(),
+                fmt("1.2 * cos($T * 0.8 + %d * 0.7)", k).c_str()});
+    wave.set("prims", 1).set("prim0", "0-6").set("closed0", 0);
+    Node path = b.sop(geo, "fit", "wave_path").input(0, wave).set("method", 1).set("type", "nurbs");
+
+    Node column = b.sop(geo, "box", "column").set("size", 0.7, 0.45, 10).set("divrate", 3, 3, 80);
+    Node snake = b.sop(geo, "pathdeform", "snake")
+                     .input(0, column)
+                     .input(1, path)
+                     .set("curve_endunit", "fractioncurvelength")
+                     .set("taper_enable", 1)
+                     .set("taper_enableramp", 1)
+                     .set("taper_ramp", 3)
+                     .set("taper_ramp1value", 0.3)
+                     .set("taper_ramp2pos", 1.0)
+                     .set("taper_ramp2value", 0.15)
+                     .set("taper_ramp3pos", 0.35)
+                     .set("taper_ramp3value", 1.6)
+                     .set("taper_ramp3interp", "catmull-rom")
+                     .set("rotate_enable", 1)
+                     .expr("rotate_angle", "240 * sin($T * 0.7)")
+                     .set("rotate_enableramp", 1);
+    Node snakeColor = color(b, geo, snake, 0.95, 0.6, 0.25);
+
+    Node ring =
+        b.sop(geo, "circle", "ring_path").set("divs", 64).set("orient", "zx").set("rad", 4, 4).set("t", 0, -3, 0);
+    Node strip = b.sop(geo, "grid", "strip").set("orient", "zx").set("size", 1.2, 10).set("rows", 120).set("cols", 3);
+    Node band = b.sop(geo, "pathdeform", "band")
+                    .input(0, strip)
+                    .input(1, ring)
+                    .set("curve_endunit", "fractioncurvelength")
+                    .expr("curve_posend", "0.55 + 0.35 * sin($T * 0.9)")
+                    .expr("curve_posoffset", "$T * 0.06")
+                    .set("rotate_enable", 1)
+                    .set("rotate_angle", 360)
+                    .set("rotate_enableramp", 1);
+    Node bandColor = color(b, geo, band, 0.35, 0.65, 0.95);
+
+    merge(b, geo, {snakeColor, bandColor}).display();
 }
 
 // Match Size: a torus, a sphere and a thin box stretched into one box (Justify Target — Location and Size, Scale to

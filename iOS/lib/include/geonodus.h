@@ -242,6 +242,128 @@ GN_DECL gnGetGroupMembership(const GN_SessionId, GN_NodeId node, GN_PartId part,
 GN_DECL gnGetEdgeCountOfEdgeGroup(const GN_SessionId, GN_NodeId node, GN_PartId part, const char* group_name,
     int* edge_count);
 
+// --- Input geometry (HAPI_CreateInputNode and the HAPI geometry setters) ---------------------------------------------
+// Geometry given by the caller: points, vertices, faces or curves, attributes and groups. The setters describe one part
+// (a mesh or curves) of a SOP; gnCommitGeo builds the geometry and locks the SOP with it (as a hard-locked node in
+// Houdini): the node no longer cooks its operator or its inputs, it outputs the committed geometry, and the nodes
+// connected to it cook with it. The graph (gnSaveGraph) stores the geometry of locked nodes ("geometry" of the node,
+// the format is in geometry/geo_json.h of the library), so such a graph opens in any client. The description stays
+// after the commit, as in HAPI: committing again gives the same geometry, and setting one attribute (an animated P)
+// and committing again changes only it. part_id is not used (one part): pass 0. Errors — GN_RESULT_INVALID_ARGUMENT
+// (GN_RESULT_NODE_INVALID — no such node), the text is in the GN_STATUS_CALL_RESULT status string.
+//
+// A typical mesh:
+//   gnCreateInputNode(s, -1, &node, "mesh");             // /obj/input_mesh/input_mesh
+//   GN_PartInfo part = {0}; part.type = GN_PARTTYPE_MESH;
+//   part.pointCount = 4; part.vertexCount = 6; part.faceCount = 2;
+//   gnSetPartInfo(s, node, 0, &part);
+//   GN_AttributeInfo p = {0}; p.exists = 1; p.owner = GN_ATTROWNER_POINT; p.storage = GN_STORAGETYPE_FLOAT;
+//   p.count = 4; p.tupleSize = 3; p.typeInfo = HAPI_ATTRIBUTE_TYPE_POINT;
+//   gnAddAttribute(s, node, 0, "P", &p);
+//   gnSetAttributeFloatData(s, node, 0, "P", &p, positions, 0, 4);
+//   gnSetVertexList(s, node, 0, vertices, 0, 6);         // the point of each vertex, face after face
+//   gnSetFaceCounts(s, node, 0, faceCounts, 0, 2);       // vertices per face
+//   gnCommitGeo(s, node);
+
+// HAPI_CreateInputNode: a Null SOP for input geometry, named "input_<name>" (without a name "input_"; a taken name gets
+// a number). parent_node_id — a geo object or a SOP subnet to create it in, -1 — a new geo object on /obj with the same
+// name. GN_GeoInfo::type of the node is GN_GEOTYPE_INPUT. The geometry can also be set on any other SOP (except a SOP
+// subnet), as in HAPI
+GN_DECL gnCreateInputNode(const GN_SessionId, GN_NodeId parent_node_id, GN_NodeId* node_id, const char* name);
+
+// HAPI_SetPartInfo: the part type (GN_PARTTYPE_MESH or GN_PARTTYPE_CURVE) and its counts — pointCount, vertexCount and
+// faceCount (faces of a mesh, curves of a curve part); attributeCounts are not used. Starts a new description: the
+// attributes, groups, vertex list and counts set before are dropped (the committed geometry stays until the next
+// commit). P always exists (points at the origin until it is set)
+GN_DECL gnSetPartInfo(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const GN_PartInfo* part_info);
+
+// HAPI_SetFaceCounts: the number of vertices of each face (at least 1), start and length — face indices
+GN_DECL gnSetFaceCounts(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const int* face_counts_array,
+    int start, int length);
+
+// HAPI_SetVertexList: the point of each vertex (faces one after another, in the order of their vertices). A curve
+// part may go without it: vertex i is then point i
+GN_DECL gnSetVertexList(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const int* vertex_list_array,
+    int start, int length);
+
+// HAPI_AddAttribute: an attribute of attr_info->owner with attr_info->storage (INT, INT64, FLOAT, FLOAT64, STRING;
+// UINT8 / INT8 / INT16 are stored as INT; arrays and dictionaries are not supported), attr_info->tupleSize components
+// and attr_info->typeInfo (HAPI_ATTRIBUTE_TYPE_INVALID — guessed from the name: N — normal, Cd — color, uv —
+// texture, ...). The values start at 0 ("" for strings). An attribute with the same name and owner is replaced. P is
+// always a float of size 3
+GN_DECL gnAddAttribute(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const char* name,
+    const GN_AttributeInfo* attr_info);
+
+// HAPI_DeleteAttribute: removes an attribute of attr_info->owner (P cannot be removed)
+GN_DECL gnDeleteAttribute(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const char* name,
+    const GN_AttributeInfo* attr_info);
+
+// HAPI_SetAttribute{Int,Int64,Float,Float64}Data: the values of elements [start, start + length) of attr_info->owner,
+// attr_info->tupleSize numbers per element (it must match the attribute). The numbers are converted to the storage of
+// the attribute
+GN_DECL gnSetAttributeIntData(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const char* name,
+    const GN_AttributeInfo* attr_info, const int* data_array, int start, int length);
+
+GN_DECL gnSetAttributeInt64Data(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const char* name,
+    const GN_AttributeInfo* attr_info, const GN_Int64* data_array, int start, int length);
+
+GN_DECL gnSetAttributeFloatData(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const char* name,
+    const GN_AttributeInfo* attr_info, const float* data_array, int start, int length);
+
+GN_DECL gnSetAttributeFloat64Data(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const char* name,
+    const GN_AttributeInfo* attr_info, const double* data_array, int start, int length);
+
+// HAPI_SetAttributeStringData: tupleSize strings per element (NULL — an empty string)
+GN_DECL gnSetAttributeStringData(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const char* name,
+    const GN_AttributeInfo* attr_info, const char** data_array, int start, int length);
+
+// HAPI_AddGroup / HAPI_DeleteGroup: a point, primitive or edge group
+GN_DECL gnAddGroup(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, GN_GroupType group_type,
+    const char* group_name);
+
+GN_DECL gnDeleteGroup(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, GN_GroupType group_type,
+    const char* group_name);
+
+// HAPI_SetGroupMembership: points and primitives — 1 (in the group) or 0 per element of [start, start + length).
+// Edges (unlike HAPI, the same way as gnGetGroupMembership returns them) — pairs of point indices, 2 numbers per edge;
+// start and length are edge indices
+GN_DECL gnSetGroupMembership(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, GN_GroupType group_type,
+    const char* group_name, const int* membership_array, int start, int length);
+
+// Curves of a curve part (HAPI_SetCurveInfo / Counts / Orders / Knots). info->curveCount must equal the faceCount of the
+// part; info->order — 2..11 for every curve, or 0 with per-curve orders from gnSetCurveOrders (ignored for LINEAR).
+// As in HAPI (checked in Houdini 21):
+//  - LINEAR — polylines; isClosed — closed polygons (they are read back as a mesh part); isPeriodic — an open polyline
+//    that repeats its first point at the end;
+//  - NURBS — open, with the knots of gnSetCurveKnots when hasKnots is set (order + CV count knots per curve, one curve
+//    after another), otherwise the uniform HAPI knots 0, 0, 1, 2, ..., K, K (the curve does not reach its end CVs);
+//    isClosed — a closed periodic curve with uniform knots (given knots are not used); isPeriodic does nothing;
+//  - BEZIER — the knots are not used; an open curve needs k * (order - 1) + 1 CVs, a closed one (isClosed)
+//    k * (order - 1); isPeriodic — an open curve that repeats its first CV.
+// A curve Houdini would skip (too few CVs for its order, a CV count that does not fit Bezier segments) fails
+// gnCommitGeo. Rational curves: a point attribute Pw (the CV weights), as in Houdini
+GN_DECL gnSetCurveInfo(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const GN_CurveInfo* info);
+
+// The number of CVs of each curve (as gnSetFaceCounts)
+GN_DECL gnSetCurveCounts(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const int* counts_array, int start,
+    int length);
+
+GN_DECL gnSetCurveOrders(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const int* orders_array, int start,
+    int length);
+
+// Set the counts and orders first; start and length are knot indices
+GN_DECL gnSetCurveKnots(const GN_SessionId, GN_NodeId node_id, GN_PartId part_id, const float* knots_array, int start,
+    int length);
+
+// HAPI_CommitGeo: builds the geometry of the description and locks the node with it; the node and the nodes after it
+// become dirty (cook them to see it). An incomplete description (a face count or a vertex not set, the counts not
+// adding up to vertexCount) or an invalid curve — GN_RESULT_INVALID_ARGUMENT, the node keeps its geometry
+GN_DECL gnCommitGeo(const GN_SessionId, GN_NodeId node_id);
+
+// HAPI_RevertGeo: unlocks the node — it cooks its operator again (an input node, a Null SOP, passes its input on);
+// the description is dropped
+GN_DECL gnRevertGeo(const GN_SessionId, GN_NodeId node_id);
+
 // The session graph (as HAPI_SaveHIPFile / HAPI_LoadHIPFile): all /obj nodes with parameters, expressions, connections
 // and time — as JSON. Parameters are saved by name (menus — by item token), only those that differ from their defaults.
 // Loading replaces the session graph (the children of /obj are deleted); the whole file is parsed before the session

@@ -351,6 +351,23 @@ void SceneBuilder::setExpression(GN_NodeId node, const char* parm, int component
                         + " — " + resultName(r));
 }
 
+bool SceneBuilder::check(GN_Result result, GN_NodeId node, const char* call)
+{
+    if (result == GN_RESULT_SUCCESS)
+        return true;
+    std::string text = std::string(call) + " — " + resultName(result);
+    int length = 0;
+    if (gnGetStatusStringBufLength(m_session, GN_STATUS_CALL_RESULT, GN_STATUSVERBOSITY_ERRORS, &length)
+            == GN_RESULT_SUCCESS
+        && length > 1) {
+        std::string status(static_cast<size_t>(length), '\0');
+        if (gnGetStatusString(m_session, GN_STATUS_CALL_RESULT, &status[0], length) == GN_RESULT_SUCCESS)
+            text += ": " + std::string(status.c_str());
+    }
+    error(node, text);
+    return false;
+}
+
 void SceneBuilder::error(GN_NodeId node, const std::string& text)
 {
     m_errors.push_back(node >= 0 ? nodeName(node) + ": " + text : text);

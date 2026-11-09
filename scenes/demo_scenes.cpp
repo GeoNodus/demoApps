@@ -53,6 +53,11 @@ const DemoScene SCENES[] = {
     {"output", "Output SOPs choosing the outputs of a subnet", sceneOutput},
     {"Object/geo", "Geometry objects with their own animated transforms", sceneGeoObject},
     {"Object/null", "Null objects as parents: a hierarchy of rotating objects", sceneNullObject},
+    // Geometry of the application
+    {"input", "Input nodes: a star column and a NURBS knot made in code with the geometry setters (gnCreateInputNode)",
+        sceneInputGeometry},
+    {"input+boolean", "Booleans between two input nodes made in code: a torus moving through a star prism",
+        sceneInputBoolean},
 };
 
 bool equalNoCase(const char* a, const char* b)

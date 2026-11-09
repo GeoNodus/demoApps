@@ -14,7 +14,9 @@ namespace demo::scenes {
 
 struct DemoScene
 {
-    const char* nodeType; // the operator the scene shows, as gnCreateNode takes it ("sphere", "Object/null", ...)
+    // the operator the scene shows, as gnCreateNode takes it ("sphere", "Object/null", ...); "input" — an input node
+    // of gnCreateInputNode
+    const char* nodeType;
     const char* description; // one line for the UI
     void (*build)(SceneBuilder& b);
 };
@@ -82,5 +84,9 @@ void sceneResample(SceneBuilder& b);
 void sceneCarve(SceneBuilder& b);
 void sceneJoin(SceneBuilder& b);
 void sceneOrientAlongCurve(SceneBuilder& b);
+
+// Input geometry made in code (gnCreateInputNode and the geometry setters) — scenes_input.cpp
+void sceneInputGeometry(SceneBuilder& b);
+void sceneInputBoolean(SceneBuilder& b);
 
 } // namespace demo::scenes

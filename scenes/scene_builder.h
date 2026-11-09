@@ -92,6 +92,10 @@ public:
     // A node inside a SOP subnet: its input "1".."4" (the subnet's input `index` from 1)
     Node subnetInput(const Node& subnet, int index);
 
+    // Checks the result of a gn* call made directly by a scene function (the input geometry setters of
+    // scenes_input.cpp): false — the call failed, the error (with the GN_STATUS_CALL_RESULT text) goes to errors()
+    bool check(GN_Result result, GN_NodeId node, const char* call);
+
     const std::vector<std::string>& errors() const { return m_errors; }
     // Every (node, parameter, token) of the menu items set by token: the build is checked against the saved graph
     struct MenuChoice

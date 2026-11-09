@@ -113,43 +113,64 @@ On iOS open `iOS/GeoNodusMetalDemo.xcodeproj` in Xcode, choose a signing team an
 
 ## Quick start with the C API
 
-The whole API is C: functions `gn*` in `geonodus.h`, types and enums `GN_*` in `geonodus_API.h`. As in HAPI,
-parameters are found by name in the list returned by `gnGetParameters` and written into flat value arrays:
+The whole API is C: functions `gn*` in `geonodus.h`, types and enums `GN_*` in `geonodus_API.h`. As in HAPI, a node
+publishes its parameters as a list (`gnGetParameters`); every parameter knows its id and its index in the flat arrays of
+int, float and string values. Three small helpers, written only with API calls, find a parameter by name and choose a
+menu item by its token — the feature examples below use them:
 
 ```cpp
 #include <geonodus.h>
 #include <string>
 #include <vector>
 
-// A parameter by name: GN_ParmInfo gives its id and its index in the flat int / float / string arrays
+// A string of the session string table: as in HAPI, first the length, then the string
+std::string getString(GN_SessionId s, GN_StringHandle handle)
+{
+    int length = 0;
+    gnGetStringBufLength(s, handle, &length);
+    std::string text(length, '\0');
+    gnGetString(s, handle, text.data(), length);
+    return text.c_str();
+}
+
+// A parameter by name: id (for expressions and strings) and intValuesIndex / floatValuesIndex (for values)
 GN_ParmInfo findParm(GN_SessionId s, GN_NodeId node, const char* name)
 {
     GN_NodeInfo info{};
     gnGetNodeInfo(s, node, &info);
     std::vector<GN_ParmInfo> parms(info.parmCount);
     gnGetParameters(s, node, parms.data(), 0, info.parmCount);
-    for (const GN_ParmInfo& p : parms) {
-        int length = 0;
-        gnGetStringBufLength(s, p.nameSH, &length);   // as in HAPI: first the length, then the string
-        std::string parmName(length, '\0');
-        gnGetString(s, p.nameSH, parmName.data(), length);
-        if (parmName.c_str() == std::string(name))
+    for (const GN_ParmInfo& p : parms)
+        if (getString(s, p.nameSH) == name)
             return p;
-    }
     GN_ParmInfo none{};
     none.id = -1;
     return none;
 }
 
+// A menu item by its token: the value of a menu parameter is the index of the item
+void setMenu(GN_SessionId s, GN_NodeId node, const char* name, const char* token)
+{
+    const GN_ParmInfo p = findParm(s, node, name);
+    std::vector<GN_ParmChoiceInfo> items(p.choiceCount);
+    gnGetParmChoiceLists(s, node, items.data(), p.choiceIndex, p.choiceCount);
+    for (int i = 0; i < p.choiceCount; ++i)
+        if (getString(s, items[i].valueSH) == token)
+            gnSetParmIntValues(s, node, &i, p.intValuesIndex, 1);
+}
+```
+
+A complete program — a grid displaced by animated noise, cooked and read back:
+
+```cpp
 int main()
 {
     GN_SessionId s;
     gnCreateSession(&s);
 
-    // /obj/terrain: a grid displaced by noise
     GN_NodeId geo, grid, noise;
-    gnCreateNode(s, 0, "geo", "terrain", false, &geo);        // 0 is the root /obj
-    gnCreateNode(s, geo, "grid", "land", false, &grid);
+    gnCreateNode(s, 0, "geo", "terrain", false, &geo);        // an object on the root /obj (id 0)
+    gnCreateNode(s, geo, "grid", "land", false, &grid);       // SOPs inside the object
     gnCreateNode(s, geo, "mountain", "noise", false, &noise);
     gnConnectNodeInput(s, noise, 0, grid, 0);
     gnSetNodeDisplay(s, noise, 1);                            // the SOP the object outputs
@@ -158,16 +179,14 @@ int main()
     gnSetParmFloatValues(s, grid, size, findParm(s, grid, "size").floatValuesIndex, 2);
     const int rows = 80;
     gnSetParmIntValues(s, grid, &rows, findParm(s, grid, "rows").intValuesIndex, 1);
-    // The noise height follows time: $T — seconds, $F — frame, ch("path") — another parameter
+    // An expression on a parameter component: $T — seconds, $F — frame, ch("path") — another parameter
     gnSetParmExpression(s, noise, "1 + 0.5 * sin($T)", findParm(s, noise, "height").id, 0);
 
-    // Cook at t = 2 s: the call only queues the cook on the session's job thread
     gnSetTime(s, 2.0);
     GN_CookOptions options = gnCookOptions_Create();
-    gnCookNode(s, geo, &options);
+    gnCookNode(s, geo, &options);                             // non-blocking: queued on the session's job thread
     gnWaitCook(s, geo, -1);
 
-    // Read the result: the Display SOP of the object, its first part, positions and triangles
     GN_GeoInfo geoInfo;
     gnGetDisplayGeoInfo(s, geo, &geoInfo);
     GN_PartInfo part;
@@ -176,32 +195,16 @@ int main()
     gnGetAttributeInfo(s, geoInfo.nodeId, 0, "P", GN_ATTROWNER_POINT, &pInfo);
     std::vector<float> P(pInfo.count * 3);
     gnGetAttributeFloatData(s, geoInfo.nodeId, 0, "P", &pInfo, -1, P.data(), 0, pInfo.count);
-    std::vector<int> vertices(part.vertexCount);
+    std::vector<int> vertices(part.vertexCount);              // triangles: 3 points per face by default
     gnGetVertexList(s, geoInfo.nodeId, 0, vertices.data(), 0, part.vertexCount);
 
     gnCloseSession(s);
 }
 ```
 
-### How the feature snippets are written
-
-The scenes below are built with `SceneBuilder` from [`scenes/scene_builder.h`](scenes/scene_builder.h) — a thin helper
-in which every call is one plain API call, so a scene reads like a description of the node graph:
-
-| Helper | API |
-|---|---|
-| `b.object("name", "geo")`, `b.sop(parent, "box", "name")` | `gnCreateNode` |
-| `.set("size", 2, 2, 2)` | `gnGetParameters` + `gnSetParmFloatValues` / `gnSetParmIntValues` |
-| `.set("type", "polymesh")` — a menu item by its token | `gnGetParmChoiceLists` + `gnSetParmIntValues` |
-| `.set("group", "0-120")` — a string | `gnSetParmStringValue` |
-| `.expr("r", 1, "$T * 30")`, `.expr("t", {"x", "y", "z"})` | `gnSetParmExpression` |
-| `.input(0, other)` | `gnConnectNodeInput` |
-| `.display()` | `gnSetNodeDisplay` |
-| `.addFloatParm(...)` | `gnAddSpareParm` |
-
-`color(b, net, input, r, g, b)` and `merge(b, net, {...})` from [`scenes/scene_util.h`](scenes/scene_util.h) add an
-Attribute Create node with a constant color `Cd` and a Merge node. The full code of every scene is in
-[`scenes/`](scenes); in the apps a scene is opened from the scene list or with `--scene <node type>`.
+The examples below assume a session `s`, a geo object `geo` (`gnCreateNode(s, 0, "geo", "geo1", false, &geo)`) and
+the helpers above. Toggles are int parameters (0 / 1). Cook and read the result as in the program above. The demo app
+shows every feature in a scene of its own; the code of the scenes is in [`scenes/`](scenes).
 
 ## Implemented features
 
@@ -209,66 +212,73 @@ Attribute Create node with a constant color `Cd` and a Merge node. The full code
 
 #### Sphere
 
-`sphere` — a polygon mesh sphere (rows × columns) or a subdivided icosahedron; with an input — the bounding sphere of
-the input points.
+`sphere` — a polygon mesh sphere (rows × columns) or a subdivided icosahedron; with a connected input — the bounding
+sphere of the input points.
 
 ```cpp
-Node geo = b.object("spheres");
-Node mesh = b.sop(geo, "sphere", "mesh_sphere")
-                .set("type", "polymesh")
-                .expr("rows", "rint(12 + 8 * sin($T * 1.3))")
-                .expr("cols", "rint(24 + 14 * sin($T * 0.9))")
-                .expr("rad", {"1.3 + 0.2 * sin($T * 2)", "ch(\"radx\")", "ch(\"radx\")"});
-Node ico = b.sop(geo, "sphere", "ico_sphere").set("type", "poly").expr("freq", "rint(3.5 + 2.5 * sin($T * 0.8))");
-// With an input: the sphere bounding a moving grid
-Node bound = b.sop(geo, "sphere", "bounding_sphere").input(0, grid).set("type", "polymesh");
+GN_NodeId sphere;
+gnCreateNode(s, geo, "sphere", "sphere1", false, &sphere);
+setMenu(s, sphere, "type", "polymesh");                       // "poly" — an icosahedron subdivided by "freq"
+const int rows = 24, cols = 48;
+gnSetParmIntValues(s, sphere, &rows, findParm(s, sphere, "rows").intValuesIndex, 1);
+gnSetParmIntValues(s, sphere, &cols, findParm(s, sphere, "cols").intValuesIndex, 1);
+const float rad[] = {2, 1.5, 2};
+gnSetParmFloatValues(s, sphere, rad, findParm(s, sphere, "rad").floatValuesIndex, 3);
+
+// The bounding sphere of other geometry: connect it to the input
+gnConnectNodeInput(s, sphere, 0, otherSop, 0);
 ```
 
 ![Sphere](images/sphere.png)
 
 #### Box
 
-`box` — a box with axis divisions, size, rotation and uniform scale; with an input — the bounding box of the input.
+`box` — a box of a given size and number of points along each axis; with a connected input — the bounding box of the
+input.
 
 ```cpp
-Node divided = b.sop(geo, "box", "divided_box")
-                   .expr("divrate", {"rint(3 + 2 * sin($T))", "rint(3 + 2 * sin($T * 1.3))", "3"})
-                   .expr("size", {"1.6", "1.6 + 0.6 * sin($T * 2)", "1.6"})
-                   .expr("r", {"$T * 20", "$T * 35", "0"});
-// The bounding box of a spinning torus, its top half clipped away
-Node bbox = b.sop(geo, "box", "bounding_box").input(0, torus);
-Node tray = b.sop(geo, "clip", "tray").input(0, bbox).set("clipop", "below").set("dir", 0, 1, 0);
+GN_NodeId box;
+gnCreateNode(s, geo, "box", "box1", false, &box);
+const float size[] = {2, 1, 3};
+gnSetParmFloatValues(s, box, size, findParm(s, box, "size").floatValuesIndex, 3);
+const int divisions[] = {4, 2, 6};                            // points along X, Y, Z
+gnSetParmIntValues(s, box, divisions, findParm(s, box, "divrate").intValuesIndex, 3);
+gnSetParmExpression(s, box, "$T * 45", findParm(s, box, "r").id, 1);   // rotation about Y animated
 ```
 
 ![Box](images/box.png)
 
 #### Grid
 
-`grid` — a grid of every connectivity: quadrilaterals, triangles, alternating triangles, rows, columns, rows and
-columns.
+`grid` — a grid of rows × columns of any connectivity: quadrilaterals, triangles, alternating triangles, rows,
+columns, rows and columns.
 
 ```cpp
-for (const char* surftype : {"quads", "triangles", "alttriangles", "rows", "rowcol"})
-    b.sop(geo, "grid", surftype)
-        .set("surftype", surftype)
-        .set("orient", "xy")
-        .expr("rows", "rint(6 + 4 * sin($T * 0.9))")
-        .expr("cols", "rint(6 + 4 * cos($T * 0.7))");
+GN_NodeId grid;
+gnCreateNode(s, geo, "grid", "grid1", false, &grid);
+const float size[] = {8, 4};
+gnSetParmFloatValues(s, grid, size, findParm(s, grid, "size").floatValuesIndex, 2);
+const int rows = 20, cols = 40;
+gnSetParmIntValues(s, grid, &rows, findParm(s, grid, "rows").intValuesIndex, 1);
+gnSetParmIntValues(s, grid, &cols, findParm(s, grid, "cols").intValuesIndex, 1);
+setMenu(s, grid, "surftype", "triangles");                    // "quads", "alttriangles", "rows", "rowcol", ...
+setMenu(s, grid, "orient", "xy");
 ```
 
 ![Grid](images/grid.png)
 
 #### Torus
 
-`torus` — a torus with ring and tube radii and divisions; here also a chain of tori made with Copy and Transform.
+`torus` — a torus with ring and tube radii and rows × columns of quadrilaterals.
 
 ```cpp
-Node donut = b.sop(geo, "torus", "donut")
-                 .expr("rad", {"1.5 + 0.3 * sin($T)", "0.5 + 0.25 * sin($T * 1.7)"})
-                 .expr("rows", "rint(10 + 6 * sin($T * 0.8))")
-                 .expr("cols", "rint(20 + 12 * sin($T * 0.6))");
-Node link = b.sop(geo, "torus", "link").set("orient", "z").set("rad", 0.5, 0.11);
-Node chain = b.sop(geo, "copyxform", "chain").input(0, link).set("ncy", 9).set("t", 0.78, 0, 0).set("r", 90, 0, 0);
+GN_NodeId torus;
+gnCreateNode(s, geo, "torus", "torus1", false, &torus);
+const float rad[] = {2, 0.5f};                                // ring radius, tube radius
+gnSetParmFloatValues(s, torus, rad, findParm(s, torus, "rad").floatValuesIndex, 2);
+const int rows = 16, cols = 48;
+gnSetParmIntValues(s, torus, &rows, findParm(s, torus, "rows").intValuesIndex, 1);
+gnSetParmIntValues(s, torus, &cols, findParm(s, torus, "cols").intValuesIndex, 1);
 ```
 
 ![Torus](images/torus.png)
@@ -279,32 +289,44 @@ Node chain = b.sop(geo, "copyxform", "chain").input(0, link).set("ncy", 9).set("
 circles.
 
 ```cpp
-Node pie = b.sop(geo, "circle", "pie")
-               .set("arc", "slicedarc")
-               .set("divs", 24)
-               .expr("angle", {"$T * 20", "$T * 20 + 270 + 80 * sin($T * 1.3)"});
-Node nurbs = b.sop(geo, "circle", "nurbs_circle")
-                 .set("type", "nurbs")
-                 .set("imperfect", 0)          // an exact circle of rational quadratic segments
-                 .set("order", 3)
-                 .expr("rad", {"1 + 0.4 * sin($T * 1.2)", "1 - 0.4 * sin($T * 1.2)"});
+GN_NodeId pie, nurbs;
+gnCreateNode(s, geo, "circle", "pie", false, &pie);
+setMenu(s, pie, "arc", "slicedarc");                          // "openarc", "closedarc"
+const int divs = 24;
+gnSetParmIntValues(s, pie, &divs, findParm(s, pie, "divs").intValuesIndex, 1);
+const float angle[] = {0, 270};
+gnSetParmFloatValues(s, pie, angle, findParm(s, pie, "angle").floatValuesIndex, 2);
+
+gnCreateNode(s, geo, "circle", "nurbs", false, &nurbs);
+setMenu(s, nurbs, "type", "nurbs");                           // "bezier"
+const int imperfect = 0, order = 3;                           // an exact circle of rational quadratic segments
+gnSetParmIntValues(s, nurbs, &imperfect, findParm(s, nurbs, "imperfect").intValuesIndex, 1);
+gnSetParmIntValues(s, nurbs, &order, findParm(s, nurbs, "order").intValuesIndex, 1);
 ```
 
 ![Circle](images/circle.png)
 
 #### Add
 
-`add` — points of a multiparm (`pt0`, `pt1`, ...), each driven by its own expressions, and polygons or polylines by a
-pattern of point numbers.
+`add` — points given one by one (the `points` multiparm: `pt0`, `pt1`, ...) and polygons or polylines through them by
+a pattern of point numbers (the `prims` multiparm).
 
 ```cpp
-Node star = b.sop(geo, "add", "star").set("points", 10);   // the number of multiparm instances
-for (int k = 0; k < 10; ++k) {
-    const char* radius = k % 2 == 0 ? "2.2" : "(1 + 0.4 * sin($T * 3))";
-    star.expr(fmt("pt%d", k).c_str(), {fmt("%s * cos(%f + $T * 0.5)", radius, k * 0.6283).c_str(),
-                                       fmt("%s * sin(%f + $T * 0.5)", radius, k * 0.6283).c_str(), nullptr});
+GN_NodeId add;
+gnCreateNode(s, geo, "add", "add1", false, &add);
+const int pointCount = 4;                                     // the value of a multiparm is its number of instances
+gnSetParmIntValues(s, add, &pointCount, findParm(s, add, "points").intValuesIndex, 1);
+const float pts[4][3] = {{0, 0, 0}, {2, 0, 0}, {2, 2, 0}, {0, 2, 0}};
+for (int i = 0; i < 4; ++i) {
+    const std::string name = "pt" + std::to_string(i);        // instances of Add are numbered from 0
+    gnSetParmFloatValues(s, add, pts[i], findParm(s, add, name.c_str()).floatValuesIndex, 3);
 }
-star.set("prims", 1).set("prim0", "0-9").set("closed0", 1);   // one closed polygon through points 0..9
+gnSetParmExpression(s, add, "1 + sin($T)", findParm(s, add, "pt2").id, 1);   // a point moved by an expression
+
+const int primCount = 1, closed = 1;
+gnSetParmIntValues(s, add, &primCount, findParm(s, add, "prims").intValuesIndex, 1);
+gnSetParmStringValue(s, add, "0-3", findParm(s, add, "prim0").id, 0);        // points 0, 1, 2, 3
+gnSetParmIntValues(s, add, &closed, findParm(s, add, "closed0").intValuesIndex, 1);
 ```
 
 ![Add](images/add.png)
@@ -313,60 +335,62 @@ star.set("prims", 1).set("prim0", "0-9").set("closed0", 1);   // one closed poly
 
 #### Attribute Create
 
-`attribcreate` — attributes of any class, type and size, one per instance of the `numattr` multiparm; values can be
-written only to the elements of a group.
+`attribcreate` — attributes of any class (point, vertex, primitive, detail), type and size, one per instance of the
+`numattr` multiparm; values can be written to the elements of a group only.
 
 ```cpp
-Node base = b.sop(geo, "attribcreate", "base_color")
-                .input(0, sphere)
-                .set("name1", "Cd").set("class1", "point").set("type1", "vector").set("size1", 3)
-                .expr("value1v", {"0.3 + 0.2 * sin($T)", "0.4 + 0.2 * sin($T * 1.3 + 2)", "0.7"});
-// Only the points of the group "spot" (made by Group Create) get another color
-Node spotColor = b.sop(geo, "attribcreate", "spot_color")
-                     .input(0, spot)
-                     .set("group", "spot").set("grouptype", "points")
-                     .set("name1", "Cd").set("class1", "point").set("type1", "vector").set("size1", 3)
-                     .expr("value1v", {"1", "0.8 + 0.2 * sin($T * 5)", "0.2"});
+GN_NodeId create;
+gnCreateNode(s, geo, "attribcreate", "color", false, &create);
+gnConnectNodeInput(s, create, 0, input, 0);
+gnSetParmStringValue(s, create, "Cd", findParm(s, create, "name1").id, 0);
+setMenu(s, create, "class1", "point");                        // "vertex", "primitive", "detail"
+setMenu(s, create, "type1", "vector");                        // "float", "int", "index" (a string), ...
+const int tupleSize = 3;
+gnSetParmIntValues(s, create, &tupleSize, findParm(s, create, "size1").intValuesIndex, 1);
+const float value[] = {1, 0.5f, 0.2f, 0};
+gnSetParmFloatValues(s, create, value, findParm(s, create, "value1v").floatValuesIndex, 4);
+
+// Only the points 0..99 get the value
+gnSetParmStringValue(s, create, "0-99", findParm(s, create, "group").id, 0);
+setMenu(s, create, "grouptype", "points");
 ```
 
 ![Attribute Create](images/attribcreate.png)
 
 #### Attribute Randomize
 
-`attribrandomize` — random values of an attribute (set, add, min, max, multiply) within a range, with a seed.
+`attribrandomize` — random values of an attribute within a range (set, add, min, max or multiply), repeatable by a
+seed.
 
 ```cpp
-b.sop(geo, "attribrandomize", "mosaic_colors")
-    .input(0, grid)
-    .set("class", "primitive")
-    .set("name", "Cd")
-    .expr("seed", "rint($T * 2)")
-    .set("max", 1, 0.8, 1, 1);
-// Random point sizes: Copy to Points scales the copies by pscale
-Node sizes = b.sop(geo, "attribrandomize", "sizes")
-                 .input(0, scatteredPoints)
-                 .set("name", "pscale").set("dimensions", 1)
-                 .set("min", 0.04, 0, 0, 0)
-                 .expr("max", 0, "0.12 + 0.08 * sin($T * 2)");
+GN_NodeId rnd;
+gnCreateNode(s, geo, "attribrandomize", "random_scale", false, &rnd);
+gnConnectNodeInput(s, rnd, 0, points, 0);
+gnSetParmStringValue(s, rnd, "pscale", findParm(s, rnd, "name").id, 0);
+const int dimensions = 1;
+gnSetParmIntValues(s, rnd, &dimensions, findParm(s, rnd, "dimensions").intValuesIndex, 1);
+const float minValue[] = {0.1f, 0, 0, 0}, maxValue[] = {0.5f, 0, 0, 0};
+gnSetParmFloatValues(s, rnd, minValue, findParm(s, rnd, "min").floatValuesIndex, 4);
+gnSetParmFloatValues(s, rnd, maxValue, findParm(s, rnd, "max").floatValuesIndex, 4);
+const float seed = 7;
+gnSetParmFloatValues(s, rnd, &seed, findParm(s, rnd, "seed").floatValuesIndex, 1);
 ```
 
 ![Attribute Randomize](images/attribrandomize.png)
 
 #### Attribute Blur
 
-`attribblur` — smoothing of point attributes over the mesh: colors, or positions themselves (Laplacian or
-volume-preserving).
+`attribblur` — smoothing of point attributes over the connections of the mesh (or by proximity): colors, weights or
+the positions themselves, Laplacian or volume preserving.
 
 ```cpp
-Node colorBlur = b.sop(geo, "attribblur", "blur_colors")
-                     .input(0, noisyColors)
-                     .set("attributes", "Cd")
-                     .expr("iterations", "rint(12 + 12 * sin($T * 0.8))");
-Node smooth = b.sop(geo, "attribblur", "smooth_terrain")
-                  .input(0, roughTerrain)
-                  .set("attributes", "P")
-                  .set("mode", "volpreserving")
-                  .expr("iterations", "rint(15 + 15 * sin($T * 0.6))");
+GN_NodeId blur;
+gnCreateNode(s, geo, "attribblur", "smooth", false, &blur);
+gnConnectNodeInput(s, blur, 0, input, 0);
+gnSetParmStringValue(s, blur, "P Cd", findParm(s, blur, "attributes").id, 0);  // names separated by spaces
+setMenu(s, blur, "mode", "volpreserving");
+const int iterations = 20;
+gnSetParmIntValues(s, blur, &iterations, findParm(s, blur, "iterations").intValuesIndex, 1);
 ```
 
 ![Attribute Blur](images/attribblur.png)
@@ -374,36 +398,38 @@ Node smooth = b.sop(geo, "attribblur", "smooth_terrain")
 #### Normal
 
 `normal` — normals of points, vertices (with a cusp angle), primitives or the detail, weighted equally, by angle or by
-area. Here spikes are copied onto the points and turned along `N`.
+area.
 
 ```cpp
-Node bumps = b.sop(geo, "mountain", "bumps").input(0, sphere).expr("height", "0.6 + 0.3 * sin($T)");
-Node normals = b.sop(geo, "normal", "point_normals")
-                   .input(0, bumps)
-                   .set("type", "typepoint")
-                   .set("method", "area");
-Node spike = b.sop(geo, "box", "spike").set("size", 0.05, 0.05, 0.6).set("t", 0, 0, 0.3);
-Node spikes = b.sop(geo, "copytopoints", "spikes").input(0, spike).input(1, normals).set("pivot", "origin");
+GN_NodeId normal;
+gnCreateNode(s, geo, "normal", "normal1", false, &normal);
+gnConnectNodeInput(s, normal, 0, input, 0);
+setMenu(s, normal, "type", "typepoint");                      // point normals
+setMenu(s, normal, "method", "area");                         // weighted by face area
+
+// After the cook: N of the points
+GN_AttributeInfo nInfo;
+gnGetAttributeInfo(s, normal, 0, "N", GN_ATTROWNER_POINT, &nInfo);
+std::vector<float> N(nInfo.count * 3);
+gnGetAttributeFloatData(s, normal, 0, "N", &nInfo, -1, N.data(), 0, nInfo.count);
 ```
 
 ![Normal](images/normal.png)
 
 #### UV Texture
 
-`texture` — texture coordinates by orthographic, polar, cylindrical, rows-and-columns, face and spline projections.
-Here they are written into `Cd`, so the coordinates are seen as colors.
+`texture` — texture coordinates by orthographic, polar, cylindrical, rows-and-columns, face and spline projections,
+with scale and offset.
 
 ```cpp
-Node polar = b.sop(geo, "texture", "polar")
-                 .input(0, sphere)
-                 .set("uvattrib", "Cd")
-                 .set("type", "polar")
-                 .expr("offset", {"0.3 * sin($T)", "0.3 * cos($T * 0.7)", "0"});
-Node cylin = b.sop(geo, "texture", "cylindrical")
-                 .input(0, torus)
-                 .set("uvattrib", "Cd")
-                 .set("type", "cylin")
-                 .expr("s", {"0.7 + 0.3 * sin($T)", "0.7 + 0.3 * cos($T * 1.3)", "1"});
+GN_NodeId uv;
+gnCreateNode(s, geo, "texture", "uv1", false, &uv);
+gnConnectNodeInput(s, uv, 0, input, 0);
+setMenu(s, uv, "type", "polar");                              // "cylin", "rowcol", ...
+gnSetParmStringValue(s, uv, "uv", findParm(s, uv, "uvattrib").id, 0);
+const float scale[] = {2, 1, 1}, offset[] = {0.25f, 0, 0};
+gnSetParmFloatValues(s, uv, scale, findParm(s, uv, "s").floatValuesIndex, 3);
+gnSetParmFloatValues(s, uv, offset, findParm(s, uv, "offset").floatValuesIndex, 3);
 ```
 
 ![UV Texture](images/texture.png)
@@ -413,42 +439,46 @@ Node cylin = b.sop(geo, "texture", "cylindrical")
 #### Group Create
 
 `groupcreate` — point, primitive and edge groups by bounding regions (box, sphere), by normals, by edge rules and by
-random chance.
+random chance. Groups are read back with `gnGetGroupNames` and `gnGetGroupMembership`.
 
 ```cpp
-Node inBox = b.sop(geo, "groupcreate", "in_box")
-                 .input(0, sphere)
-                 .set("groupname", "inbox").set("grouptype", "point")
-                 .set("groupbase", 0).set("groupbounding", 1).set("boundtype", "usebbox")
-                 .expr("t", {"2.2 * cos($T * 0.8)", "1.2 * sin($T * 1.3)", "2.2 * sin($T * 0.8)"});
-Node facing = b.sop(geo, "groupcreate", "facing")
-                  .input(0, torus)
-                  .set("groupname", "facing").set("grouptype", "primitive")
-                  .set("groupbase", 0).set("groupnormal", 1)
-                  .expr("dir", {"cos($T * 0.8)", "0.6 * sin($T * 0.7)", "sin($T * 0.8)"})
-                  .expr("angle", "50 + 20 * sin($T * 1.5)");
+GN_NodeId group;
+gnCreateNode(s, geo, "groupcreate", "in_box", false, &group);
+gnConnectNodeInput(s, group, 0, input, 0);
+gnSetParmStringValue(s, group, "inbox", findParm(s, group, "groupname").id, 0);
+setMenu(s, group, "grouptype", "point");
+const int off = 0, on = 1;
+gnSetParmIntValues(s, group, &off, findParm(s, group, "groupbase").intValuesIndex, 1);
+gnSetParmIntValues(s, group, &on, findParm(s, group, "groupbounding").intValuesIndex, 1);
+setMenu(s, group, "boundtype", "usebbox");                    // "usebsphere"
+const float boxSize[] = {2, 2, 2}, boxCenter[] = {1, 0, 0};
+gnSetParmFloatValues(s, group, boxSize, findParm(s, group, "size").floatValuesIndex, 3);
+gnSetParmFloatValues(s, group, boxCenter, findParm(s, group, "t").floatValuesIndex, 3);
+
+// After the cook: membership of the points of part 0
+GN_PartInfo part;
+gnGetPartInfo(s, group, 0, &part);
+std::vector<int> inGroup(part.pointCount);
+gnGetGroupMembership(s, group, 0, GN_GROUPTYPE_POINT, "inbox", nullptr, inGroup.data(), 0, part.pointCount);
 ```
 
 ![Group Create](images/groupcreate.png)
 
 #### Group Range
 
-`grouprange` — groups by ranges of element numbers: start/end, start and length, every N of M with an offset, equal
-partitions, per connected piece.
+`grouprange` — groups by ranges of element numbers: start and end, start and length, every N of M with an offset,
+equal partitions, ranges inside every connected piece.
 
 ```cpp
-Node stripes = b.sop(geo, "grouprange", "n_of_m")
-                   .input(0, sphere)
-                   .set("groupname1", "stripes").set("grouptype1", "prims")
-                   .set("selectamount1", 2)
-                   .expr("selecttotal1", "rint(6 + 3 * sin($T * 0.4))")
-                   .expr("selectoffset1", "rint($T * 6)");
-Node window = b.sop(geo, "grouprange", "window")
-                  .input(0, grid)
-                  .set("groupname1", "window").set("grouptype1", "prims")
-                  .set("method1", "length")
-                  .expr("start1", "rint(60 + 60 * sin($T * 0.5))")
-                  .expr("length1", "rint(14 + 10 * sin($T * 1.3))");
+GN_NodeId range;
+gnCreateNode(s, geo, "grouprange", "every_third", false, &range);
+gnConnectNodeInput(s, range, 0, input, 0);
+gnSetParmStringValue(s, range, "stripes", findParm(s, range, "groupname1").id, 0);
+setMenu(s, range, "grouptype1", "prims");
+const int amount = 1, total = 3, offset = 1;                  // 1 of every 3 primitives, starting from 1
+gnSetParmIntValues(s, range, &amount, findParm(s, range, "selectamount1").intValuesIndex, 1);
+gnSetParmIntValues(s, range, &total, findParm(s, range, "selecttotal1").intValuesIndex, 1);
+gnSetParmIntValues(s, range, &offset, findParm(s, range, "selectoffset1").intValuesIndex, 1);
 ```
 
 ![Group Range](images/grouprange.png)
@@ -458,125 +488,135 @@ Node window = b.sop(geo, "grouprange", "window")
 #### Transform
 
 `xform` — translate, rotate, scale, shear, pivot and pre-transform of the whole geometry or of a group; vectors,
-normals and other attributes are transformed by their type.
+normals and other attributes are transformed according to their type.
 
 ```cpp
-Node spin = b.sop(geo, "xform", "spin_bounce_squash")
-                .input(0, torus)
-                .expr("t", {"0", "abs(sin($T * 3)) * 1.5", "0"})
-                .expr("r", {"$T * 60", "$T * 25", "0"})
-                .expr("s", {"1 + 0.25 * sin($T * 6)", "1 - 0.25 * sin($T * 6)", "1"});
-Node shear = b.sop(geo, "xform", "shear").input(0, box).expr("shear", {"0.8 * sin($T * 1.5)", "0", "0.4 * sin($T)"});
-// Only the first 121 points of a grid are lifted
-Node lift = b.sop(geo, "xform", "lift_half")
-                .input(0, grid)
-                .set("group", "0-120").set("grouptype", "points")
-                .expr("t", 1, "1.2 * sin($T * 1.5)");
+GN_NodeId xform;
+gnCreateNode(s, geo, "xform", "move", false, &xform);
+gnConnectNodeInput(s, xform, 0, input, 0);
+const float t[] = {0, 1, 0}, r[] = {0, 45, 0}, scale[] = {1, 2, 1}, pivot[] = {0, -1, 0};
+gnSetParmFloatValues(s, xform, t, findParm(s, xform, "t").floatValuesIndex, 3);
+gnSetParmFloatValues(s, xform, r, findParm(s, xform, "r").floatValuesIndex, 3);
+gnSetParmFloatValues(s, xform, scale, findParm(s, xform, "s").floatValuesIndex, 3);
+gnSetParmFloatValues(s, xform, pivot, findParm(s, xform, "p").floatValuesIndex, 3);
+
+// Only a part of the points: a group pattern
+gnSetParmStringValue(s, xform, "0-120", findParm(s, xform, "group").id, 0);
+setMenu(s, xform, "grouptype", "points");
 ```
 
 ![Transform](images/xform.png)
 
 #### Mountain
 
-`mountain` — displacement along the normal by fractal noise (Perlin, simplex, Worley, alligator, ...) that can flow in
-time.
+`mountain` — displacement along the normal by fractal noise (Perlin, simplex, Worley, alligator, ...), which can flow
+in time.
 
 ```cpp
-Node land = b.sop(geo, "mountain", "terrain")
-                .input(0, grid)
-                .set("elementsize", 3)
-                .set("oct", 6)
-                .expr("height", "1.5 + 0.7 * sin($T * 0.5)")
-                .expr("offset", {"$T * 0.4", "0", "$T * 0.2"});
-Node rock = b.sop(geo, "mountain", "rock")
-                .input(0, sphere)
-                .set("basis", "worleyFA")
-                .set("fractal", "none")
-                .expr("height", "0.6 + 0.4 * sin($T)")
-                .expr("time", "$T * 0.3");
+GN_NodeId mountain;
+gnCreateNode(s, geo, "mountain", "noise", false, &mountain);
+gnConnectNodeInput(s, mountain, 0, input, 0);
+const float height = 1.5f, elementSize = 3;
+gnSetParmFloatValues(s, mountain, &height, findParm(s, mountain, "height").floatValuesIndex, 1);
+gnSetParmFloatValues(s, mountain, &elementSize, findParm(s, mountain, "elementsize").floatValuesIndex, 1);
+const int octaves = 6;
+gnSetParmIntValues(s, mountain, &octaves, findParm(s, mountain, "oct").intValuesIndex, 1);
+setMenu(s, mountain, "basis", "worleyFA");
+gnSetParmExpression(s, mountain, "$T * 0.3", findParm(s, mountain, "time").id, 0);   // the noise flows
 ```
 
 ![Mountain](images/mountain.png)
 
 #### Bend
 
-`bend` — bending, twisting, tapering and squashing inside a capture region; bending by angle or towards a goal
+`bend` — bends, twists, tapers and squashes geometry inside a capture region; bending by an angle or towards a goal
 direction.
 
 ```cpp
-Node bend = b.sop(geo, "bend", "bend_twist")
-                .input(0, column)
-                .set("origin", 0, 0, 0).set("dir", 0, 1, 0).set("length", 6)
-                .set("upvectorcontrol", "xaxis")
-                .expr("bend", "150 * sin($T * 0.8)")
-                .set("enabletwist", 1)
-                .expr("twist", "180 * sin($T * 0.6)");
-Node taper = b.sop(geo, "bend", "bend_taper")
-                 .input(0, column2)
-                 .set("bendmode", "dir")
-                 .expr("goaldir", {"sin($T)", "0.3", "cos($T)"})
-                 .set("enabletaper", 1)
-                 .expr("taper", "0.6 + 0.5 * sin($T * 1.4)");
+GN_NodeId bend;
+gnCreateNode(s, geo, "bend", "bend1", false, &bend);
+gnConnectNodeInput(s, bend, 0, input, 0);
+const float origin[] = {0, 0, 0}, dir[] = {0, 1, 0}, length = 6;   // the capture region
+gnSetParmFloatValues(s, bend, origin, findParm(s, bend, "origin").floatValuesIndex, 3);
+gnSetParmFloatValues(s, bend, dir, findParm(s, bend, "dir").floatValuesIndex, 3);
+gnSetParmFloatValues(s, bend, &length, findParm(s, bend, "length").floatValuesIndex, 1);
+const float angle = 120;
+gnSetParmFloatValues(s, bend, &angle, findParm(s, bend, "bend").floatValuesIndex, 1);
+const int twistOn = 1;
+const float twist = 90;
+gnSetParmIntValues(s, bend, &twistOn, findParm(s, bend, "enabletwist").intValuesIndex, 1);
+gnSetParmFloatValues(s, bend, &twist, findParm(s, bend, "twist").floatValuesIndex, 1);
 ```
 
 ![Bend](images/bend.png)
 
 #### Path Deform
 
-`pathdeform` — geometry laid along a curve from the second input, with ramps of taper and roll, offsets and stretching.
+`pathdeform` — lays geometry along a curve from the second input: position and length on the curve, ramps of scale
+and roll, stretching and rigid pieces.
 
 ```cpp
-Node path = b.sop(geo, "fit", "wave_path").input(0, wavePoints).set("method", 1).set("type", "nurbs");
-Node snake = b.sop(geo, "pathdeform", "snake")
-                 .input(0, column)
-                 .input(1, path)
-                 .set("curve_endunit", "fractioncurvelength")
-                 .set("taper_enable", 1).set("taper_enableramp", 1)
-                 .set("taper_ramp", 3)                       // three ramp keys
-                 .set("taper_ramp3pos", 0.35).set("taper_ramp3value", 1.6)
-                 .set("rotate_enable", 1)
-                 .expr("rotate_angle", "240 * sin($T * 0.7)");
-Node band = b.sop(geo, "pathdeform", "band")
-                .input(0, strip)
-                .input(1, circle)
-                .expr("curve_posend", "0.55 + 0.35 * sin($T * 0.9)")
-                .expr("curve_posoffset", "$T * 0.06");
+GN_NodeId deform;
+gnCreateNode(s, geo, "pathdeform", "along_path", false, &deform);
+gnConnectNodeInput(s, deform, 0, shape, 0);
+gnConnectNodeInput(s, deform, 1, curve, 0);                   // the path
+setMenu(s, deform, "curve_endunit", "fractioncurvelength");
+const float end = 0.8f, roll = 180;
+gnSetParmFloatValues(s, deform, &end, findParm(s, deform, "curve_posend").floatValuesIndex, 1);
+gnSetParmExpression(s, deform, "$T * 0.1", findParm(s, deform, "curve_posoffset").id, 0);   // slides along
+const int on = 1;
+gnSetParmIntValues(s, deform, &on, findParm(s, deform, "rotate_enable").intValuesIndex, 1);
+gnSetParmFloatValues(s, deform, &roll, findParm(s, deform, "rotate_angle").floatValuesIndex, 1);
+
+// A ramp is a multiparm of keys: three keys of the scale along the curve
+gnSetParmIntValues(s, deform, &on, findParm(s, deform, "taper_enable").intValuesIndex, 1);
+gnSetParmIntValues(s, deform, &on, findParm(s, deform, "taper_enableramp").intValuesIndex, 1);
+const int keys = 3;
+gnSetParmIntValues(s, deform, &keys, findParm(s, deform, "taper_ramp").intValuesIndex, 1);
+const float pos = 0.5f, value = 2;
+gnSetParmFloatValues(s, deform, &pos, findParm(s, deform, "taper_ramp3pos").floatValuesIndex, 1);
+gnSetParmFloatValues(s, deform, &value, findParm(s, deform, "taper_ramp3value").floatValuesIndex, 1);
 ```
 
 ![Path Deform](images/pathdeform.png)
 
 #### Match Size
 
-`matchsize` — fits the geometry into a target box (explicit, the second input or the origin): justify and scale per
-axis, uniformly or by perimeter, area or volume.
+`matchsize` — fits geometry into a target box (given explicitly, by the second input or at the origin): justify and
+scale per axis, uniformly or by perimeter, area or volume.
 
 ```cpp
-Node fit = b.sop(geo, "matchsize", "fit_torus")
-               .input(0, torus)
-               .set("justifytarget", "explicit")
-               .expr("size", {"2 + 0.8 * sin($T * 1.3)", "2 + 0.8 * sin($T * 1.3 + 2)", "2"})
-               .set("doscale", 1)
-               .set("uniformscale", 0);
-// The target box drawn as a wire frame reads the size of Match Size with ch()
-Node frame = b.sop(geo, "box", "frame").set("surftype", "rowcol")
-                 .expr("size", {"ch(\"../fit_torus/sizex\")", "ch(\"../fit_torus/sizey\")", "ch(\"../fit_torus/sizez\")"});
+GN_NodeId match;
+gnCreateNode(s, geo, "matchsize", "fit_box", false, &match);
+gnConnectNodeInput(s, match, 0, input, 0);
+setMenu(s, match, "justifytarget", "explicit");
+const float center[] = {0, 1, 0}, size[] = {2, 2, 2};
+gnSetParmFloatValues(s, match, center, findParm(s, match, "t").floatValuesIndex, 3);
+gnSetParmFloatValues(s, match, size, findParm(s, match, "size").floatValuesIndex, 3);
+const int on = 1, off = 0;
+gnSetParmIntValues(s, match, &on, findParm(s, match, "doscale").intValuesIndex, 1);
+gnSetParmIntValues(s, match, &off, findParm(s, match, "uniformscale").intValuesIndex, 1);   // stretch per axis
 ```
 
 ![Match Size](images/matchsize.png)
 
 #### Fuse
 
-`fuse` — merges points within a distance or snaps them to a grid; degenerate faces are removed, attributes are merged
-by a chosen method.
+`fuse` — merges points within a distance or snaps them to a grid; degenerate faces are removed, attributes of merged
+points are combined by a chosen method.
 
 ```cpp
-Node snap = b.sop(geo, "fuse", "snap_to_grid")
-                .input(0, sphere)
-                .set("snaptype", "gridsnap")
-                .expr("gridspacing", {"0.15 + 0.25 * (1 + sin($T * 0.8))", "ch(\"gridspacingx\")", "ch(\"gridspacingx\")"});
-Node fuse = b.sop(geo, "fuse", "fuse_distance")
-                .input(0, torus)
-                .expr("tol3d", "0.02 + 0.35 * (0.5 + 0.5 * sin($T * 0.6))");
+GN_NodeId fuse, snap;
+gnCreateNode(s, geo, "fuse", "fuse1", false, &fuse);
+gnConnectNodeInput(s, fuse, 0, input, 0);
+const float distance = 0.05f;
+gnSetParmFloatValues(s, fuse, &distance, findParm(s, fuse, "tol3d").floatValuesIndex, 1);
+
+gnCreateNode(s, geo, "fuse", "snap", false, &snap);
+gnConnectNodeInput(s, snap, 0, input, 0);
+setMenu(s, snap, "snaptype", "gridsnap");
+const float spacing[] = {0.25f, 0.25f, 0.25f};
+gnSetParmFloatValues(s, snap, spacing, findParm(s, snap, "gridspacing").floatValuesIndex, 3);
 ```
 
 ![Fuse](images/fuse.png)
@@ -588,16 +628,16 @@ Node fuse = b.sop(geo, "fuse", "fuse_distance")
 `clip` — cuts polygons and polylines by a plane, keeps the part above, below or both, and closes the cut with a cap.
 
 ```cpp
-Node cut = b.sop(geo, "clip", "cut_with_cap")
-               .input(0, sphere)
-               .set("dofill", 1)                                  // cap the cut
-               .expr("dir", {"sin($T * 0.7)", "0.6", "cos($T * 0.7)"})
-               .expr("dist", "1.2 * sin($T * 1.1)");
-Node below = b.sop(geo, "clip", "keep_below")
-                 .input(0, box)
-                 .set("clipop", "below")
-                 .set("dir", 0.3, 1, 0.2)
-                 .expr("dist", "1.8 * sin($T * 0.9)");
+GN_NodeId clip;
+gnCreateNode(s, geo, "clip", "clip1", false, &clip);
+gnConnectNodeInput(s, clip, 0, input, 0);
+const float origin[] = {0, 0, 0}, normal[] = {0.3f, 1, 0}, distance = 0.5f;
+gnSetParmFloatValues(s, clip, origin, findParm(s, clip, "origin").floatValuesIndex, 3);
+gnSetParmFloatValues(s, clip, normal, findParm(s, clip, "dir").floatValuesIndex, 3);
+gnSetParmFloatValues(s, clip, &distance, findParm(s, clip, "dist").floatValuesIndex, 1);
+setMenu(s, clip, "clipop", "below");                          // "above", "both"
+const int cap = 1;
+gnSetParmIntValues(s, clip, &cap, findParm(s, clip, "dofill").intValuesIndex, 1);
 ```
 
 ![Clip](images/clip.png)
@@ -608,38 +648,38 @@ Node below = b.sop(geo, "clip", "keep_below")
 twist, front transform, thickness and twist ramps, extrusion along a curve, UVs of the sides.
 
 ```cpp
-Node tiles = b.sop(geo, "polyextrude", "tiles")
-                 .input(0, sphereWithGroup)
-                 .set("group", "tiles")
-                 .set("splittype", "elements")
-                 .expr("dist", "0.35 + 0.3 * sin($T * 1.5)")
-                 .expr("inset", "0.06 + 0.05 * sin($T * 2)");
-Node tower = b.sop(geo, "polyextrude", "tower")
-                 .input(0, box)
-                 .set("group", "2")                                 // the top face
-                 .set("divs", 16)
-                 .expr("twist", "180 * sin($T * 0.6)")
-                 .set("xformfront", 1)
-                 .expr("scale", {"0.5 + 0.3 * sin($T * 1.2)", "1", "0.5 + 0.3 * sin($T * 1.2)"});
-Node ribbon = b.sop(geo, "polyextrude", "ribbon").input(0, openArc).expr("dist", "0.8 + 0.4 * sin($T * 2)");
+GN_NodeId extrude;
+gnCreateNode(s, geo, "polyextrude", "extrude1", false, &extrude);
+gnConnectNodeInput(s, extrude, 0, input, 0);
+gnSetParmStringValue(s, extrude, "0-9", findParm(s, extrude, "group").id, 0);   // primitives 0..9
+setMenu(s, extrude, "splittype", "elements");                 // every face on its own
+const float distance = 0.5f, inset = 0.1f, twist = 45;
+gnSetParmFloatValues(s, extrude, &distance, findParm(s, extrude, "dist").floatValuesIndex, 1);
+gnSetParmFloatValues(s, extrude, &inset, findParm(s, extrude, "inset").floatValuesIndex, 1);
+gnSetParmFloatValues(s, extrude, &twist, findParm(s, extrude, "twist").floatValuesIndex, 1);
+const int divisions = 4, frontXform = 1;
+gnSetParmIntValues(s, extrude, &divisions, findParm(s, extrude, "divs").intValuesIndex, 1);
+gnSetParmIntValues(s, extrude, &frontXform, findParm(s, extrude, "xformfront").intValuesIndex, 1);
+const float frontScale[] = {0.5f, 1, 0.5f};
+gnSetParmFloatValues(s, extrude, frontScale, findParm(s, extrude, "scale").floatValuesIndex, 3);
 ```
 
 ![PolyExtrude](images/polyextrude.png)
 
 #### PolyBevel
 
-`polybevel` — bevels edges and points: round, chamfer, crease, solid profiles, divisions, profile ramps and curves,
-collision handling.
+`polybevel` — bevels edges and points: round, chamfer, crease and solid profiles, divisions, profile ramps and
+curves, collision handling.
 
 ```cpp
-Node round = b.sop(geo, "polybevel", "round")
-                 .input(0, box)
-                 .expr("offset", "0.1 + 0.45 * (0.5 + 0.5 * sin($T))")
-                 .expr("divisions", "rint(1 + 4 * (0.5 + 0.5 * sin($T * 0.5)))");
-Node chamfer = b.sop(geo, "polybevel", "chamfer")
-                   .input(0, box2)
-                   .set("filletshape", "chamfer")
-                   .expr("offset", "0.05 + 0.5 * (0.5 + 0.5 * sin($T * 1.3))");
+GN_NodeId bevel;
+gnCreateNode(s, geo, "polybevel", "bevel1", false, &bevel);
+gnConnectNodeInput(s, bevel, 0, input, 0);
+const float distance = 0.2f;
+gnSetParmFloatValues(s, bevel, &distance, findParm(s, bevel, "offset").floatValuesIndex, 1);
+const int divisions = 4;
+gnSetParmIntValues(s, bevel, &divisions, findParm(s, bevel, "divisions").intValuesIndex, 1);
+setMenu(s, bevel, "filletshape", "chamfer");                  // the default profile is round
 ```
 
 ![PolyBevel](images/polybevel.png)
@@ -650,9 +690,11 @@ Node chamfer = b.sop(geo, "polybevel", "chamfer")
 attributes and groups of both inputs carry over to the result.
 
 ```cpp
-Node subtract = b.sop(geo, "boolean", "subtract").input(0, box).input(1, sphere).set("booleanop", "subtract");
-Node unite = b.sop(geo, "boolean", "union").input(0, torus).input(1, bar).set("booleanop", "union");
-Node common = b.sop(geo, "boolean", "intersect").input(0, ball).input(1, cube).set("booleanop", "intersect");
+GN_NodeId boolean;
+gnCreateNode(s, geo, "boolean", "boolean1", false, &boolean);
+gnConnectNodeInput(s, boolean, 0, solidA, 0);
+gnConnectNodeInput(s, boolean, 1, solidB, 0);
+setMenu(s, boolean, "booleanop", "subtract");                 // "union", "intersect", "shatter"
 ```
 
 ![Boolean](images/boolean.png)
@@ -661,56 +703,58 @@ Node common = b.sop(geo, "boolean", "intersect").input(0, ball).input(1, cube).s
 
 #### Scatter
 
-`scatter` — points over the surface by count or density (also from an attribute), relaxed apart; source primitive and
-its parametric coordinates are written to the points.
+`scatter` — points over a surface by count or density (also from an attribute), relaxed apart; the source primitive
+and its parametric coordinates are written to the points.
 
 ```cpp
-Node points = b.sop(geo, "scatter", "points")
-                  .input(0, torus)
-                  .expr("npts", "rint(60 + 540 * (0.5 + 0.5 * sin($T * 0.6)))")
-                  .expr("seed", "rint($T / 2)");
-Node dot = b.sop(geo, "sphere", "dot").set("type", "poly").set("freq", 1).set("rad", 0.12, 0.12, 0.12);
-Node dots = b.sop(geo, "copytopoints", "dots").input(0, dot).input(1, points);
+GN_NodeId scatter;
+gnCreateNode(s, geo, "scatter", "scatter1", false, &scatter);
+gnConnectNodeInput(s, scatter, 0, surface, 0);
+const int count = 500, relax = 1;
+gnSetParmIntValues(s, scatter, &count, findParm(s, scatter, "npts").intValuesIndex, 1);
+gnSetParmIntValues(s, scatter, &relax, findParm(s, scatter, "relaxpoints").intValuesIndex, 1);
+const float seed = 3;
+gnSetParmFloatValues(s, scatter, &seed, findParm(s, scatter, "seed").floatValuesIndex, 1);
 ```
 
 ![Scatter](images/scatter.png)
 
 #### Copy to Points
 
-`copytopoints` — copies of the first input onto the points of the second, oriented by `N`, `up`, `orient`, scaled by
-`pscale`, with attributes from the target points.
+`copytopoints` — copies of the first input onto the points of the second, oriented by `N`, `up` or `orient`, scaled by
+`pscale` and `scale`, with attributes taken from the target points.
 
 ```cpp
-Node normals = b.sop(geo, "normal", "normals").input(0, wavingGrid).set("type", "typepoint");
-Node sizes = b.sop(geo, "attribrandomize", "sizes").input(0, normals).set("name", "pscale").set("dimensions", 1);
-Node colors = b.sop(geo, "attribrandomize", "colors").input(0, sizes).set("name", "Cd");
-Node brick = b.sop(geo, "box", "brick").set("size", 0.3, 0.3, 0.6).set("t", 0, 0, 0.3);
-b.sop(geo, "copytopoints", "bricks")
-    .input(0, brick)
-    .input(1, colors)
-    .set("pivot", "origin")
-    .set("targetattribs", 1)              // one row of Attributes from Target...
-    .set("applyattribs1", "Cd")           // ...copying Cd of the target points
-    .display();
+GN_NodeId copy;
+gnCreateNode(s, geo, "copytopoints", "copy1", false, &copy);
+gnConnectNodeInput(s, copy, 0, shape, 0);                     // what to copy
+gnConnectNodeInput(s, copy, 1, points, 0);                    // where: points with N, pscale, Cd, ...
+setMenu(s, copy, "pivot", "origin");
+// Attributes from Target: a multiparm of rows, each with a pattern of attribute names
+const int rows = 1;
+gnSetParmIntValues(s, copy, &rows, findParm(s, copy, "targetattribs").intValuesIndex, 1);
+gnSetParmStringValue(s, copy, "Cd", findParm(s, copy, "applyattribs1").id, 0);
+// Only some of the target points
+gnSetParmStringValue(s, copy, "0-49", findParm(s, copy, "targetgroup").id, 0);
 ```
 
 ![Copy to Points](images/copytopoints.png)
 
 #### Copy and Transform
 
-`copyxform` — N copies, copy k transformed by the parameters taken k times (translate, rotate, scale, pivot).
+`copyxform` — N copies of the input, copy k transformed by the parameters applied k times (translate, rotate, scale,
+pivot).
 
 ```cpp
-Node stairs = b.sop(geo, "copyxform", "stairs")
-                  .input(0, step)
-                  .expr("ncy", "rint(12 + 18 * (0.5 + 0.5 * sin($T * 0.5)))")
-                  .set("t", 0, 0.22, 0)
-                  .expr("r", 1, "18 + 6 * sin($T * 0.8)");
-Node tower = b.sop(geo, "copyxform", "tower")
-                 .input(0, torus)
-                 .set("ncy", 10)
-                 .set("t", 0, 0.65, 0)
-                 .expr("scale", "0.88 + 0.06 * sin($T * 1.5)");   // copy k is scaled by scale^k
+GN_NodeId copies;
+gnCreateNode(s, geo, "copyxform", "stairs", false, &copies);
+gnConnectNodeInput(s, copies, 0, step, 0);
+const int count = 20;
+gnSetParmIntValues(s, copies, &count, findParm(s, copies, "ncy").intValuesIndex, 1);
+const float t[] = {0, 0.2f, 0}, r[] = {0, 18, 0}, scale = 0.97f;   // per copy
+gnSetParmFloatValues(s, copies, t, findParm(s, copies, "t").floatValuesIndex, 3);
+gnSetParmFloatValues(s, copies, r, findParm(s, copies, "r").floatValuesIndex, 3);
+gnSetParmFloatValues(s, copies, &scale, findParm(s, copies, "scale").floatValuesIndex, 1);
 ```
 
 ![Copy and Transform](images/copyxform.png)
@@ -719,51 +763,57 @@ Node tower = b.sop(geo, "copyxform", "tower")
 
 #### Fit
 
-`fit` — NURBS or Bezier curves through points: global and local interpolation, breakpoints, approximation within a
-tolerance.
+`fit` — NURBS or Bezier curves through the points of polylines: global and local interpolation, breakpoints,
+approximation within a tolerance. Curves are read back with `gnGetCurveInfo`, `gnGetCurveCounts`, `gnGetCurveKnots`.
 
 ```cpp
-Node interp = b.sop(geo, "fit", "interpolate").input(0, polyline).set("method", "interp");
-Node approx = b.sop(geo, "fit", "approximate")
-                  .input(0, polyline)
-                  .set("type", "bezier")
-                  .expr("tol", "0.05 + 0.5 * (0.5 + 0.5 * sin($T * 0.7))");
+GN_NodeId fit;
+gnCreateNode(s, geo, "fit", "fit1", false, &fit);
+gnConnectNodeInput(s, fit, 0, polyline, 0);
+setMenu(s, fit, "method", "interp");                          // the curve passes through every point
+setMenu(s, fit, "type", "nurbs");                             // "bezier"
+
+// After the cook: the curve part (parts go mesh, polylines, NURBS, Bezier)
+GN_PartInfo part;
+gnGetPartInfo(s, fit, curvePart, &part);                      // part.type == GN_PARTTYPE_CURVE
+GN_CurveInfo curve;
+gnGetCurveInfo(s, fit, curvePart, &curve);
+std::vector<float> knots(curve.knotCount);
+gnGetCurveKnots(s, fit, curvePart, knots.data(), 0, curve.knotCount);
 ```
 
 ![Fit](images/fit.png)
 
 #### Resample
 
-`resample` — evenly spaced points along polylines and curves, by segment length or count; polylines can be treated as
-subdivision curves.
+`resample` — evenly spaced points along polylines and curves, by segment length or number of segments; polylines can
+be treated as subdivision curves.
 
 ```cpp
-Node byLength = b.sop(geo, "resample", "by_length")
-                    .input(0, nurbsCircle)
-                    .expr("length", "0.2 + 0.9 * (0.5 + 0.5 * sin($T * 0.7))");
-Node smooth = b.sop(geo, "resample", "smooth")
-                  .input(0, zigzag)
-                  .set("treatpolysas", "subd")
-                  .expr("length", "0.05 + 0.3 * (0.5 + 0.5 * sin($T * 0.9))");
+GN_NodeId resample;
+gnCreateNode(s, geo, "resample", "resample1", false, &resample);
+gnConnectNodeInput(s, resample, 0, curve, 0);
+const float length = 0.25f;
+gnSetParmFloatValues(s, resample, &length, findParm(s, resample, "length").floatValuesIndex, 1);
+setMenu(s, resample, "treatpolysas", "subd");                 // smooth polylines as subdivision curves
 ```
 
 ![Resample](images/resample.png)
 
 #### Carve
 
-`carve` — cuts pieces of curves between parametric positions (or by arc length) and extracts points.
+`carve` — cuts the piece of every curve between two parametric positions (or by arc length) and extracts points.
 
 ```cpp
-Node grow = b.sop(geo, "carve", "grow")
-                .input(0, nurbsCircle)
-                .set("firstu", 1).set("domainu1", 0)
-                .set("secondu", 1)
-                .expr("domainu2", "0.03 + 0.97 * (0.5 + 0.5 * sin($T * 0.8))");
-Node piece = b.sop(geo, "carve", "running_piece")
-                 .input(0, spiral)
-                 .set("firstu", 1).expr("domainu1", "0.4 + 0.4 * sin($T * 0.7)")
-                 .set("secondu", 1).expr("domainu2", "ch(\"domainu1\") + 0.18");
-Node ribbon = b.sop(geo, "polyextrude", "grow_ribbon").input(0, grow).set("dist", 0.6);
+GN_NodeId carve;
+gnCreateNode(s, geo, "carve", "carve1", false, &carve);
+gnConnectNodeInput(s, carve, 0, curve, 0);
+const int on = 1;
+gnSetParmIntValues(s, carve, &on, findParm(s, carve, "firstu").intValuesIndex, 1);
+gnSetParmIntValues(s, carve, &on, findParm(s, carve, "secondu").intValuesIndex, 1);
+const float u1 = 0.2f;
+gnSetParmFloatValues(s, carve, &u1, findParm(s, carve, "domainu1").floatValuesIndex, 1);
+gnSetParmExpression(s, carve, "0.2 + 0.8 * abs(sin($T))", findParm(s, carve, "domainu2").id, 0);   // a growing piece
 ```
 
 ![Carve](images/carve.png)
@@ -773,33 +823,38 @@ Node ribbon = b.sop(geo, "polyextrude", "grow_ribbon").input(0, grow).set("dist"
 `join` — joins curves end to start into one, with a smooth blend or a straight span; nearest ends, groups of N, wrap.
 
 ```cpp
-Node arcs = merge(b, geo, {arc1, arc2}, "arcs");
-Node blended = b.sop(geo, "join", "blend")
-                   .input(0, arcs)
-                   .set("blend", 1)
-                   .expr("tolerance", "0.2 + 0.6 * (0.5 + 0.5 * sin($T * 0.9))")
-                   .expr("bias", "0.5 + 0.4 * sin($T * 0.5)");
-Node joined = b.sop(geo, "join", "connect").input(0, merge(b, geo, {line1, line2}, "lines")).set("blend", 0);
+GN_NodeId join;
+gnCreateNode(s, geo, "join", "join1", false, &join);
+gnConnectNodeInput(s, join, 0, curves, 0);                    // several curves in one geometry
+const int blend = 1;
+gnSetParmIntValues(s, join, &blend, findParm(s, join, "blend").intValuesIndex, 1);
+const float tolerance = 0.5f, bias = 0.5f;
+gnSetParmFloatValues(s, join, &tolerance, findParm(s, join, "tolerance").floatValuesIndex, 1);
+gnSetParmFloatValues(s, join, &bias, findParm(s, join, "bias").floatValuesIndex, 1);
 ```
 
 ![Join](images/join.png)
 
 #### Orient along Curve
 
-`orientalongcurve` — a frame at every point of a curve (tangent, up, roll and twists) written as `N` / `up`,
-`orient` or matrices — ready for Copy to Points.
+`orientalongcurve` — a frame at every point of a curve (tangent, up vector, roll and twists) written as `N` / `up`,
+`orient` or matrices; Copy to Points then orients copies by it.
 
 ```cpp
-Node points = b.sop(geo, "resample", "points").input(0, nurbsCircle).set("length", 0.35);
-Node frames = b.sop(geo, "orientalongcurve", "frames")
-                  .input(0, points)
-                  .set("upvectortype", "y")
-                  .set("applyroll", 1)
-                  .expr("roll", "$T * 45")
-                  .set("rollper", "fulledges")
-                  .expr("fulltwists", "rint(1 + sin($T * 0.4))");
-Node plate = b.sop(geo, "box", "plate").set("size", 0.08, 1.4, 0.3);
-b.sop(geo, "copytopoints", "plates").input(0, plate).input(1, frames).display();
+GN_NodeId orient;
+gnCreateNode(s, geo, "orientalongcurve", "frames", false, &orient);
+gnConnectNodeInput(s, orient, 0, curve, 0);
+setMenu(s, orient, "upvectortype", "y");
+const int roll = 1, twists = 1;
+gnSetParmIntValues(s, orient, &roll, findParm(s, orient, "applyroll").intValuesIndex, 1);
+setMenu(s, orient, "rollper", "fulledges");
+gnSetParmIntValues(s, orient, &twists, findParm(s, orient, "fulltwists").intValuesIndex, 1);   // one full turn
+gnSetParmExpression(s, orient, "$T * 45", findParm(s, orient, "roll").id, 0);
+
+GN_NodeId copy;
+gnCreateNode(s, geo, "copytopoints", "along", false, &copy);
+gnConnectNodeInput(s, copy, 0, shape, 0);
+gnConnectNodeInput(s, copy, 1, orient, 0);
 ```
 
 ![Orient along Curve](images/orientalongcurve.png)
@@ -808,39 +863,44 @@ b.sop(geo, "copytopoints", "plates").input(0, plate).input(1, frames).display();
 
 #### Merge
 
-`merge` — geometry of up to 10 inputs combined in input order; attributes and groups of all inputs are united.
+`merge` — the geometry of up to 10 inputs combined in input order; attributes and groups of all inputs are united.
 
 ```cpp
-const char* ops[] = {"sphere", "box", "torus", "circle", "grid"};
-Node all = b.sop(geo, "merge", "all");
-for (int k = 0; k < 5; ++k) {
-    Node part = b.sop(geo, ops[k], ops[k])
-                    .expr("t", {fmt("3.5 * cos($T * 0.6 + %d * 1.2566)", k).c_str(), "0",
-                                fmt("3.5 * sin($T * 0.6 + %d * 1.2566)", k).c_str()});
-    all.input(k, part);
-}
-all.display();
+GN_NodeId merge;
+gnCreateNode(s, geo, "merge", "merge1", false, &merge);
+gnConnectNodeInput(s, merge, 0, sphere, 0);
+gnConnectNodeInput(s, merge, 1, box, 0);
+gnConnectNodeInput(s, merge, 2, torus, 0);
+gnSetNodeDisplay(s, merge, 1);
 ```
 
 ![Merge](images/merge.png)
 
 #### Null
 
-`null` — passes its input through. Used as a control node with user (spare) parameters that other nodes read with
-`ch()`, and as the named end of a chain.
+`null` — passes its input through. A typical use is a control node: user (spare) parameters added with
+`gnAddSpareParm` and read by other nodes with `ch()`.
 
 ```cpp
-Node ctrl = b.sop(geo, "null", "CTRL")
-                .addFloatParm("radius", "Radius", 2, 0.1, 5)          // gnAddSpareParm
-                .addFloatParm("height", "Noise Height", 0.5, 0, 2)
-                .expr("radius", "2 + 0.4 * sin($T * 1.3)");
-Node sphere = b.sop(geo, "sphere", "ball")
-                  .set("type", "polymesh")
-                  .expr("rad", {"ch(\"../CTRL/radius\")", "ch(\"../CTRL/radius\")", "ch(\"../CTRL/radius\")"});
-Node bumps = b.sop(geo, "mountain", "bumps").input(0, sphere).expr("height", "ch(\"../CTRL/height\")");
-b.sop(geo, "null", "OUT").input(0, bumps).display();
-// Another object reads the same control by an absolute path
-Node ring = b.sop(ringGeo, "torus", "ring").expr("rad", {"ch(\"/obj/shapes/CTRL/radius\") * 1.6", "0.2"});
+GN_NodeId ctrl;
+gnCreateNode(s, geo, "null", "CTRL", false, &ctrl);
+GN_SpareParmTemplate parm{};
+parm.type = GN_PARMTYPE_FLOAT;
+parm.name = "radius";
+parm.label = "Radius";
+parm.size = 1;
+parm.defaults[0] = 2;
+parm.hasRange = true;
+parm.min = 0.1;
+parm.max = 5;
+GN_ParmId radiusId;
+gnAddSpareParm(s, ctrl, &parm, -1, &radiusId);
+
+// Other nodes read the control; changing it re-cooks only the nodes that depend on it
+gnSetParmExpression(s, sphere, "ch(\"../CTRL/radius\")", findParm(s, sphere, "rad").id, 0);
+gnSetParmExpression(s, torus, "ch(\"/obj/geo1/CTRL/radius\") * 1.5", findParm(s, torus, "rad").id, 0);
+const float radius = 3;
+gnSetParmFloatValues(s, ctrl, &radius, findParm(s, ctrl, "radius").floatValuesIndex, 1);
 ```
 
 ![Null](images/null.png)
@@ -851,13 +911,33 @@ Node ring = b.sop(ringGeo, "torus", "ring").expr("rad", {"ch(\"/obj/shapes/CTRL/
 goes out through its Display SOP or Output SOPs.
 
 ```cpp
-Node subnet = b.sop(geo, "subnet", "shape_both").input(0, torus).input(1, grid);
-Node in1 = b.subnetInput(subnet, 1);     // the input nodes: gnComposeChildNodeList with GN_NODEFLAGS_SOP_SUBNET_INPUT
-Node in2 = b.subnetInput(subnet, 2);
-Node spin = b.sop(subnet, "xform", "spin").input(0, in1).expr("r", {"$T * 50", "$T * 30", "0"});
-Node waves = b.sop(subnet, "mountain", "waves").input(0, in2).expr("time", "$T * 0.5");
-merge(b, subnet, {spin, waves}, "result").display();   // the Display SOP inside is the subnet's output
-subnet.display();
+GN_NodeId subnet;
+gnCreateNode(s, geo, "subnet", "subnet1", false, &subnet);
+gnConnectNodeInput(s, subnet, 0, sourceA, 0);
+gnConnectNodeInput(s, subnet, 1, sourceB, 0);
+
+// The input nodes "1".."4" are listed with the GN_NODEFLAGS_SOP_SUBNET_INPUT filter
+int count = 0;
+gnComposeChildNodeList(s, subnet, GN_NODETYPE_ANY, GN_NODEFLAGS_SOP_SUBNET_INPUT, false, &count);
+std::vector<GN_NodeId> inputs(count);
+gnGetComposedChildNodeList(s, subnet, inputs.data(), count);
+GN_NodeId input1 = -1, input2 = -1;
+for (GN_NodeId id : inputs) {
+    GN_NodeInfo info;
+    gnGetNodeInfo(s, id, &info);
+    const std::string name = getString(s, info.nameSH);
+    if (name == "1") input1 = id;
+    if (name == "2") input2 = id;
+}
+
+// A network inside: its Display SOP is the output of the subnet
+GN_NodeId xform, merge;
+gnCreateNode(s, subnet, "xform", "move", false, &xform);
+gnConnectNodeInput(s, xform, 0, input1, 0);
+gnCreateNode(s, subnet, "merge", "result", false, &merge);
+gnConnectNodeInput(s, merge, 0, xform, 0);
+gnConnectNodeInput(s, merge, 1, input2, 0);
+gnSetNodeDisplay(s, merge, 1);
 ```
 
 ![Subnet](images/subnet.png)
@@ -867,15 +947,18 @@ subnet.display();
 `output` — chooses which geometry goes to which output of a subnet (Output Index 0, 1, ...).
 
 ```cpp
-Node split = b.sop(geo, "subnet", "split").input(0, sphere);
-Node in = b.subnetInput(split, 1);
-Node top = b.sop(split, "clip", "top").input(0, in).set("dofill", 1);
-Node bottom = b.sop(split, "clip", "bottom").input(0, in).set("dofill", 1).set("clipop", "below");
-b.sop(split, "output", "output0").input(0, top).set("outputidx", 0);
-b.sop(split, "output", "output1").input(0, bottom).set("outputidx", 1);
-// Outside: output 0 and output 1 of the subnet
-Node up = b.sop(geo, "xform", "move_up").input(0, split, 0).expr("t", 1, "0.5 + 0.4 * sin($T * 1.5)");
-Node down = b.sop(geo, "xform", "move_down").input(0, split, 1).expr("t", 1, "-0.5 - 0.4 * sin($T * 1.5)");
+// Inside a subnet: two Output SOPs
+GN_NodeId out0, out1;
+gnCreateNode(s, subnet, "output", "output0", false, &out0);
+gnConnectNodeInput(s, out0, 0, topHalf, 0);
+gnCreateNode(s, subnet, "output", "output1", false, &out1);
+gnConnectNodeInput(s, out1, 0, bottomHalf, 0);
+const int index = 1;
+gnSetParmIntValues(s, out1, &index, findParm(s, out1, "outputidx").intValuesIndex, 1);
+
+// Outside: nodes connected to output 0 and output 1 of the subnet
+gnConnectNodeInput(s, moveUp, 0, subnet, 0);
+gnConnectNodeInput(s, moveDown, 0, subnet, 1);
 ```
 
 ![Output](images/output.png)
@@ -883,20 +966,22 @@ Node down = b.sop(geo, "xform", "move_down").input(0, split, 1).expr("t", 1, "-0
 #### Geo objects
 
 `Object/geo` — an object on `/obj` holding a SOP network, with its own transform (translate, rotate, scale, pivot,
-transform order). Geometry stays in object space; `gnGetObjectTransform` gives the world matrix.
+transform order). Geometry is read in object space; `gnGetObjectTransform` gives the matrix that takes it to the world.
 
 ```cpp
-Node spinner = b.object("spinner");                        // gnCreateNode(s, 0, "geo", ...)
-b.sop(spinner, "box", "shape").display();
-spinner.set("t", -4.5, 0, 0).expr("r", {"$T * 40", "$T * 70", "20"}).set("scale", 1.5);
+GN_NodeId object, box;
+gnCreateNode(s, 0, "geo", "spinner", false, &object);
+gnCreateNode(s, object, "box", "shape", false, &box);
+const float t[] = {-4, 0, 0}, scale[] = {1, 2, 1};
+gnSetParmFloatValues(s, object, t, findParm(s, object, "t").floatValuesIndex, 3);
+gnSetParmFloatValues(s, object, scale, findParm(s, object, "s").floatValuesIndex, 3);
+setMenu(s, object, "xOrd", "trs");
+gnSetParmExpression(s, object, "$T * 90", findParm(s, object, "r").id, 1);
+gnSetNodeDisplay(s, object, 1);                               // object visibility
 
-Node squasher = b.object("squasher");
-b.sop(squasher, "torus", "shape").display();
-squasher.set("xOrd", "trs").expr("s", {"1 + 0.4 * sin($T * 2)", "1", "1 - 0.4 * sin($T * 2)"});
-
-// In the app: the world matrix of an object for the renderer
+// The world matrix for the renderer: 16 floats, row vectors (p' = p * M)
 GN_Transform xf;
-gnGetObjectTransform(s, spinner.id(), -1, GN_SRT, &xf);
+gnGetObjectTransform(s, object, -1, GN_SRT, &xf);
 float matrix[16];
 gnConvertTransformQuatToMatrix(s, &xf, matrix);
 ```
@@ -906,16 +991,20 @@ gnConvertTransformQuatToMatrix(s, &xf, matrix);
 #### Null objects
 
 `Object/null` — objects without geometry used as parents: input 0 of an object is its parent, the world matrix of a
-child is its local matrix times the parent's.
+child is its local matrix times the world matrix of the parent.
 
 ```cpp
-Node tilt = b.object("tilt", "null").expr("r", 2, "15 * sin($T * 0.5)");
-Node orbit = b.object("planet_orbit", "null").input(0, tilt).expr("r", 1, "$T * 40");
-Node planet = b.object("planet").input(0, orbit).set("t", 5, 0, 0).expr("r", 1, "$T * 90");
-b.sop(planet, "sphere", "body").set("type", "polymesh").set("rad", 0.6, 0.6, 0.6).display();
-Node moonOrbit = b.object("moon_orbit", "null").input(0, planet).expr("r", 1, "$T * 160");
-Node moon = b.object("moon").input(0, moonOrbit).set("t", 1.6, 0, 0);
-b.sop(moon, "sphere", "body").set("type", "poly").set("rad", 0.2, 0.2, 0.2).display();
+GN_NodeId pivot, planet;
+gnCreateNode(s, 0, "null", "orbit", false, &pivot);
+gnSetParmExpression(s, pivot, "$T * 40", findParm(s, pivot, "r").id, 1);   // the null turns...
+
+gnCreateNode(s, 0, "geo", "planet", false, &planet);
+const float t[] = {5, 0, 0};
+gnSetParmFloatValues(s, planet, t, findParm(s, planet, "t").floatValuesIndex, 3);
+gnConnectNodeInput(s, planet, 0, pivot, 0);                   // ...and carries its child around
+
+GN_Transform world;
+gnGetObjectTransform(s, planet, -1, GN_SRT, &world);          // orbit · planet
 ```
 
 ![Null objects](images/object_null.png)
@@ -924,73 +1013,108 @@ b.sop(moon, "sphere", "body").set("type", "poly").set("rad", 0.2, 0.2, 0.2).disp
 
 #### Input nodes
 
-`gnCreateInputNode` and the geometry setters — a mesh and a curve computed by the application and handed to the graph,
-as the input nodes of HAPI. Here a star column with point colors, a string primitive attribute and a point group, and a
-trefoil knot as a closed NURBS curve; procedural nodes then work on them.
+`gnCreateInputNode` and the geometry setters, as the input nodes of HAPI: a mesh or curves computed by the application
+— points, faces, attributes of any class, groups — handed to the graph. `gnCommitGeo` locks the node with this
+geometry, and any operator can work on it.
 
 ```cpp
-// A mesh: points, attributes, faces and a group
-GN_NodeId star;
-gnCreateInputNode(s, -1, &star, "star");                  // /obj/input_star/input_star
+// A mesh: a quad and a triangle
+GN_NodeId mesh;
+gnCreateInputNode(s, -1, &mesh, "mesh");                      // a new object: /obj/input_mesh/input_mesh
 GN_PartInfo part{};
 part.type = GN_PARTTYPE_MESH;
-part.pointCount = pointCount; part.vertexCount = vertexCount; part.faceCount = faceCount;
-gnSetPartInfo(s, star, 0, &part);
+part.pointCount = 5;
+part.vertexCount = 7;
+part.faceCount = 2;
+gnSetPartInfo(s, mesh, 0, &part);
 
+const float positions[] = {0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 2, 0.5f, 0};
 GN_AttributeInfo p{};
-p.exists = true; p.owner = GN_ATTROWNER_POINT; p.storage = GN_STORAGETYPE_FLOAT;
-p.count = pointCount; p.tupleSize = 3; p.typeInfo = HAPI_ATTRIBUTE_TYPE_POINT;
-gnAddAttribute(s, star, 0, "P", &p);
-gnSetAttributeFloatData(s, star, 0, "P", &p, positions.data(), 0, pointCount);
-// ... the same for Cd (HAPI_ATTRIBUTE_TYPE_COLOR) and a string attribute with gnSetAttributeStringData
-gnSetVertexList(s, star, 0, vertices.data(), 0, vertexCount);
-gnSetFaceCounts(s, star, 0, faceCounts.data(), 0, faceCount);
-gnAddGroup(s, star, 0, GN_GROUPTYPE_POINT, "crown");
-gnSetGroupMembership(s, star, 0, GN_GROUPTYPE_POINT, "crown", crown.data(), 0, pointCount);
-gnCommitGeo(s, star);                                     // the node is locked with this geometry
+p.exists = true;
+p.owner = GN_ATTROWNER_POINT;
+p.storage = GN_STORAGETYPE_FLOAT;
+p.count = 5;
+p.tupleSize = 3;
+p.typeInfo = HAPI_ATTRIBUTE_TYPE_POINT;
+gnAddAttribute(s, mesh, 0, "P", &p);
+gnSetAttributeFloatData(s, mesh, 0, "P", &p, positions, 0, 5);
 
-// A curve: a closed NURBS curve of order 4 through 24 CVs
-GN_NodeId knot;
-gnCreateInputNode(s, -1, &knot, "knot");
+const int vertices[] = {0, 3, 2, 1, 1, 2, 4};                 // the points of the faces, face after face
+const int faceCounts[] = {4, 3};
+gnSetVertexList(s, mesh, 0, vertices, 0, 7);
+gnSetFaceCounts(s, mesh, 0, faceCounts, 0, 2);
+
+const char* names[] = {"quad", "triangle"};                   // a string primitive attribute
+GN_AttributeInfo name = p;
+name.owner = GN_ATTROWNER_PRIM;
+name.storage = GN_STORAGETYPE_STRING;
+name.count = 2;
+name.tupleSize = 1;
+name.typeInfo = HAPI_ATTRIBUTE_TYPE_NONE;
+gnAddAttribute(s, mesh, 0, "name", &name);
+gnSetAttributeStringData(s, mesh, 0, "name", &name, names, 0, 2);
+
+const int corner[] = {1, 0, 0, 0, 0};                         // a point group
+gnAddGroup(s, mesh, 0, GN_GROUPTYPE_POINT, "corner");
+gnSetGroupMembership(s, mesh, 0, GN_GROUPTYPE_POINT, "corner", corner, 0, 5);
+gnCommitGeo(s, mesh);
+
+// A curve: a closed NURBS curve of order 4 through 8 CVs
+GN_NodeId curve;
+gnCreateInputNode(s, -1, &curve, "curve");
 GN_PartInfo curvePart{};
 curvePart.type = GN_PARTTYPE_CURVE;
-curvePart.pointCount = 24; curvePart.vertexCount = 24; curvePart.faceCount = 1;
-gnSetPartInfo(s, knot, 0, &curvePart);
-GN_CurveInfo curve{};
-curve.curveType = GN_CURVETYPE_NURBS; curve.curveCount = 1; curve.vertexCount = 24;
-curve.order = 4; curve.isClosed = true;
-gnSetCurveInfo(s, knot, 0, &curve);
-const int cvs = 24;
-gnSetCurveCounts(s, knot, 0, &cvs, 0, 1);
-// ... P as above, then gnCommitGeo(s, knot)
+curvePart.pointCount = 8;
+curvePart.vertexCount = 8;
+curvePart.faceCount = 1;                                      // one curve
+gnSetPartInfo(s, curve, 0, &curvePart);
+GN_CurveInfo info{};
+info.curveType = GN_CURVETYPE_NURBS;
+info.curveCount = 1;
+info.vertexCount = 8;
+info.order = 4;
+info.isClosed = true;
+gnSetCurveInfo(s, curve, 0, &info);
+const int cvCount = 8;
+gnSetCurveCounts(s, curve, 0, &cvCount, 0, 1);
+GN_AttributeInfo cv = p;
+cv.count = 8;
+gnAddAttribute(s, curve, 0, "P", &cv);
+gnSetAttributeFloatData(s, curve, 0, "P", &cv, cvPositions, 0, 8);
+gnCommitGeo(s, curve);
 
-// Procedural nodes on the input: beads on the points of the "crown" group, beads along the resampled knot
-Node crown = b.sop(starGeo, "copytopoints", "crown").input(0, bead).input(1, Node(&b, star)).set("targetgroup", "crown");
-Node points = b.sop(knotGeo, "resample", "points").input(0, Node(&b, knot)).expr("length", "0.35 + 0.15 * sin($T * 1.3)");
+// Operators on the input geometry: a node in the same object
+GN_NodeInfo meshInfo;
+gnGetNodeInfo(s, mesh, &meshInfo);
+GN_NodeId extrude;
+gnCreateNode(s, meshInfo.parentId, "polyextrude", "extrude", false, &extrude);
+gnConnectNodeInput(s, extrude, 0, mesh, 0);
 ```
 
 ![Input nodes](images/input.png)
 
 #### Input nodes and Boolean
 
-Two solids made in code — a star prism and a torus — are input nodes inside one geo object. The torus is moved by a
-Transform SOP and the Boolean operator combines them every frame; the colors of both inputs carry over into the
-results.
+Input nodes created inside an existing geo object are ordinary SOPs of its network, so geometry from the application
+can be combined with any operator — here two closed meshes made in code go into a Boolean, and the result is cooked
+again every time one of them is committed anew.
 
 ```cpp
-Node geo = b.object("input_boolean");
-GN_NodeId starId, ringId;
-gnCreateInputNode(s, geo.id(), &starId, "star");          // inside the object: /obj/input_boolean/input_star
-gnCreateInputNode(s, geo.id(), &ringId, "ring");
-commitMesh(starId, starPositions, starColors, starVertices, starFaceCounts);   // the setters and gnCommitGeo
-commitMesh(ringId, ringPositions, ringColors, ringVertices, ringFaceCounts);
+GN_NodeId solidA, solidB, boolean;
+gnCreateInputNode(s, geo, &solidA, "a");                      // /obj/geo1/input_a
+gnCreateInputNode(s, geo, &solidB, "b");                      // /obj/geo1/input_b
+// ... gnSetPartInfo, gnAddAttribute, gnSetAttributeFloatData, gnSetVertexList, gnSetFaceCounts and
+//     gnCommitGeo for each, as above (faces go clockwise seen from outside)
 
-Node moving = b.sop(geo, "xform", "move_b")
-                  .input(0, Node(&b, ringId))
-                  .expr("t", {"0.9 * sin($T * 0.7)", "0.9 + 0.55 * sin($T * 1.1)", "0.3 * cos($T * 0.9)"})
-                  .expr("r", {"90 + $T * 35", "$T * 20", nullptr});
-for (const char* op : {"union", "intersect", "subtract"})
-    b.sop(geo, "boolean", op).input(0, Node(&b, starId)).input(1, moving).set("booleanop", op);
+gnCreateNode(s, geo, "boolean", "a_minus_b", false, &boolean);
+gnConnectNodeInput(s, boolean, 0, solidA, 0);
+gnConnectNodeInput(s, boolean, 1, solidB, 0);
+setMenu(s, boolean, "booleanop", "subtract");
+gnSetNodeDisplay(s, boolean, 1);
+
+// An animated input: set new positions of B and commit again — only B and the Boolean are cooked anew
+gnSetAttributeFloatData(s, solidB, 0, "P", &pB, movedPositions, 0, pointCountB);
+gnCommitGeo(s, solidB);
 ```
 
 ![Input nodes and Boolean](images/input_boolean.png)

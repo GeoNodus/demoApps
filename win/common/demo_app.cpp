@@ -142,7 +142,7 @@ int DemoApp::run()
     updateTitle();
     updateStatus();
 
-    // Command line: [graph.json] [--scene <node type>] [--play]. Without a graph — the first demo scene
+    // Command line: [graph.gng] [--scene <node type>] [--play]. Without a graph — the first demo scene
     int argc = 0;
     LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
     bool play = false;
@@ -486,7 +486,7 @@ void DemoApp::openDialog()
     wchar_t path[MAX_PATH * 4] = L"";
     OPENFILENAMEW ofn{sizeof(ofn)};
     ofn.hwndOwner = m_main;
-    ofn.lpstrFilter = L"GeoNodus graph (*.json)\0*.json\0All files\0*.*\0";
+    ofn.lpstrFilter = L"GeoNodus graph (*.gng)\0*.gng\0All files\0*.*\0";
     ofn.lpstrFile = path;
     ofn.nMaxFile = static_cast<DWORD>(std::size(path));
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
@@ -631,7 +631,7 @@ void DemoApp::updateStatus()
     wchar_t text[256];
     if (!m_scene.isLoaded()) {
         swprintf(text, std::size(text),
-            L"Choose a node type or open / drop a graph .json.  LMB rotate, wheel / RMB zoom, MMB / Shift+LMB pan, F "
+            L"Choose a node type or open / drop a graph .gng.  LMB rotate, wheel / RMB zoom, MMB / Shift+LMB pan, F "
             L"frame");
     } else {
         swprintf(text, std::size(text), L"Frame %d   cook %.1f ms   read %.1f ms   %zu tris   %zu lines   %zu points",

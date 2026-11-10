@@ -18,6 +18,7 @@ FILE_TYPES = {
     ".plist": "text.plist.xml",
     ".modulemap": "sourcecode.module-map",
     ".json": "text.json",
+    ".gng": "text.json",
     ".obj": "text",
     ".txt": "text",
     ".a": "archive.ar",

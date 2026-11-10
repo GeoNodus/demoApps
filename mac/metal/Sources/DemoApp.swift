@@ -1,11 +1,14 @@
 // Shell of the demo app in AppKit, as the Windows demos (win/common/demo_app.cpp): the main window with a 3D view
 // (Metal) and a bar under it — Open, the combo box of demo scenes by node type, Play, the frame slider, the status line.
 // Orbit camera: LMB — rotate, wheel / RMB / Ctrl+LMB — zoom, MMB / Shift+LMB — pan, F — frame all, Space — Play,
-// PgUp / PgDn — previous / next scene, ← / → — frame step, dropping a .json onto the window opens it. Cooks are
+// PgUp / PgDn — previous / next scene, ← / → — frame step, dropping a .gng onto the window opens it. Cooks are
 // asynchronous: gnCookNode, then polling gnGetCookState
 import AppKit
 import MetalKit
 import UniformTypeIdentifiers
+
+// GeoNodus graph file (*.gng, gnSaveGraph): JSON, declared in Info.plist (UTExportedTypeDeclarations)
+private let geonodusGraphType = UTType(exportedAs: "com.geonodus.graph", conformingTo: .json)
 
 private let fovy: Float = 45 * .pi / 180
 // Wheel: each notch changes the distance to the target by zoomPerNotch, as in the Qt client
@@ -60,7 +63,7 @@ final class DemoView: MTKView {
         if app?.handleKey(event) != true { super.keyDown(with: event) }
     }
 
-    // Dropping a .json onto the view opens it
+    // Dropping a .gng onto the view opens it
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
         droppedFile(sender) != nil ? .copy : []
     }
@@ -133,7 +136,7 @@ final class DemoApp: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKViewD
         updateTitle()
         updateStatus()
 
-        // Command line: [graph.json] [--scene <node type>] [--play]. Without a graph — the first demo scene
+        // Command line: [graph.gng] [--scene <node type>] [--play]. Without a graph — the first demo scene
         var play = false
         let args = Array(CommandLine.arguments.dropFirst())
         var i = 0
@@ -296,7 +299,7 @@ final class DemoApp: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKViewD
 
     @objc private func openDialog() {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.json]
+        panel.allowedContentTypes = [geonodusGraphType]
         panel.allowsMultipleSelection = false
         panel.beginSheetModal(for: window) { [weak self] response in
             if response == .OK, let url = panel.url { self?.openFile(url.path) }
@@ -554,7 +557,7 @@ final class DemoApp: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKViewD
 
     private func updateStatus() {
         if !scene.isLoaded {
-            status.stringValue = "Choose a node type or open / drop a graph .json.  LMB rotate, wheel / RMB zoom, "
+            status.stringValue = "Choose a node type or open / drop a graph .gng.  LMB rotate, wheel / RMB zoom, "
                 + "MMB / Shift+LMB pan, F frame"
         } else {
             status.stringValue = String(format: "Frame %d   cook %.1f ms   read %.1f ms   %d tris   %d lines   %d points",

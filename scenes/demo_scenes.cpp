@@ -18,6 +18,9 @@ const DemoScene SCENES[] = {
     {"attribcreate", "Point colors from expressions, a color only on a group", sceneAttribCreate},
     {"attribrandomize", "Random point colors and sizes with a changing seed", sceneAttribRandomize},
     {"attribblur", "Blurring random colors and smoothing a noisy terrain", sceneAttribBlur},
+    {"attribpromote", "Point colors promoted to faces, and one color per copy by a piece attribute",
+        sceneAttribPromote},
+    {"attribtransfer", "Colored balls painting a grid: point colors transferred with a soft edge", sceneAttribTransfer},
     {"normal", "Point normals of a moving surface shown by spikes copied along them", sceneNormal},
     {"texture", "UV projections written into Cd, so the coordinates are seen as colors", sceneTexture},
     // Groups

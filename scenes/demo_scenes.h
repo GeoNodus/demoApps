@@ -52,6 +52,8 @@ void sceneAdd(SceneBuilder& b);
 void sceneAttribCreate(SceneBuilder& b);
 void sceneAttribRandomize(SceneBuilder& b);
 void sceneAttribBlur(SceneBuilder& b);
+void sceneAttribPromote(SceneBuilder& b);
+void sceneAttribTransfer(SceneBuilder& b);
 void sceneNormal(SceneBuilder& b);
 void sceneTexture(SceneBuilder& b);
 

@@ -36,7 +36,7 @@ public:
     virtual std::wstring description() const = 0;
 };
 
-// Runs the app: title — the name in the window title, command line — [graph.json] [--play]
+// Runs the app: title — the name in the window title, command line — [graph.gng] [--play]
 int runDemo(IRenderer& renderer, const wchar_t* title);
 
 } // namespace demo

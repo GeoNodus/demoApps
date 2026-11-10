@@ -33,8 +33,28 @@
 			<string>Alternate</string>
 			<key>LSItemContentTypes</key>
 			<array>
+				<string>com.geonodus.graph</string>
+			</array>
+		</dict>
+	</array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.geonodus.graph</string>
+			<key>UTTypeDescription</key>
+			<string>GeoNodus graph</string>
+			<key>UTTypeConformsTo</key>
+			<array>
 				<string>public.json</string>
 			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>gng</string>
+				</array>
+			</dict>
 		</dict>
 	</array>
 	<key>LSSupportsOpeningDocumentsInPlace</key>

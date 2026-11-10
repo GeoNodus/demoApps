@@ -8,12 +8,14 @@ import MetalKit
 import UIKit
 import UniformTypeIdentifiers
 
+// GeoNodus graph file (*.gng, gnSaveGraph): JSON, declared in Info.plist (UTExportedTypeDeclarations)
+private let geonodusGraphType = UTType(exportedAs: "com.geonodus.graph", conformingTo: .json)
+
 private let fovy: Float = 45 * .pi / 180
 // Pinch and wheel-like zoom: as zoomPerNotch of the macOS demo
 private let zoomPerNotch: Float = 1.15
-// Demo graphs bundled with the app (copies of ../scenes/*.json; the demo edition opens them without the node limit)
-private let bundledGraphs = ["animated_scene", "castle_scene", "gear_mechanism_scene", "log_house_scene",
-                             "polyextrude_tube_scene"]
+// Demo graphs bundled with the app (copies of ../scenes/*.gng; the demo edition opens them without the node limit)
+private let bundledGraphs = ["castle_scene", "gear_mechanism_scene", "log_house_scene"]
 
 final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureRecognizerDelegate,
     UIDocumentPickerDelegate {
@@ -83,7 +85,7 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
         guard !started, renderer != nil, scene.isValid else { return }
         started = true
 
-        // Launch arguments: [graph.json] [--scene <node type>] [--play]. Without a graph — the first demo scene
+        // Launch arguments: [graph.gng] [--scene <node type>] [--play]. Without a graph — the first demo scene
         var play = false
         let args = Array(ProcessInfo.processInfo.arguments.dropFirst())
         var i = 0
@@ -112,10 +114,10 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
     override var canBecomeFirstResponder: Bool { true }
     override var prefersHomeIndicatorAutoHidden: Bool { true }
 
-    // A bundled graph by name ("castle_scene" / "castle_scene.json") or a path
+    // A bundled graph by name ("castle_scene" / "castle_scene.gng") or a path
     private func resolveGraph(_ arg: String) -> String {
         let name = (arg as NSString).deletingPathExtension
-        if !arg.contains("/"), let path = Bundle.main.path(forResource: name, ofType: "json") { return path }
+        if !arg.contains("/"), let path = Bundle.main.path(forResource: name, ofType: "gng") { return path }
         return arg
     }
 
@@ -237,11 +239,11 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
         ])
     }
 
-    // Open: the graphs bundled with the app and any .json from Files
+    // Open: the graphs bundled with the app and any .gng from Files
     private func openMenu() -> UIMenu {
         var items: [UIMenuElement] = bundledGraphs.compactMap { name in
-            guard let path = Bundle.main.path(forResource: name, ofType: "json") else { return nil }
-            return UIAction(title: name + ".json", image: UIImage(systemName: "doc")) { [weak self] _ in
+            guard let path = Bundle.main.path(forResource: name, ofType: "gng") else { return nil }
+            return UIAction(title: name + ".gng", image: UIImage(systemName: "doc")) { [weak self] _ in
                 self?.openFile(path)
             }
         }
@@ -267,7 +269,7 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
     // --- Commands ----------------------------------------------------------------------------------------------------
 
     private func browseFiles() {
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.json], asCopy: true)
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [geonodusGraphType], asCopy: true)
         picker.delegate = self
         picker.allowsMultipleSelection = false
         present(picker, animated: true)
@@ -576,7 +578,7 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
 
     private func updateStatus() {
         if !scene.isLoaded {
-            statusLabel.text = "Choose a node type or open a graph .json.  Drag rotate, pinch zoom, two fingers pan, "
+            statusLabel.text = "Choose a node type or open a graph .gng.  Drag rotate, pinch zoom, two fingers pan, "
                 + "double tap frame"
         } else {
             statusLabel.text = String(format: "Frame %d   cook %.1f ms   read %.1f ms   %d tris   %d lines   %d points",

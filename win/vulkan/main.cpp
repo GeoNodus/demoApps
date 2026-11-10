@@ -1,5 +1,5 @@
-// GeoNodus demo (Vulkan): shows a GeoNodus graph (.json, gnSaveGraph) and plays its animation.
-// Command line: geonodus_vulkan [graph.json] [--play]
+// GeoNodus demo (Vulkan): shows a GeoNodus graph (.gng, gnSaveGraph) and plays its animation.
+// Command line: geonodus_vulkan [graph.gng] [--play]
 #include "vk_renderer.h"
 
 int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)

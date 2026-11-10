@@ -1,4 +1,5 @@
-// Attributes: Attribute Create, Attribute Randomize, Attribute Blur, Normal, UV Texture
+// Attributes: Attribute Create, Attribute Randomize, Attribute Blur, Attribute Promote, Attribute Transfer, Normal,
+// UV Texture
 #include "demo_scenes.h"
 #include "scene_util.h"
 
@@ -146,6 +147,88 @@ void sceneAttribBlur(SceneBuilder& b)
     Node terrainColor = color(b, geo, smooth, 0.55, 0.7, 0.4);
 
     merge(b, geo, {colorBlur, terrainColor}).display();
+}
+
+// Attribute Promote: random point colors of a waving grid promoted to its faces (the average of the corners — a
+// mosaic), and per-copy colors: random point colors of a row of box copies reduced to one color per copy — the copy
+// number (a primitive attribute of Copy and Transform) promoted to points is the piece attribute
+void sceneAttribPromote(SceneBuilder& b)
+{
+    Node geo = b.object("promote_mosaic");
+    Node grid = b.sop(geo, "grid", "panel").set("size", 8, 8).set("rows", 24).set("cols", 24).set("t", -4.5, 0, 0);
+    Node wave = b.sop(geo, "mountain", "wave").input(0, grid).set("height", 0.6).expr("time", "$T * 0.5");
+    Node noise = b.sop(geo, "attribrandomize", "corner_colors")
+                     .input(0, wave)
+                     .set("name", "Cd")
+                     .expr("seed", "rint($T * 2)");
+    b.sop(geo, "attribpromote", "face_colors")
+        .input(0, noise)
+        .set("inname", "Cd")
+        .set("inclass", "point")
+        .set("outclass", "primitive")
+        .set("method", "mean")
+        .display();
+
+    Node piecesGeo = b.object("promote_pieces");
+    Node box = b.sop(piecesGeo, "box", "brick").set("size", 0.9, 0.9, 0.9).set("divrate", 4, 4, 4).set("t", 2, 0, 0);
+    Node row = b.sop(piecesGeo, "copyxform", "row")
+                   .input(0, box)
+                   .set("ncy", 6)
+                   .set("t", 1.2, 0, 0)
+                   .expr("r", 1, "8 * sin($T)")
+                   .set("docopyattrib", 1);
+    Node speckles = b.sop(piecesGeo, "attribrandomize", "speckles")
+                        .input(0, row)
+                        .set("name", "Cd")
+                        .expr("seed", "rint($T * 3)");
+    Node pieces = b.sop(piecesGeo, "attribpromote", "copy_to_points")
+                      .input(0, speckles)
+                      .set("inname", "copynum")
+                      .set("inclass", "primitive")
+                      .set("outclass", "point")
+                      .set("method", "first")
+                      .set("deletein", 0);
+    b.sop(piecesGeo, "attribpromote", "piece_colors")
+        .input(0, pieces)
+        .set("inname", "Cd")
+        .set("inclass", "point")
+        .set("outclass", "point")
+        .set("usepieceattrib", 1)
+        .set("pieceattrib", "copynum")
+        .set("method", "max")
+        .display();
+}
+
+// Attribute Transfer: two colored balls fly over a grid and paint it — point colors are transferred within the
+// distance threshold and blended with the grid's own color over the blend width
+void sceneAttribTransfer(SceneBuilder& b)
+{
+    Node geo = b.object("transfer");
+    Node grid = b.sop(geo, "grid", "floor").set("size", 10, 10).set("rows", 70).set("cols", 70);
+    Node floor = color(b, geo, grid, 0.25, 0.3, 0.4, "floor_color");
+
+    Node redBall = b.sop(geo, "sphere", "red_ball")
+                       .set("type", "polymesh")
+                       .set("rad", 0.5, 0.5, 0.5)
+                       .expr("t", {"3 * cos($T * 0.9)", "0.6 + 0.3 * sin($T * 3)", "3 * sin($T * 0.9)"});
+    Node red = color(b, geo, redBall, 1, 0.3, 0.2, "red");
+    Node yellowBall = b.sop(geo, "sphere", "yellow_ball")
+                          .set("type", "polymesh")
+                          .set("rad", 0.4, 0.4, 0.4)
+                          .expr("t", {"2.5 * sin($T * 1.3)", "0.5", "1.5 * cos($T * 0.7)"});
+    Node yellow = color(b, geo, yellowBall, 1, 0.9, 0.2, "yellow");
+    Node balls = merge(b, geo, {red, yellow}, "balls");
+
+    Node painted = b.sop(geo, "attribtransfer", "paint")
+                       .input(0, floor)
+                       .input(1, balls)
+                       .set("primitiveattribs", 0)
+                       .set("pointattriblist", "Cd")
+                       .set("maxsamplecount", 4)
+                       .set("kernelradius", 2.0)
+                       .set("thresholddist", 0.6)
+                       .expr("blendwidth", "1 + 0.8 * sin($T * 1.5)");
+    merge(b, geo, {painted, balls}).display();
 }
 
 // Normal: point normals of a sphere deformed by moving noise; Copy to Points turns +Z of every spike along N, so the

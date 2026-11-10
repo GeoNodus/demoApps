@@ -1,8 +1,8 @@
-// GeoNodus demo for iOS / iPadOS (UIKit + Metal): shows a GeoNodus graph (.json, gnSaveGraph) or a demo scene built in
+// GeoNodus demo for iOS / iPadOS (UIKit + Metal): shows a GeoNodus graph (.gng, gnSaveGraph) or a demo scene built in
 // code and plays its animation — the same app as the macOS (mac/metal) and Windows demos. The scene, the Metal renderer
 // and the matrices are shared with the macOS demo (mac/metal/Sources: GnScene.swift, MetalRenderer.swift,
 // DemoMath.swift), the demo scenes are the C++ code of ../scenes through the C bridge mac/metal/bridge.
-// Launch arguments (Xcode scheme or xcrun simctl launch): [graph.json] [--scene <node type>] [--play]
+// Launch arguments (Xcode scheme or xcrun simctl launch): [graph.gng] [--scene <node type>] [--play]
 import UIKit
 
 @main
@@ -30,7 +30,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.rootViewController = controller
         window.makeKeyAndVisible()
         self.window = window
-        // A .json opened with the app from Files / AirDrop
+        // A .gng opened with the app from Files / AirDrop
         if let url = options.urlContexts.first?.url { controller.openExternal(url) }
     }
 

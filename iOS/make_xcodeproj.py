@@ -9,7 +9,7 @@ Compiled into the app:
   ../mac/metal/bridge/*.cpp, ../scenes/*.cpp — the demo scenes built in code (C++) and their C interface for Swift.
 Linked and embedded: lib/geonodus.xcframework — the demo edition of the library (device arm64, simulator arm64 and
 x86_64), put there by geonodus/ios/build_xcframework.sh of the library repository.
-Resources: the demo graphs ../scenes/*.json and ../scenes/assets (crystal.obj of the File SOP).
+Resources: the demo graphs ../scenes/*.gng and ../scenes/assets (crystal.obj of the File SOP).
 
 Signing: automatic; for a device choose your team in Signing & Capabilities (or pass DEVELOPMENT_TEAM=<id> to
 xcodebuild). Run it again after adding source files (a new scenes_*.cpp, a new .swift):  python3 make_xcodeproj.py
@@ -38,7 +38,7 @@ swift = rel("metal/Sources/*.swift") + ["../mac/metal/Sources/GnScene.swift",
 bridge = rel("../mac/metal/bridge/*.cpp")
 scenes = rel("../scenes/*.cpp")
 headers = rel("../mac/metal/bridge/*.h") + rel("../scenes/*.h") + ["metal/BridgingHeader.h"] + rel("lib/include/*.h")
-graphs = rel("../scenes/*.json")
+graphs = rel("../scenes/*.gng")
 resources = graphs + ["../scenes/assets"]
 
 p = Project(HERE)

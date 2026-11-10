@@ -369,7 +369,8 @@ GN_DECL gnRevertGeo(const GN_SessionId, GN_NodeId node_id);
 // Loading replaces the session graph (the children of /obj are deleted); the whole file is parsed before the session
 // changes — on a parse error the graph stays as it was (GN_RESULT_FAILURE). Unknown parameters are skipped; nodes,
 // connections that could not be created and invalid expressions are warnings in the GN_STATUS_CALL_RESULT status
-// string, the result is success. cook_on_load — queue a cook of all nodes. File paths are UTF-8.
+// string, the result is success. cook_on_load — queue a cook of all nodes. File paths are UTF-8. Graph files are *.gng
+// (the library does not check the extension).
 // Demo edition: saving (gnSaveGraph, gnGetGraphString*) is disabled, gnCreateNode creates at most 20 nodes, a graph with
 // more than 20 nodes opens only from a demo scene (by file name); a refusal returns GN_RESULT_DEMO_LIMIT, the text is in
 // GN_STATUS_CALL_RESULT
@@ -380,5 +381,26 @@ GN_DECL gnLoadGraph(const GN_SessionId, const char* file_path, GN_Bool cook_on_l
 GN_DECL gnGetGraphStringBufLength(const GN_SessionId, int* buffer_length);
 GN_DECL gnGetGraphString(const GN_SessionId, char* string_value, int length);
 GN_DECL gnLoadGraphString(const GN_SessionId, const char* json, GN_Bool cook_on_load);
+
+// Assets (not from HAPI; as a Houdini digital asset or hou.Node.saveItemsToFile / loadItemsFromFile): a SOP subnet with
+// all its children, parameters, spare parameters, expressions, connections and flags inside — as JSON (format
+// geonodus.asset, files *.gna; graph files are *.gng, the library does not check extensions). Node paths are relative
+// to the network that holds the subnet; the connections of the subnet itself and its flags are not saved; ch() paths
+// that lead into the subnet are saved relative to the node of the expression, so the asset works in any network, ch()
+// paths to other nodes stay as they are. Saving a node that is not a SOP subnet — GN_RESULT_INVALID_ARGUMENT.
+// Loading creates the subnet in parent_node_id (a geo object or a SOP subnet; a taken name gets the next number) and
+// returns it in new_node_id; the whole file is parsed before the session changes — on an error nothing is created.
+// Unknown parameters are skipped, nodes, connections and expressions that could not be created are warnings in the
+// GN_STATUS_CALL_RESULT status string. cook_on_load — queue a cook of the subnet. File paths are UTF-8.
+// Demo edition: all asset functions (saving and loading) are disabled — GN_RESULT_DEMO_LIMIT
+GN_DECL gnSaveAsset(const GN_SessionId, GN_NodeId node_id, const char* file_path);
+GN_DECL gnLoadAsset(const GN_SessionId, GN_NodeId parent_node_id, const char* file_path, GN_Bool cook_on_load,
+    GN_NodeId* new_node_id);
+// The same through a string: first the buffer length (with the terminating zero), then the string of the last
+// serialization itself
+GN_DECL gnGetAssetStringBufLength(const GN_SessionId, GN_NodeId node_id, int* buffer_length);
+GN_DECL gnGetAssetString(const GN_SessionId, char* string_value, int length);
+GN_DECL gnLoadAssetString(const GN_SessionId, GN_NodeId parent_node_id, const char* json, GN_Bool cook_on_load,
+    GN_NodeId* new_node_id);
 
 #endif // GEONODUS_H

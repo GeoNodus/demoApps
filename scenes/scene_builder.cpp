@@ -97,7 +97,14 @@ Node& Node::setComponent(const char* parm, int component, double value)
 Node& Node::set(const char* parm, const char* value)
 {
     if (valid())
-        m_b->setString(m_id, parm, value);
+        m_b->setString(m_id, parm, 0, value);
+    return *this;
+}
+
+Node& Node::setString(const char* parm, int component, const char* value)
+{
+    if (valid())
+        m_b->setString(m_id, parm, component, value);
     return *this;
 }
 
@@ -167,6 +174,184 @@ Node& Node::addFloatParm(const char* name, const char* label, double value, doub
     return *this;
 }
 
+Node& Node::addSpareParm(const SpareParm& parm)
+{
+    if (!valid())
+        return *this;
+    GN_SpareParmTemplate t = parm.t;
+    if (!parm.tokens.empty()) {
+        t.menuItemCount = static_cast<int>(parm.tokens.size());
+        t.menuItems = parm.tokens.data();
+        t.menuLabels = parm.labels.data();
+    }
+    // The parent folder by name (folders are not found by findParm, it skips them)
+    GN_ParmId parent = -1;
+    if (parm.parentFolder) {
+        GN_NodeInfo info{};
+        if (gnGetNodeInfo(m_b->m_session, m_id, &info) == GN_RESULT_SUCCESS && info.parmCount > 0) {
+            std::vector<GN_ParmInfo> parms(static_cast<size_t>(info.parmCount));
+            if (gnGetParameters(m_b->m_session, m_id, parms.data(), 0, info.parmCount) == GN_RESULT_SUCCESS)
+                for (const GN_ParmInfo& p : parms)
+                    if (p.type == GN_PARMTYPE_FOLDER && m_b->string(p.nameSH) == parm.parentFolder)
+                        parent = p.id;
+        }
+        if (parent < 0)
+            m_b->error(m_id, std::string("no folder '") + parm.parentFolder + "' for '" + (t.name ? t.name : "") + "'");
+    }
+    GN_ParmId id = -1;
+    m_b->check(gnAddSpareParm(m_b->m_session, m_id, &t, parent, &id), m_id,
+        (std::string("gnAddSpareParm(") + (t.name ? t.name : "") + ")").c_str());
+    return *this;
+}
+
+// --- Geometry -------------------------------------------------------------------------------------------------------
+
+Node& Node::mesh(int points, const std::vector<int>& faceCounts, const std::vector<int>& vertices)
+{
+    if (!valid())
+        return *this;
+    GN_PartInfo part{};
+    part.type = GN_PARTTYPE_MESH;
+    part.pointCount = points;
+    part.vertexCount = static_cast<int>(vertices.size());
+    part.faceCount = static_cast<int>(faceCounts.size());
+    m_b->beginPart(m_id, part);
+    const GN_SessionId s = m_b->m_session;
+    if (!faceCounts.empty())
+        m_b->check(gnSetFaceCounts(s, m_id, 0, faceCounts.data(), 0, part.faceCount), m_id, "gnSetFaceCounts");
+    if (!vertices.empty())
+        m_b->check(gnSetVertexList(s, m_id, 0, vertices.data(), 0, part.vertexCount), m_id, "gnSetVertexList");
+    return *this;
+}
+
+Node& Node::curves(GN_CurveType type, int points, const std::vector<int>& curveCounts, const std::vector<int>& vertices,
+    const std::vector<int>& orders, bool closed, const std::vector<float>& knots)
+{
+    if (!valid())
+        return *this;
+    GN_PartInfo part{};
+    part.type = GN_PARTTYPE_CURVE;
+    part.pointCount = points;
+    part.vertexCount = static_cast<int>(vertices.size());
+    part.faceCount = static_cast<int>(curveCounts.size());
+    m_b->beginPart(m_id, part);
+    GN_CurveInfo info{};
+    info.curveType = type;
+    info.curveCount = part.faceCount;
+    info.vertexCount = part.vertexCount;
+    info.knotCount = static_cast<int>(knots.size());
+    info.order = orders.size() == 1 ? orders[0] : 0;
+    info.hasKnots = !knots.empty();
+    info.isClosed = closed;
+    const GN_SessionId s = m_b->m_session;
+    m_b->check(gnSetCurveInfo(s, m_id, 0, &info), m_id, "gnSetCurveInfo");
+    m_b->check(gnSetCurveCounts(s, m_id, 0, curveCounts.data(), 0, part.faceCount), m_id, "gnSetCurveCounts");
+    if (orders.size() > 1)
+        m_b->check(gnSetCurveOrders(s, m_id, 0, orders.data(), 0, static_cast<int>(orders.size())), m_id,
+            "gnSetCurveOrders");
+    if (!knots.empty())
+        m_b->check(gnSetCurveKnots(s, m_id, 0, knots.data(), 0, info.knotCount), m_id, "gnSetCurveKnots");
+    if (!vertices.empty())
+        m_b->check(gnSetVertexList(s, m_id, 0, vertices.data(), 0, part.vertexCount), m_id, "gnSetVertexList");
+    return *this;
+}
+
+Node& Node::attrib(GN_AttributeOwner owner, const char* name, int size, GN_AttributeTypeInfo typeInfo,
+    const std::vector<float>& values)
+{
+    if (!valid())
+        return *this;
+    GN_AttributeInfo info = m_b->addAttribute(m_id, owner, name, size, typeInfo, GN_STORAGETYPE_FLOAT,
+        static_cast<int>(values.size()));
+    if (info.exists)
+        m_b->check(gnSetAttributeFloatData(m_b->m_session, m_id, 0, name, &info, values.data(), 0, info.count), m_id,
+            "gnSetAttributeFloatData");
+    return *this;
+}
+
+Node& Node::attribFloat64(GN_AttributeOwner owner, const char* name, int size, GN_AttributeTypeInfo typeInfo,
+    const std::vector<double>& values)
+{
+    if (!valid())
+        return *this;
+    GN_AttributeInfo info = m_b->addAttribute(m_id, owner, name, size, typeInfo, GN_STORAGETYPE_FLOAT64,
+        static_cast<int>(values.size()));
+    if (info.exists)
+        m_b->check(gnSetAttributeFloat64Data(m_b->m_session, m_id, 0, name, &info, values.data(), 0, info.count), m_id,
+            "gnSetAttributeFloat64Data");
+    return *this;
+}
+
+Node& Node::attribInt(GN_AttributeOwner owner, const char* name, int size, GN_AttributeTypeInfo typeInfo,
+    const std::vector<int>& values)
+{
+    if (!valid())
+        return *this;
+    GN_AttributeInfo info = m_b->addAttribute(m_id, owner, name, size, typeInfo, GN_STORAGETYPE_INT,
+        static_cast<int>(values.size()));
+    if (info.exists)
+        m_b->check(gnSetAttributeIntData(m_b->m_session, m_id, 0, name, &info, values.data(), 0, info.count), m_id,
+            "gnSetAttributeIntData");
+    return *this;
+}
+
+Node& Node::attribInt64(GN_AttributeOwner owner, const char* name, int size, GN_AttributeTypeInfo typeInfo,
+    const std::vector<GN_Int64>& values)
+{
+    if (!valid())
+        return *this;
+    GN_AttributeInfo info = m_b->addAttribute(m_id, owner, name, size, typeInfo, GN_STORAGETYPE_INT64,
+        static_cast<int>(values.size()));
+    if (info.exists)
+        m_b->check(gnSetAttributeInt64Data(m_b->m_session, m_id, 0, name, &info, values.data(), 0, info.count), m_id,
+            "gnSetAttributeInt64Data");
+    return *this;
+}
+
+Node& Node::attribString(GN_AttributeOwner owner, const char* name, int size, const std::vector<const char*>& values)
+{
+    if (!valid())
+        return *this;
+    GN_AttributeInfo info = m_b->addAttribute(m_id, owner, name, size, HAPI_ATTRIBUTE_TYPE_INVALID,
+        GN_STORAGETYPE_STRING, static_cast<int>(values.size()));
+    if (info.exists) {
+        std::vector<const char*> v = values;
+        m_b->check(gnSetAttributeStringData(m_b->m_session, m_id, 0, name, &info, v.data(), 0, info.count), m_id,
+            "gnSetAttributeStringData");
+    }
+    return *this;
+}
+
+Node& Node::group(GN_GroupType type, const char* name, const std::vector<int>& elements)
+{
+    if (!valid())
+        return *this;
+    const GN_SessionId s = m_b->m_session;
+    if (!m_b->check(gnAddGroup(s, m_id, 0, type, name), m_id, "gnAddGroup"))
+        return *this;
+    if (type == GN_GROUPTYPE_EDGE) {
+        m_b->check(gnSetGroupMembership(s, m_id, 0, type, name, elements.data(), 0,
+                       static_cast<int>(elements.size() / 2)),
+            m_id, "gnSetGroupMembership");
+        return *this;
+    }
+    const int count = m_b->m_part_node != m_id ? 0 : type == GN_GROUPTYPE_POINT ? m_b->m_part_points : m_b->m_part_prims;
+    std::vector<int> membership(static_cast<size_t>(count), 0);
+    for (int e : elements)
+        if (e >= 0 && e < count)
+            membership[static_cast<size_t>(e)] = 1;
+    m_b->check(gnSetGroupMembership(s, m_id, 0, type, name, membership.data(), 0, count), m_id,
+        "gnSetGroupMembership");
+    return *this;
+}
+
+Node& Node::commit()
+{
+    if (valid())
+        m_b->check(gnCommitGeo(m_b->m_session, m_id), m_id, "gnCommitGeo");
+    return *this;
+}
+
 // --- SceneBuilder ---------------------------------------------------------------------------------------------------
 
 void SceneBuilder::clear()
@@ -191,6 +376,48 @@ void SceneBuilder::timeline(double start, double end, double fps)
     if (gnSetTimelineOptions(m_session, &tl) != GN_RESULT_SUCCESS)
         error(-1, "gnSetTimelineOptions failed");
     gnSetTime(m_session, start);
+}
+
+void SceneBuilder::time(double seconds)
+{
+    if (gnSetTime(m_session, seconds) != GN_RESULT_SUCCESS)
+        error(-1, "gnSetTime failed");
+}
+
+Node SceneBuilder::inputNode(const Node& parent, const char* name)
+{
+    if (!parent.valid())
+        return Node();
+    GN_NodeId id = -1;
+    if (!check(gnCreateInputNode(m_session, parent.m_id, &id, name), parent.m_id, "gnCreateInputNode"))
+        return Node();
+    check(gnRenameNode(m_session, id, name), id, "gnRenameNode");
+    return Node(this, id);
+}
+
+GN_AttributeInfo SceneBuilder::addAttribute(GN_NodeId node, GN_AttributeOwner owner, const char* name, int size,
+    GN_AttributeTypeInfo typeInfo, GN_StorageType storage, int valueCount)
+{
+    GN_AttributeInfo info{};
+    info.exists = true;
+    info.owner = owner;
+    info.storage = storage;
+    info.originalOwner = GN_ATTROWNER_INVALID;
+    info.tupleSize = size;
+    info.count = size > 0 ? valueCount / size : 0;
+    info.typeInfo = typeInfo;
+    if (!check(gnAddAttribute(m_session, node, 0, name, &info), node,
+            (std::string("gnAddAttribute(") + name + ")").c_str()))
+        info.exists = false;
+    return info;
+}
+
+void SceneBuilder::beginPart(GN_NodeId node, const GN_PartInfo& part)
+{
+    m_part_node = node;
+    m_part_points = part.pointCount;
+    m_part_prims = part.faceCount;
+    check(gnSetPartInfo(m_session, node, 0, &part), node, "gnSetPartInfo");
 }
 
 Node SceneBuilder::object(const char* name, const char* op)
@@ -301,7 +528,7 @@ void SceneBuilder::setValues(GN_NodeId node, const char* parm, int first, int co
         error(node, std::string("setting '") + parm + "' — " + resultName(r));
 }
 
-void SceneBuilder::setString(GN_NodeId node, const char* parm, const char* value)
+void SceneBuilder::setString(GN_NodeId node, const char* parm, int component, const char* value)
 {
     const Parm p = findParm(node, parm);
     if (!p.found) {
@@ -309,7 +536,7 @@ void SceneBuilder::setString(GN_NodeId node, const char* parm, const char* value
         return;
     }
     if (storesString(p.info.type)) {
-        const GN_Result r = gnSetParmStringValue(m_session, node, value, p.info.id, 0);
+        const GN_Result r = gnSetParmStringValue(m_session, node, value, p.info.id, component);
         if (r != GN_RESULT_SUCCESS)
             error(node, std::string("setting '") + parm + "' — " + resultName(r));
         return;
@@ -329,7 +556,7 @@ void SceneBuilder::setString(GN_NodeId node, const char* parm, const char* value
     for (int k = 0; k < p.info.choiceCount; ++k)
         if (string(choices[static_cast<size_t>(k)].valueSH) == value) {
             const int index = k;
-            const GN_Result r = gnSetParmIntValues(m_session, node, &index, p.info.intValuesIndex, 1);
+            const GN_Result r = gnSetParmIntValues(m_session, node, &index, p.info.intValuesIndex + component, 1);
             if (r != GN_RESULT_SUCCESS)
                 error(node, std::string("setting '") + parm + "' — " + resultName(r));
             m_menu_choices.push_back({node, parm, value});

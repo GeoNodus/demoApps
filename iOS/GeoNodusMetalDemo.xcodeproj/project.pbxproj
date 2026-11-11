@@ -20,10 +20,12 @@
 		5E5E9F6F5F4C303969303153 = {isa = PBXBuildFile; fileRef = 9AFC15F43BECA80CB9E7A494;};
 		612B45F850E5126E8421B6EE = {isa = PBXBuildFile; fileRef = 6DBCA54B0B16659068620E43;};
 		69480A3BB79B44227F27287C = {isa = PBXBuildFile; fileRef = 29EDEEDF02819630AC4F6C2F;};
+		6A29A066D3CEEDF974338B2C = {isa = PBXBuildFile; fileRef = 46C4E62CEF9E9100094171D9;};
 		6F5062432B72211D46CCAC14 = {isa = PBXBuildFile; fileRef = 9875B6AE555AEB40A52E871D;};
 		767AE4118841722C38319A61 = {isa = PBXBuildFile; fileRef = 5C96D7BDD7B30DD9498C19DD;};
 		7EFFB951C7E1A9E764F58B2D = {isa = PBXBuildFile; fileRef = 497A257E34EA70B228989771;};
 		80D8681CAB3B07BA5ECF2D0F = {isa = PBXBuildFile; fileRef = 4E4E0B74F25F640D83AE3463;};
+		8172D5BB3371E03137178582 = {isa = PBXBuildFile; fileRef = C53C18EB1031DD27110BF957;};
 		846A6EA5384FEF9C5D41E9D7 = {isa = PBXBuildFile; fileRef = 5024FAE33D12E37DAB4294F9;};
 		8FD6B7D03FABEEBB76974D8F = {isa = PBXBuildFile; fileRef = FFC0C1219BF8400EA8B73396;};
 		C568A8F6FA209C3DF56E88F0 = {isa = PBXBuildFile; fileRef = 0D610D8BD53C8CE599E79B3B;};
@@ -48,6 +50,7 @@
 		351DB532728C23B0949F8387 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = demo_scenes_c.cpp; path = ../mac/metal/bridge/demo_scenes_c.cpp; sourceTree = SOURCE_ROOT;};
 		464E15E251A5F6A037EF0D4C = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_groups.cpp; path = ../scenes/scenes_groups.cpp; sourceTree = SOURCE_ROOT;};
 		46ABDF2289A585B7217BFDDF = {isa = PBXFileReference; lastKnownFileType = text; name = xcodeproj_writer.py; path = xcodeproj_writer.py; sourceTree = SOURCE_ROOT;};
+		46C4E62CEF9E9100094171D9 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SceneBuilder.swift; path = ../mac/metal/Sources/SceneBuilder.swift; sourceTree = SOURCE_ROOT;};
 		497A257E34EA70B228989771 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scene_builder.cpp; path = ../scenes/scene_builder.cpp; sourceTree = SOURCE_ROOT;};
 		4C878109FA80C68CFD77BC39 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_network.cpp; path = ../scenes/scenes_network.cpp; sourceTree = SOURCE_ROOT;};
 		4E4E0B74F25F640D83AE3463 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = scenes_modeling.cpp; path = ../scenes/scenes_modeling.cpp; sourceTree = SOURCE_ROOT;};
@@ -64,6 +67,7 @@
 		A6880678BEF95826C52F9ED6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DemoMath.swift; path = ../mac/metal/Sources/DemoMath.swift; sourceTree = SOURCE_ROOT;};
 		B7ED75CD6098F6A661382530 = {isa = PBXFileReference; lastKnownFileType = text; name = make_xcodeproj.py; path = make_xcodeproj.py; sourceTree = SOURCE_ROOT;};
 		BCE7C3843AC787E6A79BCB26 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = demo_scenes.h; path = ../scenes/demo_scenes.h; sourceTree = SOURCE_ROOT;};
+		C53C18EB1031DD27110BF957 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SwiftScenes.swift; path = ../mac/metal/Sources/SwiftScenes.swift; sourceTree = SOURCE_ROOT;};
 		CAAEF68D5044897EA75B7D35 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = geonodus_API.h; path = lib/include/geonodus_API.h; sourceTree = SOURCE_ROOT;};
 		CE04BB696531EC018D8AA82F = {isa = PBXFileReference; lastKnownFileType = text.json; name = castle_scene.gng; path = ../scenes/castle_scene.gng; sourceTree = SOURCE_ROOT;};
 		D8FB6EE3685300DB05525E17 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = geonodus.h; path = lib/include/geonodus.h; sourceTree = SOURCE_ROOT;};
@@ -85,7 +89,7 @@
 		791A403F3AD8952A90F41CED = {isa = PBXGroup; children = (F35F54608015071992A4A2C8, 351DB532728C23B0949F8387, ); name = bridge; sourceTree = "<group>";};
 		7F4DB8FFF4B626E37C8448E8 = {isa = PBXGroup; children = (967EFFCB2A860F0614111D22, 082040E7558B9BDCAE626F9A, CA736BAC4077FB7063A7A640, ); name = metal; sourceTree = "<group>";};
 		890A884098FF8AC382F1E650 = {isa = PBXGroup; children = (BCE7C3843AC787E6A79BCB26, 10B6C2026938E7EB945E60E6, 174BA4E5CEB7D1C0671C1095, FD86C9E461A487678E1AE72F, 497A257E34EA70B228989771, 1A41BDB56D555D8099D1A96D, 68DC930236C780CFA1D640C9, 25E80F174DF98D5920A3698E, 9875B6AE555AEB40A52E871D, 464E15E251A5F6A037EF0D4C, 29EDEEDF02819630AC4F6C2F, 4E4E0B74F25F640D83AE3463, 4C878109FA80C68CFD77BC39, FFC0C1219BF8400EA8B73396, CE04BB696531EC018D8AA82F, 6DBCA54B0B16659068620E43, 5024FAE33D12E37DAB4294F9, 5C96D7BDD7B30DD9498C19DD, 53D07F5A9FC37676FF5E1C84, ); name = scenes; sourceTree = "<group>";};
-		970FACC23D32E68813811A32 = {isa = PBXGroup; children = (9AFC15F43BECA80CB9E7A494, DF0AF1A7A5521B9A9961C936, A6880678BEF95826C52F9ED6, ); name = Sources; sourceTree = "<group>";};
+		970FACC23D32E68813811A32 = {isa = PBXGroup; children = (A6880678BEF95826C52F9ED6, 9AFC15F43BECA80CB9E7A494, DF0AF1A7A5521B9A9961C936, 46C4E62CEF9E9100094171D9, C53C18EB1031DD27110BF957, ); name = Sources; sourceTree = "<group>";};
 		99BC04C0AAD5BE725412B22F = {isa = PBXGroup; children = (791A403F3AD8952A90F41CED, 970FACC23D32E68813811A32, ); name = metal; sourceTree = "<group>";};
 		ADF71D7B7C5992DF28C38E77 = {isa = PBXGroup; children = (D8FB6EE3685300DB05525E17, CAAEF68D5044897EA75B7D35, ); name = include; sourceTree = "<group>";};
 		B5AF4248910ADD5F42998A20 = {isa = PBXGroup; children = (99BC04C0AAD5BE725412B22F, ); name = mac; sourceTree = "<group>";};
@@ -105,7 +109,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		D3C94DF2B687E7D8BCF93C91 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (10F2B59A0BDE6FBC159C9A0C, C568A8F6FA209C3DF56E88F0, 5E5E9F6F5F4C303969303153, 0A97BDCB9910C5D1783C124D, F7849819FACBD8AD5A276835, E7E04260DD0E979737BC0A4A, 4DD0F0159BE3077E8237A894, 7EFFB951C7E1A9E764F58B2D, 2D3D88ACCC6AEE5105967811, 1A1ADE88729425F8E90D1486, CF2AEC49F90124AC41AF2EC5, 6F5062432B72211D46CCAC14, 547F2E918373489551DFDBBC, 69480A3BB79B44227F27287C, 80D8681CAB3B07BA5ECF2D0F, 1F7AA1257664DCCED50F56C0, 8FD6B7D03FABEEBB76974D8F, ); runOnlyForDeploymentPostprocessing = 0;};
+		D3C94DF2B687E7D8BCF93C91 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (10F2B59A0BDE6FBC159C9A0C, C568A8F6FA209C3DF56E88F0, F7849819FACBD8AD5A276835, 5E5E9F6F5F4C303969303153, 0A97BDCB9910C5D1783C124D, 6A29A066D3CEEDF974338B2C, 8172D5BB3371E03137178582, E7E04260DD0E979737BC0A4A, 4DD0F0159BE3077E8237A894, 7EFFB951C7E1A9E764F58B2D, 2D3D88ACCC6AEE5105967811, 1A1ADE88729425F8E90D1486, CF2AEC49F90124AC41AF2EC5, 6F5062432B72211D46CCAC14, 547F2E918373489551DFDBBC, 69480A3BB79B44227F27287C, 80D8681CAB3B07BA5ECF2D0F, 1F7AA1257664DCCED50F56C0, 8FD6B7D03FABEEBB76974D8F, ); runOnlyForDeploymentPostprocessing = 0;};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */

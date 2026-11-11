@@ -1,5 +1,5 @@
 // GeoNodus scene of the demo app: a session, a graph from JSON (gnLoadGraph) or built in code (the demo scenes of
-// ../../scenes, through bridge/demo_scenes_c.h), time, asynchronous cooks of the visible objects and reading their
+// ../../scenes, through bridge/demo_scenes_c.h, and the Swift scenes of SwiftScenes.swift), time, asynchronous cooks of the visible objects and reading their
 // geometry into one vertex buffer for drawing. The same as GnScene of the Windows demos (win/common/gn_scene.cpp):
 // polygons with P, N and Cd of any class, polylines and NURBS / Bezier curves as lines, parts without primitives as
 // points. As in HAPI, geometry is read in the space of its object, and gnGetObjectTransform gives the object's world
@@ -263,16 +263,28 @@ final class GnScene {
         return String(cString: buffer)
     }
 
-    // Builds a demo scene in code (../../scenes): replaces the whole session graph through the API, without cooking.
-    // Returns the text of the build problems (empty — all fine); the scene shows what was built
+    // Builds a scene of DemoCatalog in code: the C++ demo scenes (../../scenes) and then the Swift ones
+    // (SwiftScenes.swift). Replaces the whole session graph through the API, without cooking. Returns the text of the
+    // build problems (empty — all fine); the scene shows what was built
     func build(sceneIndex: Int) -> String {
         guard isValid else { return "gnCreateSession failed" }
         finishCooks()
-        var errors = [CChar](repeating: 0, count: 16384)
-        let count = demoSceneBuild(session, Int32(sceneIndex), &errors, Int32(errors.count))
+        var text = ""
+        if sceneIndex < DemoCatalog.cppCount {
+            var errors = [CChar](repeating: 0, count: 16384)
+            let count = demoSceneBuild(session, Int32(sceneIndex), &errors, Int32(errors.count))
+            text = count == 0 ? "" : String(cString: errors)
+        } else {
+            // As buildDemoScene of the C++ scenes: an empty session, the default timeline, then the scene function
+            let b = SceneBuilder(session)
+            b.clear()
+            b.timeline(start: 0, end: 10, fps: 24)
+            swiftDemoScenes[sceneIndex - DemoCatalog.cppCount].build(b)
+            text = b.errors.joined(separator: "\n")
+        }
         readTimeline()
         isLoaded = true
-        return count == 0 ? "" : String(cString: errors)
+        return text
     }
 
     // Loads a graph (without cooking): replaces the whole session graph. On failure — the error text

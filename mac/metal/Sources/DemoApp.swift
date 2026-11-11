@@ -146,7 +146,7 @@ final class DemoApp: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKViewD
                 play = true
             } else if arg == "--scene" && i + 1 < args.count {
                 i += 1
-                let index = Int(demoSceneFind(args[i]))
+                let index = DemoCatalog.find(args[i])
                 if index >= 0 {
                     openScene(index)
                 } else {
@@ -246,8 +246,8 @@ final class DemoApp: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKViewD
         openButton = NSButton(title: "Open...", target: self, action: #selector(openDialog))
         // Demo scenes built in code: one per supported node type
         scenePopup = NSPopUpButton(frame: .zero, pullsDown: false)
-        for i in 0..<Int(demoSceneCount()) {
-            scenePopup.addItem(withTitle: String(cString: demoSceneNodeType(Int32(i))))
+        for i in 0..<DemoCatalog.count {
+            scenePopup.addItem(withTitle: DemoCatalog.name(i))
         }
         scenePopup.target = self
         scenePopup.action = #selector(sceneChosen)
@@ -341,7 +341,7 @@ final class DemoApp: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKViewD
 
     // Builds demo scene `index` of the registry (the scene combo box)
     private func openScene(_ index: Int) {
-        guard index >= 0 && index < Int(demoSceneCount()) else { return }
+        guard index >= 0 && index < DemoCatalog.count else { return }
         let wasPlaying = playing
         setPlaying(false)
         let error = scene.build(sceneIndex: index)
@@ -350,7 +350,7 @@ final class DemoApp: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKViewD
         scenePopup.selectItem(at: index)
         sceneReplaced()
         if !error.isEmpty {
-            let type = String(cString: demoSceneNodeType(Int32(index)))
+            let type = DemoCatalog.name(index)
             alert("The scene \"\(type)\" was built with problems:\n\n\(error)", style: .warning)
         }
         // Switching scenes while playing keeps playing
@@ -397,7 +397,7 @@ final class DemoApp: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKViewD
         let key = event.charactersIgnoringModifiers?.lowercased() ?? ""
         switch Int(event.keyCode) {
         case 116, 121: // Page Up / Page Down — the previous / next demo scene
-            let count = Int(demoSceneCount())
+            let count = DemoCatalog.count
             let next = event.keyCode == 121
             let current = sceneIndex < 0 ? (next ? -1 : 0) : sceneIndex
             openScene((current + (next ? 1 : count - 1)) % count)
@@ -548,8 +548,8 @@ final class DemoApp: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKViewD
         if !file.isEmpty {
             t += " — " + URL(fileURLWithPath: file).lastPathComponent
         } else if sceneIndex >= 0 {
-            let type = String(cString: demoSceneNodeType(Int32(sceneIndex)))
-            let description = String(cString: demoSceneDescription(Int32(sceneIndex)))
+            let type = DemoCatalog.name(sceneIndex)
+            let description = DemoCatalog.description(sceneIndex)
             t += " — \(type): \(description)"
         }
         window.title = t

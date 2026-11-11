@@ -95,7 +95,7 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
                 play = true
             } else if arg == "--scene" && i + 1 < args.count {
                 i += 1
-                let index = Int(demoSceneFind(args[i]))
+                let index = DemoCatalog.find(args[i])
                 if index >= 0 { openScene(index) } else { alert("No demo scene for the node type \(args[i])") }
             } else if arg.hasPrefix("-") {
                 // system arguments (-AppleLanguages (ru), ...) — skip the value too
@@ -255,9 +255,9 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
 
     // Demo scenes built in code: one per supported node type
     private func sceneMenu() -> UIMenu {
-        let actions = (0..<Int(demoSceneCount())).map { i -> UIAction in
-            let type = String(cString: demoSceneNodeType(Int32(i)))
-            let action = UIAction(title: type, subtitle: String(cString: demoSceneDescription(Int32(i)))) {
+        let actions = (0..<DemoCatalog.count).map { i -> UIAction in
+            let type = DemoCatalog.name(i)
+            let action = UIAction(title: type, subtitle: DemoCatalog.description(i)) {
                 [weak self] _ in self?.openScene(i)
             }
             action.state = i == sceneIndex ? .on : .off
@@ -295,7 +295,7 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
     @objc private func nextScene() { stepScene(next: true) }
 
     private func stepScene(next: Bool) {
-        let count = Int(demoSceneCount())
+        let count = DemoCatalog.count
         let current = sceneIndex < 0 ? (next ? -1 : 0) : sceneIndex
         openScene((current + (next ? 1 : count - 1)) % count)
     }
@@ -321,7 +321,7 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
 
     // Builds demo scene `index` of the registry (the scene menu)
     private func openScene(_ index: Int) {
-        guard index >= 0 && index < Int(demoSceneCount()) else { return }
+        guard index >= 0 && index < DemoCatalog.count else { return }
         let wasPlaying = playing
         setPlaying(false)
         let error = scene.build(sceneIndex: index)
@@ -329,7 +329,7 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
         sceneIndex = index
         sceneReplaced()
         if !error.isEmpty {
-            let type = String(cString: demoSceneNodeType(Int32(index)))
+            let type = DemoCatalog.name(index)
             alert("The scene \"\(type)\" was built with problems:\n\n\(error)")
         }
         // Switching scenes while playing keeps playing
@@ -345,7 +345,7 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
         slider.maximumValue = Float(max(scene.lastFrame, scene.firstFrame + 1))
         playButton.isEnabled = true
         slider.isEnabled = true
-        sceneButton.setTitle(sceneIndex >= 0 ? String(cString: demoSceneNodeType(Int32(sceneIndex)))
+        sceneButton.setTitle(sceneIndex >= 0 ? DemoCatalog.name(sceneIndex)
                              : (file as NSString).lastPathComponent, for: .normal)
         sceneButton.menu = sceneMenu()
         requestFrame(scene.startFrame)
@@ -569,8 +569,8 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
         if !file.isEmpty {
             t += "\n" + (file as NSString).lastPathComponent
         } else if sceneIndex >= 0 {
-            let type = String(cString: demoSceneNodeType(Int32(sceneIndex)))
-            let description = String(cString: demoSceneDescription(Int32(sceneIndex)))
+            let type = DemoCatalog.name(sceneIndex)
+            let description = DemoCatalog.description(sceneIndex)
             t += "\n\(type): \(description)"
         }
         titleLabel.text = t

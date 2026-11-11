@@ -4,8 +4,8 @@ relative paths, without CMake. Builds for devices and for the simulator.
 
 Compiled into the app:
   metal/Sources/*.swift                 — the UIKit shell (AppDelegate, DemoViewController);
-  ../mac/metal/Sources/{GnScene,MetalRenderer,DemoMath}.swift — the scene, the renderer and the matrices, shared with
-                                          the macOS demo (no AppKit in them);
+  ../mac/metal/Sources/*.swift but DemoApp.swift and main.swift — the scene, the renderer, the matrices, SceneBuilder
+                                          and the Swift scenes, shared with the macOS demo (no AppKit in them);
   ../mac/metal/bridge/*.cpp, ../scenes/*.cpp — the demo scenes built in code (C++) and their C interface for Swift.
 Linked and embedded: lib/geonodus.xcframework — the demo edition of the library (device arm64, simulator arm64 and
 x86_64), put there by geonodus/ios/build_xcframework.sh of the library repository.
@@ -32,9 +32,10 @@ def rel(pattern):
     return sorted(os.path.relpath(p, HERE) for p in glob.glob(os.path.join(HERE, pattern)))
 
 
-swift = rel("metal/Sources/*.swift") + ["../mac/metal/Sources/GnScene.swift",
-                                        "../mac/metal/Sources/MetalRenderer.swift",
-                                        "../mac/metal/Sources/DemoMath.swift"]
+# The Swift sources of the macOS demo without its AppKit shell (DemoApp.swift, main.swift): GnScene, MetalRenderer,
+# DemoMath, SceneBuilder, SwiftScenes and the Swift scenes added there
+swift = rel("metal/Sources/*.swift") + [p for p in rel("../mac/metal/Sources/*.swift")
+                                        if os.path.basename(p) not in ("DemoApp.swift", "main.swift")]
 bridge = rel("../mac/metal/bridge/*.cpp")
 scenes = rel("../scenes/*.cpp")
 headers = rel("../mac/metal/bridge/*.h") + rel("../scenes/*.h") + ["metal/BridgingHeader.h"] + rel("lib/include/*.h")

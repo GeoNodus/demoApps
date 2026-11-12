@@ -1,4 +1,4 @@
-// Copies and points: Scatter, Copy to Points, Copy and Transform
+// Copies and points: Scatter, Points from Volume, Copy to Points, Copy and Transform
 #include "demo_scenes.h"
 #include "scene_util.h"
 
@@ -22,6 +22,35 @@ void sceneScatter(SceneBuilder& b)
     Node dotsColor = color(b, geo, dots, 1, 0.8, 0.3);
 
     merge(b, geo, {torusColor, dotsColor}).display();
+}
+
+// Points from Volume: a turning torus filled with points (tetrahedral packing, Sparse Volume) whose spacing and jitter
+// breathe; balls of the radius pscale (Add Scale Attribute) are copied onto them, and the cut-away half shows the
+// packing inside
+void scenePointsFromVolume(SceneBuilder& b)
+{
+    Node geo = b.object("pointsfromvolume");
+
+    Node torus = b.sop(geo, "torus", "ring")
+                     .set("rad", 2.2, 0.9)
+                     .set("rows", 24)
+                     .set("cols", 48)
+                     .expr("r", 0, "90 + 25 * sin($T * 0.4)");
+    Node fill = b.sop(geo, "pointsfromvolume", "fill")
+                    .input(0, torus)
+                    .set("inittype", "tetrahedral")
+                    .expr("particlesep", "0.3 + 0.08 * sin($T * 0.8)")
+                    .expr("jitterscale", "0.25 + 0.25 * sin($T * 1.3)")
+                    .set("addscale", 1)
+                    .set("radiusscale", 0.45);
+    Node ball = b.sop(geo, "sphere", "ball").set("type", "poly").set("freq", 1);
+    Node balls = b.sop(geo, "copytopoints", "balls").input(0, ball).input(1, fill);
+    Node half = b.sop(geo, "clip", "half").input(0, balls).set("dir", 0, 0, 1);
+    Node ballsColor = color(b, geo, half, 0.95, 0.55, 0.25);
+    Node shell = b.sop(geo, "clip", "shell").input(0, torus).set("dir", 0, 0, -1);
+    Node shellColor = color(b, geo, shell, 0.3, 0.4, 0.55);
+
+    merge(b, geo, {ballsColor, shellColor}).display();
 }
 
 // Copy to Points: boxes copied onto the points of a waving grid; +Z of every copy follows the point normal N (Normal

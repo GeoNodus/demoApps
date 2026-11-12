@@ -39,8 +39,11 @@ const DemoScene SCENES[] = {
     {"polyextrude", "Faces extruded and inset with a twist, a curve extruded into a ribbon", scenePolyExtrude},
     {"polybevel", "Rounded edges of a box with changing distance and divisions", scenePolyBevel},
     {"boolean", "A box minus a moving sphere, a union and an intersection", sceneBoolean},
+    {"voronoifracture", "A sphere and a box broken into colored pieces with gaps opening between them",
+        sceneVoronoiFracture},
     // Copies and points
     {"scatter", "Points scattered over a torus, their count growing", sceneScatter},
+    {"pointsfromvolume", "A turning torus filled with packed balls of changing spacing, cut open", scenePointsFromVolume},
     {"copytopoints", "Boxes copied onto the points of a waving grid, oriented by N", sceneCopyToPoints},
     {"copyxform", "A spiral staircase of copies, the number of steps animated", sceneCopyXform},
     // Curves

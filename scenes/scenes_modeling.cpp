@@ -1,4 +1,4 @@
-// Modeling: Clip, PolyExtrude, PolyBevel, Boolean
+// Modeling: Clip, PolyExtrude, PolyBevel, Boolean, Voronoi Fracture
 #include "demo_scenes.h"
 #include "scene_util.h"
 
@@ -169,6 +169,58 @@ void sceneBoolean(SceneBuilder& b)
     Node intersectColor = color(b, geo, intersect, 0.4, 0.6, 0.95);
 
     merge(b, geo, {subtractColor, unionColor, intersectColor}).display();
+}
+
+// Voronoi Fracture: a sphere broken into cells around points packed inside it (Points from Volume, the spacing
+// breathes, so the number of pieces changes) and a box broken around points scattered over its surface (their count
+// grows); every cell point gets a random color, which Copy Cell Point Attributes passes to the faces of its piece.
+// Cut Plane Offset moves the cut planes towards the cell points, so gaps open between the pieces
+void sceneVoronoiFracture(SceneBuilder& b)
+{
+    Node geo = b.object("voronoifracture");
+
+    Node ball = b.sop(geo, "sphere", "ball")
+                    .set("type", "polymesh")
+                    .set("rows", 24)
+                    .set("cols", 48)
+                    .set("rad", 2, 2, 2)
+                    .set("t", -2.8, 0, 0)
+                    .expr("r", 1, "$T * 12");
+    Node cells = b.sop(geo, "pointsfromvolume", "cells")
+                     .input(0, ball)
+                     .expr("particlesep", "0.9 + 0.3 * sin($T * 0.5)")
+                     .set("jitterscale", 1);
+    Node cellColors = b.sop(geo, "attribrandomize", "cell_colors")
+                          .input(0, cells)
+                          .set("name", "Cd")
+                          .set("min", 0.2, 0.3, 0.5, 0);
+    Node ballPieces = b.sop(geo, "voronoifracture", "ball_pieces")
+                          .input(0, ball)
+                          .input(1, cellColors)
+                          .set("copycellattribs", 1)
+                          .set("primattributes", "Cd")
+                          .expr("cutplaneoffset", "0.025 + 0.025 * sin($T * 1.2)");
+
+    Node block = b.sop(geo, "box", "block")
+                     .set("size", 3, 3, 3)
+                     .set("divrate", 2, 2, 2)
+                     .set("t", 2.8, 0, 0)
+                     .expr("r", {"$T * 9", "$T * 15", "0"});
+    Node shards = b.sop(geo, "scatter", "shards")
+                      .input(0, block)
+                      .expr("npts", "rint(6 + 34 * (0.5 + 0.5 * sin($T * 0.6)))");
+    Node shardColors = b.sop(geo, "attribrandomize", "shard_colors")
+                           .input(0, shards)
+                           .set("name", "Cd")
+                           .set("min", 0.5, 0.3, 0.1, 0);
+    Node blockPieces = b.sop(geo, "voronoifracture", "block_pieces")
+                           .input(0, block)
+                           .input(1, shardColors)
+                           .set("copycellattribs", 1)
+                           .set("primattributes", "Cd")
+                           .expr("cutplaneoffset", "0.025 + 0.025 * sin($T * 1.2 + 1.5)");
+
+    merge(b, geo, {ballPieces, blockPieces}).display();
 }
 
 } // namespace demo::scenes

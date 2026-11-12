@@ -74,9 +74,11 @@ void sceneClip(SceneBuilder& b);
 void scenePolyExtrude(SceneBuilder& b);
 void scenePolyBevel(SceneBuilder& b);
 void sceneBoolean(SceneBuilder& b);
+void sceneVoronoiFracture(SceneBuilder& b);
 
 // Copies and points — scenes_copy.cpp
 void sceneScatter(SceneBuilder& b);
+void scenePointsFromVolume(SceneBuilder& b);
 void sceneCopyToPoints(SceneBuilder& b);
 void sceneCopyXform(SceneBuilder& b);
 

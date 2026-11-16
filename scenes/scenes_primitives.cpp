@@ -138,6 +138,26 @@ void sceneTorus(SceneBuilder& b)
     merge(b, geo, {donutColor, chainColor}).display();
 }
 
+// Toy: the built-in test model (a cartoon kid with a bubble wand) at High, Medium and Low detail side by side; each
+// turns about its feet and hops, the transform parameters of the node itself (as on a Transform SOP)
+void sceneToy(SceneBuilder& b)
+{
+    Node geo = b.object("toys");
+    const char* lods[3] = {"high", "medium", "low"};
+    Node toys[3];
+    for (int i = 0; i < 3; ++i) {
+        const std::string phase = std::to_string(i * 1.3);
+        toys[i] = b.sop(geo, "toy", lods[i])
+                      .set("lod", lods[i])
+                      .set("scale", 1.6)
+                      .setComponent("t", 0, (i - 1) * 1.9)
+                      .expr("t", 1, ("0.25 * abs(sin(($T + " + phase + ") * 2.5))").c_str())
+                      .expr("r", 1, ("25 * sin(($T + " + phase + ") * 0.9)").c_str());
+    }
+    // Cd of all three is on primitives, so one Merge is fine
+    merge(b, geo, {toys[0], toys[1], toys[2]}).display();
+}
+
 // Circle: polygon arcs of every Arc Type (closed polygon with animated divisions, open arc, closed arc, sliced arc —
 // a pie) and the exact rational NURBS and Bezier circles (Imperfect off), the radii animated
 void sceneCircle(SceneBuilder& b)

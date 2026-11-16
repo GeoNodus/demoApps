@@ -12,6 +12,7 @@ const DemoScene SCENES[] = {
     {"box", "Boxes: divisions, size and rotation; a box around a spinning torus", sceneBox},
     {"grid", "Grids of every connectivity, rows and columns animated", sceneGrid},
     {"torus", "Tori: radii and divisions, a ring of tori", sceneTorus},
+    {"toy", "The built-in test model at its three levels of detail, turning and hopping", sceneToy},
     {"circle", "Polygon arcs of every type and exact NURBS / Bezier circles", sceneCircle},
     {"add", "Points of a multiparm moved by expressions, a star polygon and a polyline", sceneAdd},
     // Attributes

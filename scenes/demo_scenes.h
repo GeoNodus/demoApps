@@ -45,6 +45,7 @@ void sceneSphere(SceneBuilder& b);
 void sceneBox(SceneBuilder& b);
 void sceneGrid(SceneBuilder& b);
 void sceneTorus(SceneBuilder& b);
+void sceneToy(SceneBuilder& b);
 void sceneCircle(SceneBuilder& b);
 void sceneAdd(SceneBuilder& b);
 

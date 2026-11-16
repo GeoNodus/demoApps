@@ -299,4 +299,104 @@ void sceneTexture(SceneBuilder& b)
     merge(b, geo, {polar, cylin, rowcol}).display();
 }
 
+
+// Color SOP that maps a measured attribute (baked by Measure into 0..1) through a blue - white - red ramp
+static Node heatColor(SceneBuilder& b, const Node& network, const Node& input, const char* attrib, const char* cls,
+    const char* name)
+{
+    return b.sop(network, "color", name)
+        .input(0, input)
+        .set("class", cls)
+        .set("colortype", 3) // Ramp from Attribute
+        .set("rampattribute", attrib)
+        .set("ramp", 3)
+        .set("ramp1pos", 0.0)
+        .set("ramp1c", 0.1, 0.25, 1.0)
+        .set("ramp2pos", 0.5)
+        .set("ramp2c", 1.0, 1.0, 1.0)
+        .set("ramp3pos", 1.0)
+        .set("ramp3c", 1.0, 0.15, 0.1);
+}
+
+// Measure: what is measured is shown in color. Left: mean curvature at the points of a sphere with moving bumps -
+// Measure bakes it into 0..1 around the median (Bake Visualized Range + Remap), Color maps it blue - white - red, so
+// hollows are blue and ridges red; right: the area of every face of a wavy sheet (small faces blue, stretched red)
+void sceneMeasure(SceneBuilder& b)
+{
+    Node geo = b.object("measure_curvature");
+    Node ball = b.sop(geo, "sphere", "ball")
+                    .set("type", "polymesh")
+                    .set("rows", 48)
+                    .set("cols", 96)
+                    .set("rad", 2, 2, 2)
+                    .set("t", -3, 0, 0);
+    Node bumps = b.sop(geo, "mountain", "bumps")
+                     .input(0, ball)
+                     .set("fractal", "none")
+                     .set("elementsize", 1.6)
+                     .expr("height", "0.9 + 0.4 * sin($T * 0.8)")
+                     .expr("time", "$T * 0.4");
+    Node curvature = b.sop(geo, "measure", "curvature")
+                         .input(0, bumps)
+                         .set("grouptype", "points")
+                         .set("measure", "curvature")
+                         .set("curvaturetype", "mean")
+                         .set("attribname", "curvature")
+                         .set("width", 4.0)
+                         .set("bakeintooutput", 1)
+                         .set("useremaprange", 1);
+    heatColor(b, geo, curvature, "curvature", "point", "curvature_color").display();
+
+    Node sheetGeo = b.object("measure_area");
+    Node sheet = b.sop(sheetGeo, "grid", "sheet").set("size", 5, 5).set("rows", 40).set("cols", 40).set("t", 3.2, 0, 0);
+    Node waves = b.sop(sheetGeo, "mountain", "waves")
+                     .input(0, sheet)
+                     .set("fractal", "none")
+                     .set("elementsize", 2.0)
+                     .expr("height", "1.6 + 0.8 * sin($T * 0.7)")
+                     .expr("time", "$T * 0.3");
+    Node area = b.sop(sheetGeo, "measure", "area")
+                    .input(0, waves)
+                    .set("grouptype", "prims")
+                    .set("measure", "area")
+                    .set("width", 4.0)
+                    .set("bakeintooutput", 1)
+                    .set("useremaprange", 1);
+    heatColor(b, sheetGeo, area, "area", "primitive", "area_color").display();
+}
+
+// Color: Cd by the bounding box (the toy turning in it changes its colors), a random color per face with a seed that
+// changes twice a second, and a random color per piece of a Voronoi fracture (Random from Attribute by the piece
+// name)
+void sceneColor(SceneBuilder& b)
+{
+    Node toyGeo = b.object("color_bbox");
+    Node toy = b.sop(toyGeo, "toy", "toy").set("lod", 1).set("scale", 3.0).set("t", -4.5, -1, 0).expr("r", 1, "$T * 40");
+    b.sop(toyGeo, "color", "bbox_color").input(0, toy).set("colortype", 1).display();
+
+    Node faceGeo = b.object("color_random");
+    Node box = b.sop(faceGeo, "box", "box").set("size", 2.4, 2.4, 2.4).set("divrate", 5, 5, 5).expr("r", 1, "$T * 25");
+    Node faces = b.sop(faceGeo, "color", "face_colors")
+                     .input(0, box)
+                     .set("class", "primitive")
+                     .set("colortype", 2) // Random
+                     .expr("seed", "rint($T * 2)");
+
+    Node ball = b.sop(faceGeo, "sphere", "ball")
+                    .set("type", "polymesh")
+                    .set("rows", 24)
+                    .set("cols", 48)
+                    .set("rad", 1.6, 1.6, 1.6)
+                    .set("t", 4, 0, 0)
+                    .expr("r", 1, "-$T * 15");
+    Node cells = b.sop(faceGeo, "scatter", "cells").input(0, ball).set("npts", 30).expr("seed", "rint($T * 0.5)");
+    Node pieces = b.sop(faceGeo, "voronoifracture", "pieces").input(0, ball).input(1, cells);
+    Node pieceColors = b.sop(faceGeo, "color", "piece_colors")
+                           .input(0, pieces)
+                           .set("class", "primitive")
+                           .set("colortype", 4) // Random from Attribute
+                           .set("rampattribute", "name");
+    merge(b, faceGeo, {faces, pieceColors}).display();
+}
+
 } // namespace demo::scenes

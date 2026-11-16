@@ -57,6 +57,8 @@ void sceneAttribPromote(SceneBuilder& b);
 void sceneAttribTransfer(SceneBuilder& b);
 void sceneNormal(SceneBuilder& b);
 void sceneTexture(SceneBuilder& b);
+void sceneMeasure(SceneBuilder& b);
+void sceneColor(SceneBuilder& b);
 
 // Groups — scenes_groups.cpp
 void sceneGroupCreate(SceneBuilder& b);
@@ -89,6 +91,7 @@ void sceneResample(SceneBuilder& b);
 void sceneCarve(SceneBuilder& b);
 void sceneJoin(SceneBuilder& b);
 void sceneOrientAlongCurve(SceneBuilder& b);
+void sceneSweep(SceneBuilder& b);
 
 // Input geometry made in code (gnCreateInputNode and the geometry setters) — scenes_input.cpp
 void sceneInputGeometry(SceneBuilder& b);

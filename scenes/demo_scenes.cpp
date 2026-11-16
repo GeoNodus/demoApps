@@ -24,6 +24,8 @@ const DemoScene SCENES[] = {
     {"attribtransfer", "Colored balls painting a grid: point colors transferred with a soft edge", sceneAttribTransfer},
     {"normal", "Point normals of a moving surface shown by spikes copied along them", sceneNormal},
     {"texture", "UV projections written into Cd, so the coordinates are seen as colors", sceneTexture},
+    {"measure", "Mean curvature of a bumpy sphere and face areas of a wavy sheet, shown in color", sceneMeasure},
+    {"color", "Colors by the bounding box, random per face and random per Voronoi piece", sceneColor},
     // Groups
     {"groupcreate", "Groups by a moving bounding box and by normals", sceneGroupCreate},
     {"grouprange", "Every N of M primitives with a running offset", sceneGroupRange},
@@ -53,6 +55,8 @@ const DemoScene SCENES[] = {
     {"carve", "Growing pieces of a circle and of a polyline", sceneCarve},
     {"join", "Two moving curves joined with a blend", sceneJoin},
     {"orientalongcurve", "Frames along a curve with a roll; boxes copied along it", sceneOrientAlongCurve},
+    {"sweep", "A breathing tube with round caps along a waving curve and a twisted band swept around a ring",
+        sceneSweep},
     // Networks and objects
     {"merge", "Several generators merged into one geometry", sceneMerge},
     {"null", "A SOP Null as a control node: user parameters read by ch() in other nodes", sceneNull},

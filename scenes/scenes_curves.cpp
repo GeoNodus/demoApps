@@ -1,4 +1,4 @@
-// Curves: Fit, Resample, Carve, Join, Orient along Curve
+// Curves: Fit, Resample, Carve, Join, Orient along Curve, Sweep
 #include "demo_scenes.h"
 #include "scene_util.h"
 
@@ -181,6 +181,41 @@ void sceneOrientAlongCurve(SceneBuilder& b)
     Node plate = b.sop(geo, "box", "plate").set("size", 0.08, 1.4, 0.3);
     Node plates = b.sop(geo, "copytopoints", "plates").input(0, plate).input(1, frames);
     color(b, geo, plates, 0.95, 0.65, 0.35).display();
+}
+
+// Sweep: a round tube along a waving polyline with rounded grid caps, its radius breathing along the curve through
+// the scale ramp; and a triangular cross section (second input) swept around a ring with a twist that turns in time
+void sceneSweep(SceneBuilder& b)
+{
+    Node geo = b.object("sweep");
+
+    Node path = addPolyline(b, geo, "path", 24, "-4.6 + # * 0.4", "1.2 + 0.6 * sin($T * 1.5 + # * 0.45)",
+        "0.5 * cos($T + # * 0.3)");
+    Node tube = b.sop(geo, "sweep", "tube")
+                    .input(0, path)
+                    .set("surfaceshape", "tube")
+                    .set("cols", 16)
+                    .set("radius", 0.35)
+                    .set("endcaptype", "grid")
+                    .set("capdivs", 4)
+                    .set("applyscale", 1)
+                    .expr("scaleramp1value", "0.5 + 0.4 * sin($T * 2)")
+                    .expr("scaleramp2value", "0.5 + 0.4 * cos($T * 2)");
+    Node tubeColor = color(b, geo, tube, 0.4, 0.8, 0.95);
+
+    Node ring = b.sop(geo, "circle", "ring").set("type", "poly").set("divs", 64).set("rad", 3, 3).set("orient", "zx");
+    Node ringDown = b.sop(geo, "xform", "ring_down").input(0, ring).set("t", 0, -1.5, 0);
+    Node section = b.sop(geo, "circle", "section").set("type", "poly").set("divs", 3).set("rad", 0.5, 0.5);
+    Node band = b.sop(geo, "sweep", "band")
+                    .input(0, ringDown)
+                    .input(1, section)
+                    .set("upvectortype", "y")
+                    .set("rollper", "fulledges")
+                    .expr("roll", "$T * 36")
+                    .set("fulltwists", 2);
+    Node bandColor = color(b, geo, band, 1, 0.6, 0.3);
+
+    merge(b, geo, {tubeColor, bandColor}).display();
 }
 
 } // namespace demo::scenes

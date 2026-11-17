@@ -1,4 +1,4 @@
-// Deformers: Transform, Mountain, Bend, Path Deform, Match Size, Fuse
+// Deformers: Transform, Mountain, Bend, Path Deform, Match Size, Fuse, Ray
 #include "demo_scenes.h"
 #include "scene_util.h"
 
@@ -243,6 +243,85 @@ void sceneFuse(SceneBuilder& b)
     Node fuseColor = color(b, geo, fuse, 0.4, 0.7, 0.95);
 
     merge(b, geo, {snapColor, fuseColor}).display();
+}
+
+// Ray: a sticker — a flat star (a fan of triangles), made dense by Subdivide (Bilinear keeps its outline), slides above
+// a torus roughened by Mountain and smoothed by point normals; Ray drops it straight down onto the torus so it hugs the
+// bumps, and PolyExtrude gives it thickness only after the projection, along the surface normals (the star is wound
+// so that its normal points up, away from the torus). The flat original stays visible above, so the projection is
+// seen. And a sphere shrink-wrapped onto a tumbling box by Minimum Distance, the wrap growing and fading in time (Scale)
+void sceneRay(SceneBuilder& b)
+{
+    Node geo = b.object("ray");
+
+    // The bumpy torus
+    Node ring = b.sop(geo, "torus", "ring").set("rad", 1.6, 0.85).set("rows", 48).set("cols", 96).set("t", -3, 0, 0);
+    Node rough = b.sop(geo, "mountain", "rough")
+                     .input(0, ring)
+                     .set("elementsize", 0.6)
+                     .set("height", 0.35)
+                     .expr("offset", {"$T * 0.2", "0", "0"});
+    Node ringColor = color(b, geo, rough, 0.45, 0.7, 0.45);
+    Node ringSmooth = b.sop(geo, "normal", "smooth").input(0, ringColor).set("type", "typepoint");
+
+    // The star sticker: a fan of ten convex triangles around its centre (a single concave star polygon would give
+    // folded quads when subdivided), made dense by Subdivide
+    Node star = b.sop(geo, "add", "star").set("points", 11).set("prims", 10);
+    star.set("pt0", 0, 0, 0);
+    star.set("pt1", 0.4200, 0, 0.0000);
+    star.set("pt2", 0.1456, 0, 0.1058);
+    star.set("pt3", 0.1298, 0, 0.3994);
+    star.set("pt4", -0.0556, 0, 0.1712);
+    star.set("pt5", -0.3398, 0, 0.2469);
+    star.set("pt6", -0.1800, 0, 0.0000);
+    star.set("pt7", -0.3398, 0, -0.2469);
+    star.set("pt8", -0.0556, 0, -0.1712);
+    star.set("pt9", 0.1298, 0, -0.3994);
+    star.set("pt10", 0.1456, 0, -0.1058);
+    star.set("prim0", "0 1 2").set("closed0", 1);
+    star.set("prim1", "0 2 3").set("closed1", 1);
+    star.set("prim2", "0 3 4").set("closed2", 1);
+    star.set("prim3", "0 4 5").set("closed3", 1);
+    star.set("prim4", "0 5 6").set("closed4", 1);
+    star.set("prim5", "0 6 7").set("closed5", 1);
+    star.set("prim6", "0 7 8").set("closed6", 1);
+    star.set("prim7", "0 8 9").set("closed7", 1);
+    star.set("prim8", "0 9 10").set("closed8", 1);
+    star.set("prim9", "0 10 1").set("closed9", 1);
+    Node patch = b.sop(geo, "subdivide", "patch").input(0, star).set("algorithm", "osdbilinear").set("iterations", 3);
+    Node slide = b.sop(geo, "xform", "slide")
+                     .input(0, patch)
+                     .expr("t", {"-3 + 1.6 * cos($T * 0.5)", "3", "1.6 * sin($T * 0.5)"})
+                     .expr("r", {"0", "$T * 40", "0"});
+    Node starColor = color(b, geo, slide, 0.95, 0.35, 0.3);
+    Node stuck = b.sop(geo, "ray", "stick")
+                     .input(0, starColor)
+                     .input(1, rough)
+                     .set("dirmethod", "vector")
+                     .set("dir", 0, -1, 0)
+                     .set("lift", -0.01);
+    Node sticker = b.sop(geo, "polyextrude", "thickness").input(0, stuck).set("dist", 0.1);
+    // The flat original above, paler
+    Node original = color(b, geo, slide, 1.0, 0.7, 0.65, "original");
+
+    // Shrink-wrap
+    Node box = b.sop(geo, "box", "core").set("size", 1.8, 1.8, 1.8);
+    Node tumble =
+        b.sop(geo, "xform", "tumble").input(0, box).set("t", 3.5, 0, 0).expr("r", {"$T * 35", "$T * 50", "0"});
+    Node shell = b.sop(geo, "sphere", "shell")
+                     .set("type", "polymesh")
+                     .set("rows", 30)
+                     .set("cols", 40)
+                     .set("rad", 2, 2, 2)
+                     .set("t", 3.5, 0, 0);
+    Node wrap = b.sop(geo, "ray", "wrap")
+                    .input(0, shell)
+                    .input(1, tumble)
+                    .set("method", "minimum")
+                    .expr("scale", "0.5 + 0.5 * sin($T * 1.3)");
+    Node wrapColor = color(b, geo, wrap, 0.45, 0.85, 0.55);
+
+    merge(b, geo, {ringSmooth, sticker, original, wrapColor}).display();
 }
 
 } // namespace demo::scenes

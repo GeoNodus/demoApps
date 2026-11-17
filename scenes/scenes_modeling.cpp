@@ -1,4 +1,4 @@
-// Modeling: Clip, PolyExtrude, PolyBevel, Boolean, Voronoi Fracture
+// Modeling: Clip, PolyExtrude, PolyBevel, Boolean, Voronoi Fracture, Skin, Subdivide
 #include "demo_scenes.h"
 #include "scene_util.h"
 
@@ -221,6 +221,90 @@ void sceneVoronoiFracture(SceneBuilder& b)
                            .expr("cutplaneoffset", "0.025 + 0.025 * sin($T * 1.2 + 1.5)");
 
     merge(b, geo, {ballPieces, blockPieces}).display();
+}
+
+// Skin: a vase skinned through four horizontal rings with different point counts (Skin inserts points into the
+// smaller rings so that every row of the surface has as many points as the largest one), the rings breathing in turn;
+// and a patch spanned by a net of curves: three waving U cross-sections on the first input and three V cross-sections
+// on the second, the surface passing between both families
+void sceneSkin(SceneBuilder& b)
+{
+    Node geo = b.object("skin");
+
+    const int divs[] = {8, 12, 6, 10};
+    Node rings[4];
+    for (int k = 0; k < 4; ++k) {
+        rings[k] = b.sop(geo, "circle", fmt("ring%d", k + 1).c_str())
+                       .set("type", "poly")
+                       .set("orient", "zx")
+                       .set("divs", divs[k])
+                       .set("t", -2.8, -1.8 + k * 1.2, 0)
+                       .expr("rad", {fmt("%.2f + 0.3 * sin($T * 1.6 - %d)", 1.0 + 0.35 * (k % 2), k).c_str(),
+                                        fmt("%.2f + 0.3 * sin($T * 1.6 - %d)", 1.0 + 0.35 * (k % 2), k).c_str()});
+    }
+    Node ringSet = merge(b, geo, {rings[0], rings[1], rings[2], rings[3]}, "rings");
+    Node vase = b.sop(geo, "skin", "vase").input(0, ringSet);
+    Node vaseColor = color(b, geo, vase, 0.95, 0.6, 0.35);
+
+    // U cross-sections: rows along x at z = -1.5, 0, 1.5; V cross-sections: columns along z at x = 1, 2.75, 4.5
+    Node uCurves = b.sop(geo, "add", "u_curves").set("points", 15).set("prims", 3);
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 5; ++c)
+            uCurves.expr(fmt("pt%d", r * 5 + c).c_str(),
+                {fmt("%.3f", 1.0 + c * 0.875).c_str(), fmt("0.6 * sin($T * 1.3 + %.2f)", c * 0.9 + r * 1.7).c_str(),
+                    fmt("%.2f", -1.5 + r * 1.5).c_str()});
+        uCurves.set(fmt("prim%d", r).c_str(), fmt("%d-%d", r * 5, r * 5 + 4).c_str()).set(fmt("closed%d", r).c_str(), 0);
+    }
+    Node vCurves = b.sop(geo, "add", "v_curves").set("points", 12).set("prims", 3);
+    for (int c = 0; c < 3; ++c) {
+        for (int r = 0; r < 4; ++r)
+            vCurves.expr(fmt("pt%d", c * 4 + r).c_str(),
+                {fmt("%.3f", 1.0 + c * 1.75).c_str(), fmt("0.8 * cos($T * 0.9 + %.2f)", r * 1.1 - c).c_str(),
+                    fmt("%.2f", -1.5 + r * 1.0).c_str()});
+        vCurves.set(fmt("prim%d", c).c_str(), fmt("%d-%d", c * 4, c * 4 + 3).c_str()).set(fmt("closed%d", c).c_str(), 0);
+    }
+    Node patch = b.sop(geo, "skin", "patch").input(0, uCurves).input(1, vCurves).set("surftype", "alttriangles");
+    Node patchColor = color(b, geo, patch, 0.4, 0.8, 0.6);
+
+    merge(b, geo, {vaseColor, patchColor}).display();
+}
+
+// Subdivide: a cube smoothed by OpenSubdiv Catmull-Clark whose edges sharpen and soften in time (Override Crease
+// Weight: a rounded blob at 0, the cube itself at 3 and above); a low-poly torus roughened by noise and smoothed by
+// OpenSubdiv Loop (triangles); and a box with pulsing extruded faces subdivided by Houdini Catmull-Clark
+void sceneSubdivide(SceneBuilder& b)
+{
+    Node geo = b.object("subdivide");
+
+    Node cage = b.sop(geo, "box", "cage").set("size", 2.4, 2.4, 2.4).set("t", -3.8, 0, 0);
+    Node creased = b.sop(geo, "subdivide", "creased")
+                       .input(0, cage)
+                       .set("iterations", 3)
+                       .set("overridecrease", 1)
+                       .expr("creaseweight", "1.6 + 1.6 * sin($T * 1.2)");
+    Node cubeColor = color(b, geo, creased, 0.95, 0.6, 0.3);
+
+    Node ring = b.sop(geo, "torus", "ring").set("rows", 8).set("cols", 12).set("rad", 1.3, 0.55);
+    Node rough = b.sop(geo, "mountain", "rough")
+                     .input(0, ring)
+                     .set("elementsize", 0.8)
+                     .expr("height", "0.6 + 0.3 * sin($T * 0.8)")
+                     .expr("offset", {"$T * 0.3", "0", "0"});
+    Node loop = b.sop(geo, "subdivide", "loop").input(0, rough).set("algorithm", "osdloop").set("iterations", 2);
+    Node ringColor = color(b, geo, loop, 0.45, 0.8, 0.5);
+
+    Node block = b.sop(geo, "box", "block").set("size", 2, 2, 2).set("divrate", 3, 3, 3).set("t", 3.8, 0, 0);
+    Node studs = b.sop(geo, "polyextrude", "studs")
+                     .input(0, block)
+                     .set("group", "0 2 4 6 8 10 12 14 16 18 20 22")
+                     .set("splittype", "elements")
+                     .set("inset", 0.12)
+                     .expr("dist", "0.25 + 0.2 * sin($T * 2)");
+    Node houdini =
+        b.sop(geo, "subdivide", "houdini").input(0, studs).set("algorithm", "houdini").set("iterations", 2);
+    Node blockColor = color(b, geo, houdini, 0.4, 0.65, 0.95);
+
+    merge(b, geo, {cubeColor, ringColor, blockColor}).display();
 }
 
 } // namespace demo::scenes

@@ -2,8 +2,7 @@
 
 // Demo scenes built in code with the GeoNodus API — one function per node type. Each function fills an empty session:
 // creates the objects and SOPs, sets parameters and expressions of time (so the scene changes when played) and turns
-// on the Display flags; the node type it is about is always used, other nodes only help to show it. A scene keeps
-// within the node limit of the demo edition of the library (20 nodes).
+// on the Display flags; the node type it is about is always used, other nodes only help to show it.
 //
 // The registry is platform independent: the apps of every OS show it as a list of node types (on Windows — a combo
 // box). The File SOP has no scene: loading files is what the Open button of the apps is for. Ready-made JSON scenes
@@ -71,6 +70,7 @@ void sceneBend(SceneBuilder& b);
 void scenePathDeform(SceneBuilder& b);
 void sceneMatchSize(SceneBuilder& b);
 void sceneFuse(SceneBuilder& b);
+void sceneRay(SceneBuilder& b);
 
 // Modeling — scenes_modeling.cpp
 void sceneClip(SceneBuilder& b);
@@ -78,6 +78,8 @@ void scenePolyExtrude(SceneBuilder& b);
 void scenePolyBevel(SceneBuilder& b);
 void sceneBoolean(SceneBuilder& b);
 void sceneVoronoiFracture(SceneBuilder& b);
+void sceneSkin(SceneBuilder& b);
+void sceneSubdivide(SceneBuilder& b);
 
 // Copies and points — scenes_copy.cpp
 void sceneScatter(SceneBuilder& b);
@@ -92,6 +94,8 @@ void sceneCarve(SceneBuilder& b);
 void sceneJoin(SceneBuilder& b);
 void sceneOrientAlongCurve(SceneBuilder& b);
 void sceneSweep(SceneBuilder& b);
+void sceneRevolve(SceneBuilder& b);
+void scenePolyWire(SceneBuilder& b);
 
 // Input geometry made in code (gnCreateInputNode and the geometry setters) — scenes_input.cpp
 void sceneInputGeometry(SceneBuilder& b);

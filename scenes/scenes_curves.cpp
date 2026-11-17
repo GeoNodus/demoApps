@@ -1,4 +1,4 @@
-// Curves: Fit, Resample, Carve, Join, Orient along Curve, Sweep
+// Curves: Fit, Resample, Carve, Join, Orient along Curve, Sweep, Revolve, PolyWire
 #include "demo_scenes.h"
 #include "scene_util.h"
 
@@ -216,6 +216,57 @@ void sceneSweep(SceneBuilder& b)
     Node bandColor = color(b, geo, band, 1, 0.6, 0.3);
 
     merge(b, geo, {tubeColor, bandColor}).display();
+}
+
+// Revolve: a vase turned from a fitted NURBS profile (the profile starts on the axis, so the bottom is closed; the last
+// point flares into a lip) whose belly breathes in time; and a pentagonal ring revolved around a tilted axis as an open
+// arc with end caps, its end angle growing and shrinking
+void sceneRevolve(SceneBuilder& b)
+{
+    Node geo = b.object("revolve");
+
+    Node profile = addPolyline(b, geo, "profile", 9,
+        "-2.5 + (# == 0 ? 0 : 0.3 + 0.7 * sin(# * 0.38) * (1 + 0.25 * sin($T * 1.5)) + (# == 8 ? 0.3 : 0))",
+        "-2 + # * 0.5", "0");
+    Node smooth = b.sop(geo, "fit", "smooth").input(0, profile).set("method", "interp");
+    Node vase = b.sop(geo, "revolve", "vase").input(0, smooth).set("origin", -2.5, 0, 0).set("divs", 32);
+    Node vaseColor = color(b, geo, vase, 0.95, 0.65, 0.35);
+
+    Node section =
+        b.sop(geo, "circle", "section").set("type", "poly").set("divs", 5).set("rad", 0.45, 0.45).set("t", 3.6, 0, 0);
+    Node ring = b.sop(geo, "revolve", "ring")
+                    .input(0, section)
+                    .set("origin", 2.4, 0, 0)
+                    .set("dir", 0, 0.3, 1)
+                    .set("type", "openarc")
+                    .set("divs", 24)
+                    .expr("angle", 1, "40 + 300 * (0.5 + 0.5 * sin($T * 0.8))")
+                    .set("cap", 1);
+    Node ringColor = color(b, geo, ring, 0.4, 0.8, 0.95);
+
+    merge(b, geo, {vaseColor, ringColor}).display();
+}
+
+// PolyWire: a frame of tubes along the edges of a geodesic sphere (hulls join the tubes at the vertices) whose wire
+// thickness breathes, and a spring-like polyline turned into a mitred wire that winds in time
+void scenePolyWire(SceneBuilder& b)
+{
+    Node geo = b.object("polywire");
+
+    Node ball = b.sop(geo, "sphere", "ball").set("type", "poly").set("freq", 2).set("rad", 1.6, 1.6, 1.6).set("t", -2.2,
+        0, 0);
+    Node frame = b.sop(geo, "polywire", "frame")
+                     .input(0, ball)
+                     .set("div", 6)
+                     .expr("radius", "0.07 + 0.035 * sin($T * 2)");
+    Node frameColor = color(b, geo, frame, 0.9, 0.75, 0.35);
+
+    Node spring = addPolyline(b, geo, "spring", 40, "2.4 + 0.9 * cos(# * 0.6 + $T)", "-2 + # * 0.1",
+        "0.9 * sin(# * 0.6 + $T)");
+    Node wire = b.sop(geo, "polywire", "wire").input(0, spring).set("div", 8).set("radius", 0.08);
+    Node wireColor = color(b, geo, wire, 0.4, 0.75, 0.95);
+
+    merge(b, geo, {frameColor, wireColor}).display();
 }
 
 } // namespace demo::scenes

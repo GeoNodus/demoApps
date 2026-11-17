@@ -37,6 +37,8 @@ const DemoScene SCENES[] = {
         scenePathDeform},
     {"matchsize", "Shapes of different sizes fitted into a pulsing box", sceneMatchSize},
     {"fuse", "Snapping points to a grid of changing spacing", sceneFuse},
+    {"ray", "An extruded star sticker hugging a rough torus and a sphere shrink-wrapped onto a tumbling box",
+        sceneRay},
     // Modeling
     {"clip", "A sphere cut by a rotating plane, with a cap", sceneClip},
     {"polyextrude", "Faces extruded and inset with a twist, a curve extruded into a ribbon", scenePolyExtrude},
@@ -44,6 +46,10 @@ const DemoScene SCENES[] = {
     {"boolean", "A box minus a moving sphere, a union and an intersection", sceneBoolean},
     {"voronoifracture", "A sphere and a box broken into colored pieces with gaps opening between them",
         sceneVoronoiFracture},
+    {"skin", "A vase skinned through breathing rings of different sizes and a patch spanned by a net of waving curves",
+        sceneSkin},
+    {"subdivide", "A cube whose creases sharpen and soften, a rough torus smoothed by Loop and a studded box",
+        sceneSubdivide},
     // Copies and points
     {"scatter", "Points scattered over a torus, their count growing", sceneScatter},
     {"pointsfromvolume", "A turning torus filled with packed balls of changing spacing, cut open", scenePointsFromVolume},
@@ -57,6 +63,9 @@ const DemoScene SCENES[] = {
     {"orientalongcurve", "Frames along a curve with a roll; boxes copied along it", sceneOrientAlongCurve},
     {"sweep", "A breathing tube with round caps along a waving curve and a twisted band swept around a ring",
         sceneSweep},
+    {"revolve", "A vase turned from a breathing profile and a ring revolved as a growing arc with end caps",
+        sceneRevolve},
+    {"polywire", "A geodesic sphere frame of breathing tubes and a winding spring wire", scenePolyWire},
     // Networks and objects
     {"merge", "Several generators merged into one geometry", sceneMerge},
     {"null", "A SOP Null as a control node: user parameters read by ch() in other nodes", sceneNull},

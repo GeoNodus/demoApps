@@ -433,8 +433,9 @@ struct GN_API GN_ParmInfo
     int instanceCount;
     int instanceStartOffset;
 
-    // HAPI_ParmInfo::rampType: for a ramp (GN_PARMTYPE_MULTIPARMLIST with scriptType RAMP_FLT) — GN_RAMPTYPE_FLOAT, for
-    // other parameters — GN_RAMPTYPE_INVALID
+    // HAPI_ParmInfo::rampType: for a ramp (GN_PARMTYPE_MULTIPARMLIST with scriptType RAMP_FLT / RAMP_RGB) —
+    // GN_RAMPTYPE_FLOAT / GN_RAMPTYPE_COLOR (keys name#pos, name#value or name#c (color), name#interp), for other
+    // parameters — GN_RAMPTYPE_INVALID
     GN_RampType rampType;
 
     GN_StringHandle visibilityConditionSH;

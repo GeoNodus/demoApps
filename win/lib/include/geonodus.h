@@ -52,6 +52,15 @@ GN_DECL gnGetStatusStringBufLength(const GN_SessionId, GN_StatusType status_type
 
 GN_DECL gnGetStatusString(const GN_SessionId, GN_StatusType status_type, char* string_value, int length);
 
+// Errors and warnings of the node's last cook (HAPI_ComposeNodeCookResult / HAPI_GetComposedNodeCookResult): one
+// message per line, "Error: ..." / "Warning: ..." (GN_STATUSVERBOSITY_ERRORS — only errors). For Attribute Wrangle
+// the VEX compile errors carry the line and column: "Error: (2,5) Syntax error, unexpected ...". An empty string —
+// no messages. As in HAPI: call gnComposeNodeCookResult() first, then gnGetComposedNodeCookResult() (the composed
+// string is kept until the next compose call).
+GN_DECL gnComposeNodeCookResult(const GN_SessionId, GN_NodeId node_id, GN_StatusVerbosity verbosity,
+    int* buffer_length);
+GN_DECL gnGetComposedNodeCookResult(const GN_SessionId, char* string_value, int length);
+
 // Not in HAPI: library memory diagnostics (MemoryTracker over scalable_malloc). allocated_total — bytes allocated
 // since the library was loaded (only grows: its increase over a cook shows whether the cook allocated memory), in_use —
 // bytes in use now. Either pointer may be nullptr
@@ -177,6 +186,14 @@ GN_DECL gnSetParmExpression(const GN_SessionId, GN_NodeId node, const char* valu
 
 GN_DECL gnGetParmChoiceLists(const GN_SessionId, GN_NodeId node, GN_ParmChoiceInfo* parm_choices_array, int start,
     int length);
+
+// Parameter tags (HAPI_GetParmTagName / HAPI_GetParmTagValue / HAPI_ParmHasTag), GN_ParmInfo::tagCount of them. A
+// code string has editor = "1", editorlang = "VEX", editorlines = "8-30" (Attribute Wrangle: snippet), as in Houdini.
+GN_DECL gnGetParmTagName(const GN_SessionId, GN_NodeId node, GN_ParmId parm_id, int tag_index,
+    GN_StringHandle* tag_name);
+GN_DECL gnGetParmTagValue(const GN_SessionId, GN_NodeId node, GN_ParmId parm_id, const char* tag_name,
+    GN_StringHandle* tag_value);
+GN_DECL gnParmHasTag(const GN_SessionId, GN_NodeId node, GN_ParmId parm_id, const char* tag_name, GN_Bool* has_tag);
 
 GN_DECL gnGetParmStringValues(const GN_SessionId, GN_NodeId node, GN_Bool evaluate, GN_StringHandle* vals_array,
     int start, int length);

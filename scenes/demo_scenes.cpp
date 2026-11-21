@@ -15,6 +15,8 @@ const DemoScene SCENES[] = {
     {"toy", "The built-in test model at its three levels of detail, turning and hopping", sceneToy},
     {"circle", "Polygon arcs of every type and exact NURBS / Bezier circles", sceneCircle},
     {"add", "Points of a multiparm moved by expressions, a star polygon and a polyline", sceneAdd},
+    {"tube", "Tubes: a breathing cone, a turning cylinder of triangles, smooth normals and a tube around a box",
+        sceneTube},
     // Attributes
     {"attribcreate", "Point colors from expressions, a color only on a group", sceneAttribCreate},
     {"attribrandomize", "Random point colors and sizes with a changing seed", sceneAttribRandomize},
@@ -26,6 +28,8 @@ const DemoScene SCENES[] = {
     {"texture", "UV projections written into Cd, so the coordinates are seen as colors", sceneTexture},
     {"measure", "Mean curvature of a bumpy sphere and face areas of a wavy sheet, shown in color", sceneMeasure},
     {"color", "Colors by the bounding box, random per face and random per Voronoi piece", sceneColor},
+    {"color_gradient", "Ramp gradients along an axis, along a turning direction and on a moving group of points",
+        sceneColorGradient},
     // Groups
     {"groupcreate", "Groups by a moving bounding box and by normals", sceneGroupCreate},
     {"grouprange", "Every N of M primitives with a running offset", sceneGroupRange},
@@ -39,6 +43,8 @@ const DemoScene SCENES[] = {
     {"fuse", "Snapping points to a grid of changing spacing", sceneFuse},
     {"ray", "An extruded star sticker hugging a rough torus and a sphere shrink-wrapped onto a tumbling box",
         sceneRay},
+    {"chain", "A chain of interlocked rings sliding along a waving curve and a picket fence growing around a yard",
+        sceneChain},
     // Modeling
     {"clip", "A sphere cut by a rotating plane, with a cap", sceneClip},
     {"polyextrude", "Faces extruded and inset with a twist, a curve extruded into a ribbon", scenePolyExtrude},

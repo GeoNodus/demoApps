@@ -251,4 +251,49 @@ void sceneAdd(SceneBuilder& b)
     color(b, dotsGeo, dots, 1, 0.4, 0.4).display();
 }
 
+// Tube: a cone with end caps whose top radius breathes, a cylinder of triangles growing rows and turning, a smooth
+// tube with vertex normals (12 columns: the normals merge across the 30° edges) and a tube fitted around a spinning box
+// through the Bounding Source input
+void sceneTube(SceneBuilder& b)
+{
+    Node geo = b.object("tubes");
+
+    Node cone = b.sop(geo, "tube", "cone")
+                    .set("cap", 1)
+                    .set("rows", 6)
+                    .set("cols", 24)
+                    .set("height", 2.5)
+                    .set("t", -6, 0, 0)
+                    .expr("rad", {"0.25 + 0.25 * sin($T * 1.5)", "1.2"});
+    Node coneColor = color(b, geo, cone, 0.95, 0.6, 0.3);
+
+    Node tri = b.sop(geo, "tube", "triangles")
+                   .set("surftype", "triangles")
+                   .set("cap", 1)
+                   .set("rad", 0.9, 0.9)
+                   .set("height", 2.5)
+                   .set("t", -2, 0, 0)
+                   .expr("rows", "rint(3 + 5 * (0.5 + 0.5 * sin($T)))")
+                   .expr("cols", "rint(8 + 8 * (0.5 + 0.5 * sin($T * 0.7)))")
+                   .expr("r", {"20 * sin($T)", "$T * 30", "0"});
+    Node triColor = color(b, geo, tri, 0.4, 0.8, 0.5);
+
+    Node smooth = b.sop(geo, "tube", "smooth")
+                      .set("vertexnormals", 1)
+                      .set("cap", 1)
+                      .set("rows", 8)
+                      .set("orient", "x")
+                      .set("height", 3)
+                      .set("t", 2.5, 0, 0)
+                      .expr("rad", {"0.8 + 0.3 * sin($T * 2)", "0.8 - 0.3 * sin($T * 2)"});
+    Node smoothColor = color(b, geo, smooth, 0.35, 0.6, 0.95);
+
+    Node box = b.sop(geo, "box", "core").set("size", 1.6, 1, 0.5).set("t", 6.5, 0, 0).expr("r", 1, "$T * 40");
+    Node fitted = b.sop(geo, "tube", "fitted").input(0, box).set("cols", 32).set("surftype", "rowcol");
+    Node fittedColor = color(b, geo, fitted, 0.85, 0.85, 0.9);
+    Node boxColor = color(b, geo, box, 0.95, 0.4, 0.4);
+
+    merge(b, geo, {coneColor, triColor, smoothColor, fittedColor, boxColor}).display();
+}
+
 } // namespace demo::scenes

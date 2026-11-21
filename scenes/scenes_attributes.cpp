@@ -399,4 +399,53 @@ void sceneColor(SceneBuilder& b)
     merge(b, faceGeo, {faces, pieceColors}).display();
 }
 
+// Color Gradient (SideFX Labs): the toy colored bottom to top through a three-color ramp, a sphere whose gradient
+// direction turns (Axis = Custom, the angle animated) and a grid where only a moving group of points gets the gradient
+void sceneColorGradient(SceneBuilder& b)
+{
+    Node geo = b.object("color_gradient");
+
+    Node toy = b.sop(geo, "toy", "toy").set("lod", 1).set("scale", 3.0).set("t", -5, -1.5, 0).expr("r", 1, "$T * 30");
+    Node toyGrad = b.sop(geo, "color_gradient", "toy_gradient")
+                       .input(0, toy)
+                       .set("axis", "1")
+                       .set("ramp", 3)
+                       .set("ramp1c", 0.1, 0.2, 0.9)
+                       .set("ramp2pos", 1.0)
+                       .set("ramp2c", 1.0, 0.95, 0.3)
+                       .set("ramp3pos", 0.5)
+                       .set("ramp3c", 0.9, 0.2, 0.3)
+                       .set("ramp3interp", "catmull-rom");
+
+    Node ball = b.sop(geo, "sphere", "ball").set("type", "polymesh").set("rows", 32).set("cols", 64).set("rad", 1.8,
+        1.8, 1.8);
+    Node ballGrad = b.sop(geo, "color_gradient", "turning_gradient")
+                        .input(0, ball)
+                        .set("axis", "3")
+                        .expr("fRotationAngle", "$T * 36")
+                        .set("ramp1c", 0.05, 0.1, 0.3)
+                        .set("ramp2c", 0.3, 1.0, 0.8);
+
+    Node grid = b.sop(geo, "grid", "sheet").set("size", 4, 4).set("rows", 40).set("cols", 40).set("t", 5, -1.8, 0);
+    Node gridBase = color(b, geo, grid, 0.6, 0.6, 0.65);
+    // The group: a band of points moving across the sheet (Keep in Bounding Regions)
+    Node band = b.sop(geo, "groupcreate", "band")
+                    .input(0, gridBase)
+                    .set("groupname", "band")
+                    .set("grouptype", "point")
+                    .set("groupbase", 0)
+                    .set("groupbounding", 1)
+                    .set("boundtype", "usebbox")
+                    .set("size", 4.2, 1, 1)
+                    .expr("t", {"5", "-1.8", "1.5 * sin($T * 0.8)"});
+    Node gridGrad = b.sop(geo, "color_gradient", "group_gradient")
+                        .input(0, band)
+                        .set("group", "band")
+                        .set("axis", "0")
+                        .set("ramp1c", 1.0, 0.4, 0.1)
+                        .set("ramp2c", 0.2, 0.1, 0.6);
+
+    merge(b, geo, {toyGrad, ballGrad, gridGrad}).display();
+}
+
 } // namespace demo::scenes

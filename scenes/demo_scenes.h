@@ -47,6 +47,7 @@ void sceneTorus(SceneBuilder& b);
 void sceneToy(SceneBuilder& b);
 void sceneCircle(SceneBuilder& b);
 void sceneAdd(SceneBuilder& b);
+void sceneTube(SceneBuilder& b);
 
 // Attributes — scenes_attributes.cpp
 void sceneAttribCreate(SceneBuilder& b);
@@ -58,6 +59,7 @@ void sceneNormal(SceneBuilder& b);
 void sceneTexture(SceneBuilder& b);
 void sceneMeasure(SceneBuilder& b);
 void sceneColor(SceneBuilder& b);
+void sceneColorGradient(SceneBuilder& b);
 
 // Groups — scenes_groups.cpp
 void sceneGroupCreate(SceneBuilder& b);
@@ -71,6 +73,7 @@ void scenePathDeform(SceneBuilder& b);
 void sceneMatchSize(SceneBuilder& b);
 void sceneFuse(SceneBuilder& b);
 void sceneRay(SceneBuilder& b);
+void sceneChain(SceneBuilder& b);
 
 // Modeling — scenes_modeling.cpp
 void sceneClip(SceneBuilder& b);

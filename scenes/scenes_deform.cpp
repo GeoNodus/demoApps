@@ -324,4 +324,52 @@ void sceneRay(SceneBuilder& b)
     merge(b, geo, {ringSmooth, sticker, original, wrapColor}).display();
 }
 
+// Chain: a chain of interlocked rings (Piece Rotation 90°, negative Piece Spacing) hanging along a waving NURBS curve
+// and sliding along it, and a picket fence (two pieces in an explicit pattern with gaps, a post also as both end caps)
+// along a circle whose part covered by the fence grows and shrinks
+void sceneChain(SceneBuilder& b)
+{
+    Node geo = b.object("chain");
+
+    Node wave = b.sop(geo, "add", "wave_points").set("points", 6);
+    for (int k = 0; k < 6; ++k)
+        wave.expr(fmt("pt%d", k).c_str(),
+            {fmt("%g", -6 + k * 2.4).c_str(), fmt("2 + 1.2 * sin($T * 1.1 + %d * 1.1)", k).c_str(),
+                fmt("0.8 * cos($T * 0.7 + %d * 0.8)", k).c_str()});
+    wave.set("prims", 1).set("prim0", "0-5").set("closed0", 0);
+    Node path = b.sop(geo, "fit", "wave_path").input(0, wave).set("method", 1).set("type", "nurbs");
+    Node ring = b.sop(geo, "torus", "ring").set("orient", "x").set("rad", 0.42, 0.08).set("rows", 8).set("cols", 20);
+    Node link = b.sop(geo, "xform", "link").input(0, ring).set("s", 1, 1, 1.5);
+    Node rings = b.sop(geo, "chain", "rings")
+                     .input(0, link)
+                     .input(1, path)
+                     .set("piecerotation", 90)
+                     .set("piecespacing", -0.62)
+                     .set("curvelengthfrac", 0.85)
+                     .set("posoffsetunit", "fractioncurvelength")
+                     .expr("posoffset", "0.12 + 0.12 * sin($T * 0.6)")
+                     .set("fuserepeats", 0);
+    Node ringsColor = color(b, geo, rings, 0.78, 0.8, 0.86);
+
+    // Fence: piece 0 — a post, piece 1 — a picket (Find Pieces by Connectivity of the merged boxes); posts are also the
+    // end caps, so they are kept in the pattern (Exclude End Pieces off); Piece Spacing leaves gaps between pickets
+    Node post = b.sop(geo, "box", "post").set("size", 0.3, 1.8, 0.3).set("t", 0, 0.9, 0);
+    Node picket = b.sop(geo, "box", "picket").set("size", 0.06, 1.3, 0.22).set("t", 0, 0.75, 0);
+    Node pieces = merge(b, geo, {post, picket}, "fence_pieces");
+    Node circle = b.sop(geo, "circle", "yard").set("divs", 64).set("orient", "zx").set("rad", 4, 4).set("t", 0, -2, 0);
+    Node fence = b.sop(geo, "chain", "fence")
+                     .input(0, pieces)
+                     .input(1, circle)
+                     .set("repeatpatterntype", "classes")
+                     .set("classpattern", "1 1 1 1 1 0")
+                     .set("piecespacing", 0.14)
+                     .set("usestartcap", 1)
+                     .set("useendcap", 1)
+                     .set("ignorestartend", 0)
+                     .expr("curvelengthfrac", "0.6 + 0.35 * sin($T * 0.5)");
+    Node fenceColor = color(b, geo, fence, 0.75, 0.55, 0.35);
+
+    merge(b, geo, {ringsColor, fenceColor}).display();
+}
+
 } // namespace demo::scenes

@@ -442,6 +442,9 @@ struct GN_API GN_ParmInfo
     GN_StringHandle disabledConditionSH;
 
     GN_Bool useMenuItemTokenAsValue;
+
+    // HAPI_ParmInfo::tagCount: the number of tags (gnGetParmTagName / gnGetParmTagValue)
+    int tagCount;
 };
 GN_C_STRUCT_TYPEDEF(GN_ParmInfo)
 

@@ -18,6 +18,10 @@ GN_DECL gnDeleteNode(const GN_SessionId, GN_NodeId node_id);
 
 GN_DECL gnRenameNode(const GN_SessionId, GN_NodeId node_id, const char* new_name);
 
+// HAPI_ConnectNodeInput: connects input input_ind of node_id to output output_ind of node_to_conn. If the input is
+// already connected, the previous connection is replaced (as in Houdini); connecting the same node and output again
+// succeeds without changes. A connection that would create a cycle or join nodes of different networks fails and
+// leaves the previous connection as it was.
 GN_DECL gnConnectNodeInput(const GN_SessionId, GN_NodeId node_id, int input_ind, GN_NodeId node_to_conn,
     int output_ind);
 
@@ -73,6 +77,16 @@ GN_DECL gnGetString(const GN_SessionId, GN_StringHandle string_handle, char* str
 GN_DECL gnGetNodePath(const GN_SessionId, GN_NodeId node_id, GN_NodeId relative_to_node_id, GN_StringHandle* path);
 
 GN_DECL gnGetNodeInfo(const GN_SessionId, GN_NodeId node_id, GN_NodeInfo* node_info);
+
+// HAPI_GetNodeInputName / HAPI_GetNodeOutputName: the label of a node input / output — the tooltip of a pin in the
+// network editor (hou.Node.inputLabels / outputLabels), e.g. "Geometry to Copy" and "Target Points to Copy to" of
+// Copy to Points; an input without a label of its own is "Input N", an output — "Output N" (N from 1), as in Houdini.
+// The labels of a SOP subnet inputs are its label1..label4 parameters. Unlike Houdini 21, whose HAPI returns empty
+// strings for built-in (non-HDA) operators, the label is always given. input_idx — 0 .. GN_NodeInfo::inputCount - 1,
+// output_idx — 0 .. GN_NodeInfo::outputCount - 1 (otherwise GN_RESULT_INVALID_ARGUMENT). The string handle is valid
+// until the next call of the same function for the same node and index.
+GN_DECL gnGetNodeInputName(const GN_SessionId, GN_NodeId node_id, int input_idx, GN_StringHandle* name);
+GN_DECL gnGetNodeOutputName(const GN_SessionId, GN_NodeId node_id, int output_idx, GN_StringHandle* name);
 
 // HAPI_IsNodeValid: whether the node still exists. As in Houdini, a node id stays the same while the node is alive
 // (deleting other nodes does not change it), and the id of a deleted node is never given to a new one.

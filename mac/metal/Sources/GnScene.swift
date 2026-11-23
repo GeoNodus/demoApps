@@ -59,108 +59,34 @@ private func makeVertex(_ P: [Float], _ point: Int, _ c: (Float, Float, Float, F
     Vertex(px: P[point * 3], py: P[point * 3 + 1], pz: P[point * 3 + 2], r: c.0, g: c.1, b: c.2, a: c.3)
 }
 
-// Splits a polygon of n vertices (base + 0 … base + n − 1) into triangles keeping the winding (as in the Qt client).
-// Convex — as a fan; non-convex — by ear clipping in the projection onto the face plane. Work buffers are shared by all
-// polygons: allocating for every quad is noticeable on scenes with hundreds of thousands of faces
+// Splits a polygon of n vertices (base + 0 … base + n − 1) into triangles keeping the winding: the shared C++ code of
+// the demo apps (scenes/polygon_triangulate.h, through the C bridge) — a fan for convex faces, otherwise the face is
+// split into its outer contour and holes (bridges of Hole / Boolean) and triangulated by earcut. The index buffer is
+// shared by all polygons: allocating for every quad is noticeable on scenes with hundreds of thousands of faces
 private final class Triangulator {
-    private var xy: [Double] = []
-    private var idx: [Int] = []
+    private var buffer: [UInt32] = []
 
     func triangulate(n: Int, base: Int, vertices: [Vertex], tris: inout [UInt32]) {
         let b = UInt32(base)
-        func fan() {
-            for v in 1..<(n - 1) {
-                tris.append(b)
-                tris.append(b + UInt32(v))
-                tris.append(b + UInt32(v + 1))
-            }
-        }
         if n == 3 {
-            fan()
+            tris.append(b)
+            tris.append(b + 1)
+            tris.append(b + 2)
             return
         }
-
-        // Newell normal → projection onto the plane of the other two axes
-        var nrm = (0.0, 0.0, 0.0)
-        for v in 0..<n {
-            let a = vertices[base + v], c = vertices[base + (v + 1) % n]
-            nrm.0 += (Double(a.py) - Double(c.py)) * (Double(a.pz) + Double(c.pz))
-            nrm.1 += (Double(a.pz) - Double(c.pz)) * (Double(a.px) + Double(c.px))
-            nrm.2 += (Double(a.px) - Double(c.px)) * (Double(a.py) + Double(c.py))
+        let capacity = 3 * n
+        if buffer.count < capacity {
+            buffer = [UInt32](repeating: 0, count: capacity)
         }
-        let ax = abs(nrm.0), ay = abs(nrm.1), az = abs(nrm.2)
-        let drop = ax >= ay && ax >= az ? 0 : (ay >= az ? 1 : 2)
-        let dropValue = drop == 0 ? nrm.0 : (drop == 1 ? nrm.1 : nrm.2)
-        if dropValue == 0 {
-            fan() // degenerate face
-            return
-        }
-        let sign = dropValue >= 0 ? 1.0 : -1.0
-
-        xy.removeAll(keepingCapacity: true)
-        for v in 0..<n {
-            let p = vertices[base + v]
-            let c = (Double(p.px), Double(p.py), Double(p.pz))
-            switch drop {
-            case 0: xy.append(c.1); xy.append(c.2)
-            case 1: xy.append(c.2); xy.append(c.0)
-            default: xy.append(c.0); xy.append(c.1)
+        let stride = MemoryLayout<Vertex>.stride / MemoryLayout<Float>.stride
+        let count = vertices.withUnsafeBufferPointer { verts -> Int in
+            // Vertex is plain Floats: positions px, py, pz lead each vertex
+            let p = UnsafeRawPointer(verts.baseAddress! + base).assumingMemoryBound(to: Float.self)
+            return buffer.withUnsafeMutableBufferPointer { out in
+                Int(demoTriangulatePolygon(p, Int32(stride), Int32(n), b, out.baseAddress, Int32(capacity)))
             }
         }
-        func cross2(_ a: Int, _ b: Int, _ c: Int) -> Double {
-            sign * ((xy[b * 2] - xy[a * 2]) * (xy[c * 2 + 1] - xy[a * 2 + 1])
-                - (xy[b * 2 + 1] - xy[a * 2 + 1]) * (xy[c * 2] - xy[a * 2]))
-        }
-
-        var convex = true
-        for v in 0..<n where convex {
-            convex = cross2(v, (v + 1) % n, (v + 2) % n) >= 0
-        }
-        if convex {
-            fan()
-            return
-        }
-
-        idx.removeAll(keepingCapacity: true)
-        idx.append(contentsOf: 0..<n)
-        func inside(_ q: Int, _ a: Int, _ b: Int, _ c: Int) -> Bool {
-            cross2(a, b, q) >= 0 && cross2(b, c, q) >= 0 && cross2(c, a, q) >= 0
-        }
-        // A vertex at the same place as an ear corner is not an obstacle: in a face with a hole (Boolean joins the hole
-        // to the outer contour with a bridge) the bridge vertices occur twice in the loop
-        func samePlace(_ q: Int, _ a: Int) -> Bool { xy[q * 2] == xy[a * 2] && xy[q * 2 + 1] == xy[a * 2 + 1] }
-        var guardCount = 0 // no ear (self-intersection) — the current corner is cut off to avoid looping forever
-        var i = 0
-        while idx.count > 3 {
-            let m = idx.count
-            let a = idx[(i + m - 1) % m], bb = idx[i % m], c = idx[(i + 1) % m]
-            var ear = cross2(a, bb, c) > 0
-            var k = 0
-            while ear && k < m {
-                let q = idx[k]
-                if q != a && q != bb && q != c && !samePlace(q, a) && !samePlace(q, bb) && !samePlace(q, c)
-                    && inside(q, a, bb, c)
-                {
-                    ear = false
-                }
-                k += 1
-            }
-            if ear || guardCount >= m {
-                tris.append(b + UInt32(a))
-                tris.append(b + UInt32(bb))
-                tris.append(b + UInt32(c))
-                let j = i % m
-                idx.remove(at: j)
-                i = j > 0 ? j - 1 : 0
-                guardCount = 0
-            } else {
-                i = (i + 1) % m
-                guardCount += 1
-            }
-        }
-        tris.append(b + UInt32(idx[0]))
-        tris.append(b + UInt32(idx[1]))
-        tris.append(b + UInt32(idx[2]))
+        tris.append(contentsOf: buffer[0..<count])
     }
 }
 

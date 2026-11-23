@@ -1,6 +1,7 @@
 #include "gn_scene.h"
 
 #include "demo_scenes.h"
+#include "polygon_triangulate.h"
 
 #include <windows.h>
 
@@ -43,104 +44,6 @@ std::string statusString(GN_SessionId session, GN_StatusType type)
     gnGetStatusString(session, type, s.data(), len);
     s.resize(std::strlen(s.c_str()));
     return s;
-}
-
-// Splits a polygon of n vertices (base + 0 … base + n − 1, p(i) — the position of the i-th) into triangles keeping the
-// winding (as in the Qt client). Convex — as a fan; non-convex — by ear clipping in the projection onto the face plane
-template<class GetP>
-void triangulatePolygon(int n, uint32_t base, GetP p, std::vector<uint32_t>& tris)
-{
-    auto fan = [&]() {
-        for (int v = 1; v + 1 < n; ++v) {
-            tris.push_back(base);
-            tris.push_back(base + v);
-            tris.push_back(base + v + 1);
-        }
-    };
-    if (n == 3) {
-        fan();
-        return;
-    }
-
-    // Newell normal → projection onto the plane of the other two axes
-    double nrm[3] = {0, 0, 0};
-    for (int v = 0; v < n; ++v) {
-        const float* a = p(v);
-        const float* b = p((v + 1) % n);
-        nrm[0] += (double(a[1]) - b[1]) * (double(a[2]) + b[2]);
-        nrm[1] += (double(a[2]) - b[2]) * (double(a[0]) + b[0]);
-        nrm[2] += (double(a[0]) - b[0]) * (double(a[1]) + b[1]);
-    }
-    const double ax = std::abs(nrm[0]), ay = std::abs(nrm[1]), az = std::abs(nrm[2]);
-    const int drop = ax >= ay && ax >= az ? 0 : (ay >= az ? 1 : 2);
-    const int ix = (drop + 1) % 3;
-    const int iy = (drop + 2) % 3;
-    const double sign = nrm[drop] >= 0 ? 1.0 : -1.0;
-    if (nrm[drop] == 0) {
-        fan(); // degenerate face
-        return;
-    }
-
-    // Work buffers shared by all polygons (reading runs on one thread): allocating for every quad is noticeable on
-    // scenes with hundreds of thousands of faces
-    static std::vector<double> xy;
-    static std::vector<int> idx;
-    xy.resize(static_cast<size_t>(n) * 2);
-    for (int v = 0; v < n; ++v) {
-        xy[v * 2] = p(v)[ix];
-        xy[v * 2 + 1] = p(v)[iy];
-    }
-    auto cross2 = [&](int a, int b, int c) {
-        const double* A = &xy[a * 2];
-        const double* B = &xy[b * 2];
-        const double* C = &xy[c * 2];
-        return sign * ((B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]));
-    };
-
-    bool convex = true;
-    for (int v = 0; v < n && convex; ++v)
-        convex = cross2(v, (v + 1) % n, (v + 2) % n) >= 0;
-    if (convex) {
-        fan();
-        return;
-    }
-
-    idx.resize(n);
-    for (int v = 0; v < n; ++v)
-        idx[v] = v;
-    auto inside = [&](int q, int a, int b, int c) {
-        return cross2(a, b, q) >= 0 && cross2(b, c, q) >= 0 && cross2(c, a, q) >= 0;
-    };
-    // A vertex at the same place as an ear corner is not an obstacle: in a face with a hole (Boolean joins the hole to
-    // the outer contour with a bridge) the bridge vertices occur twice in the loop
-    auto samePlace = [&](int q, int a) { return xy[q * 2] == xy[a * 2] && xy[q * 2 + 1] == xy[a * 2 + 1]; };
-    int guard = 0; // no ear (self-intersection) — the current corner is cut off to avoid looping forever
-    for (int i = 0; idx.size() > 3;) {
-        const int m = static_cast<int>(idx.size());
-        const int a = idx[(i + m - 1) % m], b = idx[i % m], c = idx[(i + 1) % m];
-        bool ear = cross2(a, b, c) > 0;
-        for (int k = 0; ear && k < m; ++k) {
-            const int q = idx[k];
-            if (q != a && q != b && q != c && !samePlace(q, a) && !samePlace(q, b) && !samePlace(q, c)
-                && inside(q, a, b, c))
-                ear = false;
-        }
-        if (ear || guard >= m) {
-            tris.push_back(base + a);
-            tris.push_back(base + b);
-            tris.push_back(base + c);
-            const int j = i % m;
-            idx.erase(idx.begin() + j);
-            i = j > 0 ? j - 1 : 0;
-            guard = 0;
-        } else {
-            i = (i + 1) % m;
-            ++guard;
-        }
-    }
-    tris.push_back(base + idx[0]);
-    tris.push_back(base + idx[1]);
-    tris.push_back(base + idx[2]);
 }
 
 // B-spline (P&T "The NURBS Book"): the span containing u — knots[span] ≤ u < knots[span + 1], at the end of the domain
@@ -326,7 +229,7 @@ void GnScene::startCook(int frame)
     gnSetTime(m_session, frame / m_fps);
 
     GN_CookOptions options = gnCookOptions_Create();
-    // Whole faces: triangulatePolygon splits them into triangles (by default the engine fans them from the first
+    // Whole faces: triangulatePolygon (scenes/polygon_triangulate.h) splits them into triangles (by default the engine fans them from the first
     // vertex, and a triangle of a non-convex face crosses the concave corner). Curves come as splines, fetch evaluates
     // them
     options.maxVerticesPerPrimitive = -1;
@@ -575,7 +478,7 @@ void GnScene::fetchMesh(GN_NodeId node, const GN_PartInfo& part, const std::vect
             out.lines.push_back(base);
             out.lines.push_back(base + 1);
         } else {
-            triangulatePolygon(numV, base, [&](int v) { return out.vertices[base + v].p; }, out.triangles);
+            triangulatePolygon(out.vertices[base].p, sizeof(Vertex) / sizeof(float), numV, base, out.triangles);
         }
         vOffset += numV;
     }

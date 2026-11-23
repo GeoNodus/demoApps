@@ -83,6 +83,8 @@ void sceneBoolean(SceneBuilder& b);
 void sceneVoronoiFracture(SceneBuilder& b);
 void sceneSkin(SceneBuilder& b);
 void sceneSubdivide(SceneBuilder& b);
+void sceneHole(SceneBuilder& b);
+void sceneThicken(SceneBuilder& b);
 
 // Copies and points — scenes_copy.cpp
 void sceneScatter(SceneBuilder& b);

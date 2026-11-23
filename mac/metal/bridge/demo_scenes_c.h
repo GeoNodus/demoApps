@@ -5,6 +5,8 @@
 // through the bridging header together with geonodus.h. The scenes themselves are the same code as on Windows
 #include <geonodus.h>
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -21,6 +23,11 @@ int demoSceneFind(const char* nodeType);
 // number of build problems (0 — all fine, -1 — no such scene); their text, one per line, goes into `errors` (truncated
 // to `length` bytes, always zero-terminated)
 int demoSceneBuild(GN_SessionId session, int index, char* errors, int length);
+
+// Triangles of a polygon of n vertices (../../../scenes/polygon_triangulate.h): positions — x, y, z of vertex 0, then
+// of vertex 1 `stride` floats further, ...; indices base + 0 … base + n − 1, 3 per triangle, go into `out` (room for
+// `capacity` indices; 3 · n is always enough). Returns the number of indices
+int demoTriangulatePolygon(const float* positions, int stride, int n, uint32_t base, uint32_t* out, int capacity);
 
 #ifdef __cplusplus
 }

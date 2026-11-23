@@ -56,6 +56,10 @@ const DemoScene SCENES[] = {
         sceneSkin},
     {"subdivide", "A cube whose creases sharpen and soften, a rough torus smoothed by Loop and a studded box",
         sceneSubdivide},
+    {"hole", "A round plate with orbiting, breathing holes and a turning square plate with a grid of pulsing holes",
+        sceneHole},
+    {"thicken", "A waving sheet with a breathing thickness, a thickened bowl and a swinging band of thick faces",
+        sceneThicken},
     // Copies and points
     {"scatter", "Points scattered over a torus, their count growing", sceneScatter},
     {"pointsfromvolume", "A turning torus filled with packed balls of changing spacing, cut open", scenePointsFromVolume},

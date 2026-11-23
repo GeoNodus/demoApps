@@ -307,4 +307,98 @@ void sceneSubdivide(SceneBuilder& b)
     merge(b, geo, {cubeColor, ringColor, blockColor}).display();
 }
 
+
+// Hole: a round plate with a ring of round holes that orbit and breathe, and a square plate with a grid of square
+// holes whose size pulses; the holes are separate polygons in the plane of the plate, Hole bridges them into it, and
+// PolyExtrude (with its back) gives the plates their thickness, so the holes are seen through
+void sceneHole(SceneBuilder& b)
+{
+    Node geo = b.object("hole");
+
+    // Round plate in the XZ plane and a ring of 6 small circles copied around the Y axis
+    Node plate = b.sop(geo, "circle", "plate").set("orient", "zx").set("divs", 64).set("rad", 3.2, 3.2);
+    Node hole = b.sop(geo, "circle", "hole")
+                    .set("orient", "zx")
+                    .set("divs", 24)
+                    .expr("rad", {"0.45 + 0.2 * sin($T * 2)", "0.45 + 0.2 * sin($T * 2)"})
+                    .expr("t", {"1.9 + 0.35 * sin($T * 0.9)", "0", "0"});
+    Node ring = b.sop(geo, "copyxform", "ring").input(0, hole).set("ncy", 6).set("r", 0, 60, 0);
+    Node spin = b.sop(geo, "xform", "spin").input(0, ring).expr("r", 1, "$T * 20");
+    Node center = b.sop(geo, "circle", "center")
+                      .set("orient", "zx")
+                      .set("divs", 6)
+                      .expr("rad", {"0.6 + 0.25 * sin($T * 1.3)", "0.6 + 0.25 * sin($T * 1.3)"});
+    Node roundHoles = b.sop(geo, "hole", "round_holes").input(0, merge(b, geo, {plate, spin, center}));
+    Node roundSlab = b.sop(geo, "polyextrude", "round_slab").input(0, roundHoles).set("dist", 0.4).set("outputback", 1);
+    // the colors go after the transforms: Attribute Create makes Cd a vector, which Transform would rotate
+    Node roundPlaced = b.sop(geo, "xform", "round_place").input(0, roundSlab).set("t", -4, 0, 0);
+    Node roundColor = color(b, geo, roundPlaced, 0.95, 0.65, 0.3);
+
+    // Square plate with a 3 x 3 grid of square holes (Copy and Transform twice), standing up and turning
+    Node square =
+        b.sop(geo, "circle", "square").set("orient", "zx").set("divs", 4).set("rad", 3.2, 3.2).set("r", 0, 45, 0);
+    Node cell = b.sop(geo, "circle", "cell")
+                    .set("orient", "zx")
+                    .set("divs", 4)
+                    .set("r", 0, 45, 0)
+                    .expr("rad", {"0.6 + 0.2 * sin($T * 1.6)", "0.6 + 0.2 * sin($T * 1.6)"})
+                    .set("t", -1.5, 0, -1.5);
+    Node row = b.sop(geo, "copyxform", "row").input(0, cell).set("ncy", 3).set("t", 1.5, 0, 0);
+    Node cells = b.sop(geo, "copyxform", "cells").input(0, row).set("ncy", 3).set("t", 0, 0, 1.5);
+    Node squareHoles = b.sop(geo, "hole", "square_holes").input(0, merge(b, geo, {square, cells}));
+    Node squareSlab =
+        b.sop(geo, "polyextrude", "square_slab").input(0, squareHoles).set("dist", 0.3).set("outputback", 1);
+    Node squarePlaced =
+        b.sop(geo, "xform", "square_place").input(0, squareSlab).set("t", 4, 0, 0).expr("r", {"70", "$T * 25", "0"});
+    Node squareColor = color(b, geo, squarePlaced, 0.4, 0.7, 0.95);
+
+    merge(b, geo, {roundColor, squareColor}).display();
+}
+
+// Thicken (SideFX Labs Thicken): a waving sheet given a breathing thickness in both directions, a bowl (half a
+// sphere) thickened inwards, and a grid where only a swinging band of faces gets thick
+void sceneThicken(SceneBuilder& b)
+{
+    Node geo = b.object("thicken");
+
+    Node sheet = b.sop(geo, "grid", "sheet").set("size", 4, 4).set("rows", 16).set("cols", 16);
+    Node wave = b.sop(geo, "mountain", "wave").input(0, sheet).set("height", 0.8).expr("offset", 0, "$T * 0.4");
+    Node sheetColor = color(b, geo, wave, 0.5, 0.85, 0.5);
+    Node slab = b.sop(geo, "thicken", "slab")
+                    .input(0, sheetColor)
+                    .set("both_directions", 1)
+                    .expr("depth", "0.12 + 0.1 * sin($T * 1.5)");
+    Node slabPlaced = b.sop(geo, "xform", "slab_place").input(0, slab).set("t", -5, 0, 0);
+
+    Node ball =
+        b.sop(geo, "sphere", "ball").set("type", "polymesh").set("rows", 16).set("cols", 24).set("rad", 1.8, 1.8, 1.8);
+    Node half = b.sop(geo, "clip", "half").input(0, ball).set("dir", 0, -1, 0).set("dist", 0);
+    Node bowl = b.sop(geo, "thicken", "bowl").input(0, half).expr("depth", "0.15 + 0.12 * sin($T)");
+    Node bowlTurned =
+        b.sop(geo, "xform", "bowl_place").input(0, bowl).expr("r", {"25 * sin($T * 0.7)", "$T * 20", "0"});
+    // the color goes after the turn: Attribute Create makes Cd a vector, which Transform would rotate
+    Node bowlPlaced = color(b, geo, bowlTurned, 0.95, 0.6, 0.3);
+
+    Node floor = b.sop(geo, "grid", "floor").set("size", 4, 4).set("rows", 12).set("cols", 12);
+    Node floorColor = color(b, geo, floor, 0.45, 0.65, 0.95);
+    // a band of 2 rows of faces (11 faces per row of the 11 x 11) swinging across the grid: Group Range picks 22 of
+    // the 121 faces with an offset swinging row by row
+    Node rows = b.sop(geo, "grouprange", "rows")
+                    .input(0, floorColor)
+                    .set("groupname1", "band")
+                    .set("grouptype1", "prims")
+                    .set("selectamount1", 22)
+                    .set("selecttotal1", 121)
+                    .expr("selectoffset1", "rint(4.5 + 4.5 * sin($T * 0.8)) * 11");
+    Node band = b.sop(geo, "thicken", "band")
+                    .input(0, rows)
+                    .set("group", "band")
+                    .set("grouptype", "prims")
+                    .set("both_directions", 1)
+                    .set("depth", 0.25);
+    Node bandPlaced = b.sop(geo, "xform", "band_place").input(0, band).set("t", 5, 0, 0);
+
+    merge(b, geo, {slabPlaced, bowlPlaced, bandPlaced}).display();
+}
+
 } // namespace demo::scenes

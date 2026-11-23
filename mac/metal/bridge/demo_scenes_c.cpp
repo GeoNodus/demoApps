@@ -1,8 +1,11 @@
 #include "demo_scenes_c.h"
 
 #include "demo_scenes.h"
+#include "polygon_triangulate.h"
 
+#include <algorithm>
 #include <cstring>
+#include <vector>
 #include <string>
 
 using namespace demo::scenes;
@@ -64,4 +67,14 @@ int demoSceneBuild(GN_SessionId session, int index, char* errors, int length)
         errors[n] = '\0';
     }
     return static_cast<int>(builder.errors().size());
+}
+
+int demoTriangulatePolygon(const float* positions, int stride, int n, uint32_t base, uint32_t* out, int capacity)
+{
+    thread_local std::vector<uint32_t> tris;
+    tris.clear();
+    demo::triangulatePolygon(positions, stride, n, base, tris);
+    const int count = static_cast<int>(std::min<size_t>(tris.size(), static_cast<size_t>(capacity)));
+    std::copy(tris.begin(), tris.begin() + count, out);
+    return count;
 }

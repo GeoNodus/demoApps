@@ -8,7 +8,7 @@ Compiled into the app:
                                           and the Swift scenes, shared with the macOS demo (no AppKit in them);
   ../mac/metal/bridge/*.cpp, ../scenes/*.cpp — the demo scenes built in code (C++) and their C interface for Swift.
 Linked and embedded: lib/geonodus.xcframework — the demo edition of the library (device arm64, simulator arm64 and
-x86_64), put there by geonodus/ios/build_xcframework.sh of the library repository.
+x86_64), put there by scripts/apple/build_xcframework.sh of the library repository.
 Resources: the demo graphs ../scenes/*.gng and ../scenes/assets (crystal.obj of the File SOP).
 
 Signing: automatic; for a device choose your team in Signing & Capabilities (or pass DEVELOPMENT_TEAM=<id> to

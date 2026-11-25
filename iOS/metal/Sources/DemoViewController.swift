@@ -10,12 +10,19 @@ import UniformTypeIdentifiers
 
 // GeoNodus graph file (*.gng, gnSaveGraph): JSON, declared in Info.plist (UTExportedTypeDeclarations)
 private let geonodusGraphType = UTType(exportedAs: "com.geonodus.graph", conformingTo: .json)
+// Types the Open dialog accepts: the declared type is not enough — when Launch Services has not registered the app
+// (run from a build folder) or another app claims .gng, files would be grayed out. So also any file with the .gng
+// extension (its type, whoever declares it) and plain JSON
+private let graphOpenTypes: [UTType] =
+    ([geonodusGraphType, UTType(filenameExtension: "gng"), UTType.json] as [UTType?]).compactMap { $0 }
 
 private let fovy: Float = 45 * .pi / 180
 // Pinch and wheel-like zoom: as zoomPerNotch of the macOS demo
 private let zoomPerNotch: Float = 1.15
-// Demo graphs bundled with the app (copies of ../scenes/*.gng; the demo edition opens them without the node limit)
-private let bundledGraphs = ["castle_scene", "gear_mechanism_scene", "log_house_scene"]
+// Graphs bundled with the app: every .gng in the bundle (copies of ../scenes/*.gng), by name
+private let bundledGraphs: [String] = (Bundle.main.paths(forResourcesOfType: "gng", inDirectory: nil))
+    .map { ((($0 as NSString).lastPathComponent) as NSString).deletingPathExtension }
+    .sorted()
 
 final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureRecognizerDelegate,
     UIDocumentPickerDelegate {
@@ -269,7 +276,7 @@ final class DemoViewController: UIViewController, MTKViewDelegate, UIGestureReco
     // --- Commands ----------------------------------------------------------------------------------------------------
 
     private func browseFiles() {
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [geonodusGraphType], asCopy: true)
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: graphOpenTypes, asCopy: true)
         picker.delegate = self
         picker.allowsMultipleSelection = false
         present(picker, animated: true)

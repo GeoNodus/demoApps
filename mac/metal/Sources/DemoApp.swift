@@ -9,6 +9,11 @@ import UniformTypeIdentifiers
 
 // GeoNodus graph file (*.gng, gnSaveGraph): JSON, declared in Info.plist (UTExportedTypeDeclarations)
 private let geonodusGraphType = UTType(exportedAs: "com.geonodus.graph", conformingTo: .json)
+// Types the Open dialog accepts: the declared type is not enough — when Launch Services has not registered the app
+// (run from a build folder) or another app claims .gng, files would be grayed out. So also any file with the .gng
+// extension (its type, whoever declares it) and plain JSON
+private let graphOpenTypes: [UTType] =
+    ([geonodusGraphType, UTType(filenameExtension: "gng"), UTType.json] as [UTType?]).compactMap { $0 }
 
 private let fovy: Float = 45 * .pi / 180
 // Wheel: each notch changes the distance to the target by zoomPerNotch, as in the Qt client
@@ -299,7 +304,7 @@ final class DemoApp: NSObject, NSApplicationDelegate, NSWindowDelegate, MTKViewD
 
     @objc private func openDialog() {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [geonodusGraphType]
+        panel.allowedContentTypes = graphOpenTypes
         panel.allowsMultipleSelection = false
         panel.beginSheetModal(for: window) { [weak self] response in
             if response == .OK, let url = panel.url { self?.openFile(url.path) }

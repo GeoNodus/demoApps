@@ -450,12 +450,15 @@ GN_C_STRUCT_TYPEDEF(GN_ParmInfo)
 
 // Not in HAPI: a user (spare) parameter description for gnAddSpareParm (HDK: hou.ParmTemplate — IntParmTemplate,
 // FloatParmTemplate, StringParmTemplate, ToggleParmTemplate, MenuParmTemplate, FolderParmTemplate, LabelParmTemplate,
-// SeparatorParmTemplate). The struct can be zeroed with only type, name and label set: one component, values 0 / "",
+// SeparatorParmTemplate, RampParmTemplate). The struct can be zeroed with only type, name and label set: one component, values 0 / "",
 // no range, menu or conditions.
 struct GN_API GN_SpareParmTemplate
 {
     // GN_PARMTYPE_INT (with menuItemCount > 0 — a menu), GN_PARMTYPE_FLOAT, GN_PARMTYPE_TOGGLE, GN_PARMTYPE_STRING,
-    // GN_PARMTYPE_PATH_FILE / _GEO / _IMAGE / _DIR, GN_PARMTYPE_FOLDER, GN_PARMTYPE_LABEL, GN_PARMTYPE_SEPARATOR
+    // GN_PARMTYPE_PATH_FILE / _GEO / _IMAGE / _DIR, GN_PARMTYPE_FOLDER, GN_PARMTYPE_LABEL, GN_PARMTYPE_SEPARATOR,
+    // GN_PARMTYPE_MULTIPARMLIST — a ramp (folderType GN_PRM_SCRIPT_TYPE_RAMP_FLT / RAMP_RGB), as the ramps of nodes:
+    // keys are instances name#pos, name#value (name#c — a color) and name#interp, from 1; a new ramp has the keys
+    // 0 → 0 and 1 → 1 (black → white), Linear; the names of its keys must be free too
     GN_ParmType type;
     // Name: Latin letters, digits and '_', not starting with a digit. Unique among the node's parameters, including the
     // component names of vector parameters (tx of t) and multiparm instances (value3 of value#); for a folder the name
@@ -482,7 +485,7 @@ struct GN_API GN_SpareParmTemplate
     const char* const* menuLabels;
 
     // Folder kind (for FOLDER): GN_PRM_SCRIPT_TYPE_GROUP — a tab (0 — too), GROUPSIMPLE — a frame with a title,
-    // GROUPCOLLAPSIBLE — collapsible
+    // GROUPCOLLAPSIBLE — collapsible; ramp kind (for MULTIPARMLIST): RAMP_FLT — float, RAMP_RGB — color
     GN_PrmScriptType folderType;
 
     GN_Bool joinNext;
